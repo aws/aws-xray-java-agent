@@ -112,8 +112,6 @@ Please make sure to have the following dependencies in your target application b
 
 Using Lambda Layers, you can configure a reusable Agent to include in your Lambda functions without needing to upload the source every time. To configure a Lambda Layer, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html#configuration-layers-manage.
 
-TODO: PUBLISH LAMBDA LAYER: https://sim.amazon.com/issues/P30907807
-
 Build the agent as you would in the *Installing* section but add an additional artifact dependency:
 
 ```
@@ -134,7 +132,7 @@ Add the following artifact item into the unpack-xray-agent execution in the :
 ```
 This artifact is used for installing the agent during runtime. This is necessary for consumption in a Lambda environment. We do not recommend using this installer in a regular runtime environment as running the agent using the java agent argument is more reliable in ensuring all the frameworks are properly instrumented. 
 
-Build the agent and it should contain three additional jars in the ./target/xray-agent directory. The next step is to add all the transitive dependencies of the agent as a layer. The dependencies it requires is the runtime agent (which is built in the step above), the X-Ray SDK Core package, and the X-Ray AWS SDK instrumentor package. You may use the following plugin to do so:
+Build the agent and it should contain three additional jars in the ./target/xray-agent directory. The next step is to add all the transitive dependencies of the agent as a layer. The dependencies it requires are the runtime agent (which is built in the step above), the X-Ray SDK Core package, and the X-Ray AWS SDK instrumentor package. You may use the following plugin to do so:
 ```
   <plugin>
     <groupId>org.apache.maven.plugins</groupId>
@@ -176,15 +174,14 @@ Your lambda function should now be instrumented.
 
 Please use these community resources for getting help.
 
-* If you think you may have found a bug or need assistance, please open an issue (https://github.com/aws/aws-xray-sdk-go/issues/new).
-* Open a support ticket with AWS Support (http://docs.aws.amazon.com/awssupport/latest/user/getting-started.html).
-* Ask a question in the AWS X-Ray Forum (https://forums.aws.amazon.com/forum.jspa?forumID=241&start=0).
-* For contributing guidelines refer CONTRIBUTING.md (https://github.com/aws/aws-xray-daemon/blob/master/CONTRIBUTING.md).
+* If you think you may have found a bug or need assistance, please open an [issue](https://github.com/aws/aws-xray-java-agent/issues/new).
+* Open a support ticket with [AWS Support](http://docs.aws.amazon.com/awssupport/latest/user/getting-started.html).
+* Ask a question in the [AWS X-Ray Forum](https://forums.aws.amazon.com/forum.jspa?forumID=241&start=0).
+* For contributing guidelines refer to [CONTRIBUTING.md](https://github.com/aws/aws-xray-java-agent/blob/master/CONTRIBUTING.md).
 
-## Documentation
+## Documentation [WIP]
 
-The developer guide (https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java.html) provides guidance on using the AWS X-Ray Java Agent.
-See awslabs/eb-java-scorekeep (https://github.com/awslabs/eb-java-scorekeep/tree/xray)/javaagent for a sample application.
+The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java.html) provides guidance on using the AWS X-Ray Java Agent. Agent sample app coming soon!
 
 ## License
 
