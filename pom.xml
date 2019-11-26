@@ -1,0 +1,54 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <packaging>pom</packaging>
+    <modelVersion>4.0.0</modelVersion>
+    <properties>
+        <!--
+            The version of the agent should always correlate with a version of the X-Ray SDK. Each new
+            release of either one should constitute a release for both.
+        -->
+        <xray.version>2.4.0</xray.version>
+        <disco.version>0.9.1</disco.version>
+    </properties>
+    <parent>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-xray-recorder-sdk-pom</artifactId>
+        <version>2.4.0</version>
+    </parent>
+    <artifactId>aws-xray-auto-instrumentation-agent-pom</artifactId>
+    <name>AWS X-Ray Auto Instrumentation Agent for Java</name>
+    <version>2.4.0</version>
+    <modules>
+        <module>aws-xray-auto-instrumentation-agent-bootstrap</module>
+        <module>aws-xray-auto-instrumentation-agent-runtime</module>
+        <module>aws-xray-auto-instrumentation-agent-installer</module>
+    </modules>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <javadocDirectory>${basedir}/docs</javadocDirectory>
+                    <docfilessubdirs>true</docfilessubdirs>
+                    <overview>${basedir}/docs/overview.html</overview>
+                    <footer><![CDATA[<script src="/SdkStatic/sdk-priv.js" async="true"></script>]]></footer>
+                    <bottom><![CDATA[Copyright &#169; 2018 Amazon Web Services, Inc. All Rights Reserved.]]></bottom>
+                    <additionalJOption>-Xdoclint:none</additionalJOption>
+                    <additionalOptions>
+                        <additionalOption>--allow-script-in-comments</additionalOption>
+                    </additionalOptions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-xray-auto-instrumentation-agent-pom</artifactId>
+        <version>2.4.0</version>
+    </parent>
+    <artifactId>aws-xray-auto-instrumentation-agent-installer</artifactId>
+    <name>AWS X-Ray Auto Instrumentation Agent for Java - Installer</name>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>software.amazon.disco</groupId>
+            <artifactId>disco-java-agent-inject-api</artifactId>
+            <version>${disco.version}</version>
+        </dependency>
+    </dependencies>
+</project>
