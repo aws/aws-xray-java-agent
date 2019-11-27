@@ -7,15 +7,15 @@ The AWS X-Ray Java Agent is a drop-in solution to enable X-ray traces on a web a
 | *Feature*	| *X-Ray SDK*	| *X-Ray Agent* |
 | ----------- | ----------- | ----------- |
 | AWS SDK V1 Instrumentation (Confirmed on 1.11.x) | ✔ | ✔ | 
-| AWS SDK V2 Instrumentation | ✔ | ✔| 
-| Centralized Sampling (https://docs.aws.amazon.com/xray/latest/devguide/xray-console-sampling.html) | ✔ | ✔ | 
+| AWS SDK V2 Instrumentation | ✔ | ✔ | 
+| [Centralized Sampling](https://docs.aws.amazon.com/xray/latest/devguide/xray-console-sampling.html) | ✔ | ✔ | 
 | Automatic Multi-threaded Support | ❌ | ✔ | 
 | Generate Custom Subsegments | ✔ | ✔ | 
-| SQL Queries (https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-sqlclients.html) | ✔ | ❌ | 
-| Plugins (https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-configuration.html#xray-sdk-java-configuration-plugins) | ✔ | ❌ | 
-| Apache HTTP Client (https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-httpclients.html) | ✔ | ✔ | 
-| HttpServlet (https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-filters.html) | ✔ | ✔ | 
-| Lambda Layers (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html) | ✔ | ✔ | 
+| [SQL Queries](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-sqlclients.html) | ✔ | ❌ | 
+| [Plugins](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-configuration.html#xray-sdk-java-configuration-plugins) | ✔ | ❌ | 
+| [Apache HTTP Client](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-httpclients.html) | ✔ | ✔ | 
+| [HttpServlet](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-filters.html) | ✔ | ✔ | 
+| [Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html) | ✔ | ✔ | 
 | Log Injection | ✔ | ❌ | 
 | Spring Framework | ✔ | ❌ | 
 
