@@ -10,6 +10,7 @@
         <disco.version>0.9.1</disco.version>
     </properties>
     <parent>
+        <!-- When changing versions, please be sure that this version aligns with the agent version -->
         <groupId>com.amazonaws</groupId>
         <artifactId>aws-xray-recorder-sdk-pom</artifactId>
         <version>2.4.0</version>
@@ -22,6 +23,13 @@
         <module>aws-xray-auto-instrumentation-agent-runtime</module>
         <module>aws-xray-auto-instrumentation-agent-installer</module>
     </modules>
+    <distributionManagement>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>staging-repo</name>
+            <url>https://aws.oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+    </distributionManagement>
     <build>
         <plugins>
             <plugin>
@@ -48,6 +56,22 @@
                         <additionalOption>--allow-script-in-comments</additionalOption>
                     </additionalOptions>
                 </configuration>
+            </plugin>
+
+            <!-- GPG Plugin for signing. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
