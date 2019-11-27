@@ -1,0 +1,17 @@
+language: java
+
+addons:
+  apt:
+    packages:
+    - oracle-java8-installer
+
+jdk:
+- openjdk8
+- openjdk11
+- oraclejdk8
+
+install:
+- mvn install -Dgpg.skip -Dmaven.javadoc.skip -B -V
+
+sudo: false
+dist: trusty
