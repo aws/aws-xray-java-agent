@@ -21,25 +21,23 @@ public class AWSClientBuilderInterceptor extends AWSClientInterceptor {
     private static Object executionInterceptorProxy;
 
     /**
-     * The HttpServlet#service method is intercepted, and redirected here, where the
-     * original request and response objects are sifted through to retrieve useful
-     * header information that is stored in the HttpNetworkProtocol(Request/Response)Events
-     * and published to the event bus.
+     * The SdkClientBuilder#build method is intercepted, and redirected here, where the
+     * original Client Builder is modified to include the DiSCoExecutionInterceptor in its
+     * execution chain. The DiSCoExecutionInterceptor obtains relevant metadata during a
+     * client invocation and publishes it into the AwsServiceDownstreamEvents through the EventBus.
      *
      * @param args    the original arguments passed to the invoke call
      * @param invoker the original 'this' of the invoker, in case useful or for debugging
      * @param origin  identifier of the intercepted method, for debugging/logging
      * @param zuper   a callable to call the original method
      * @throws Exception - catch-all for whatever exceptions might be throwable in the original call
-     * @return The object returned by the http client call
+     * @return The Sdk Client returned by the build call.
      */
-    @SuppressWarnings("unused")
     @RuntimeType
     public static Object build(@AllArguments Object[] args,
                                @This Object invoker,
                                @Origin String origin,
                                @SuperCall Callable<Object> zuper) throws Throwable {
-        Throwable throwable = null;
 
         if (LogManager.isDebugEnabled()) {
             log.debug("DiSCo(AWSV2) interception of " + origin);
@@ -49,7 +47,7 @@ public class AWSClientBuilderInterceptor extends AWSClientInterceptor {
             // Attempt to add the custom handler to the
             AWSClientBuilderAccessor clientBuilderAccessor = new AWSClientBuilderAccessor(invoker);
 
-            Object overrideResult = clientBuilderAccessor.overrideConfigurationWithExecutionInterceptor(executionInterceptorProxy);
+            Object overrideResult = clientBuilderAccessor.withExecutionInterceptor(executionInterceptorProxy);
             if (overrideResult == null) {
                 // Experienced failure with overriding if it returns null. All this means is that they're not instrumented.
                 // No application faults as a result.

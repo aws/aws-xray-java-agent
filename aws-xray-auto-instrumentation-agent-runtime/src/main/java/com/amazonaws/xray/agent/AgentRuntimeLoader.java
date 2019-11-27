@@ -23,7 +23,7 @@ import com.amazonaws.xray.strategy.sampling.CentralizedSamplingStrategy;
  * basically, modules that need to be invoked during application runtime--not the Agent's premain.
  */
 public class AgentRuntimeLoader implements AgentRuntimeLoaderInterface {
-    private static final String AWS_ORIGIN = "AWS";
+    private static final String AWS_ORIGIN = "AWSv1";
     private static final String AWS_V2_ORIGIN = "AWSv2";
     private static final String APACHE_HTTP_CLIENT_ORIGIN = "ApacheHttpClient";
     private static final String HTTP_SERVLET_ORIGIN = "httpServlet";

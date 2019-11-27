@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.net.ssl.*")
 public class AWSHandlerTest {
-    private final String ORIGIN = "AWS";
+    private final String ORIGIN = "AWSv1";
     private final String SERVICE = "AmazonDynamoDBv2";
     private final String OPERATION = "ScanRequest";
 

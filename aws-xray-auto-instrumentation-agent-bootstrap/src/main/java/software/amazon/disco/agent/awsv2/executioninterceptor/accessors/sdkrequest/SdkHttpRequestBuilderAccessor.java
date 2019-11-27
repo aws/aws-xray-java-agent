@@ -2,6 +2,8 @@ package software.amazon.disco.agent.awsv2.executioninterceptor.accessors.sdkrequ
 
 import software.amazon.disco.agent.reflect.MethodHandleWrapper;
 
+import static software.amazon.disco.agent.awsv2.executioninterceptor.accessors.AccessorUtils.getClassOrNull;
+
 /**
  * Accessor used to call methods in the Sdk Http Request Builder Class
  */
@@ -41,19 +43,5 @@ public class SdkHttpRequestBuilderAccessor {
      */
     public Object build() {
         return build.invoke(sdkHttpRequestBuilder);
-    }
-
-    /**
-     * Helper method to retrieve a class given the class path and classLoader. returns null if it fails.
-     * @param classPath The class path string to retrieve.
-     * @param classLoader The classloader to use
-     * @return The class object if it can be found. Null otherwise.
-     */
-    private static Class getClassOrNull(String classPath, ClassLoader classLoader) {
-        try {
-            return Class.forName(classPath, false, classLoader);
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
     }
 }

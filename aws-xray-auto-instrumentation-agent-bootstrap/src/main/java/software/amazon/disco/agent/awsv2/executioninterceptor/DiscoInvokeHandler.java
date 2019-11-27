@@ -61,10 +61,10 @@ public class DiscoInvokeHandler implements InvocationHandler {
         // the execution interceptor interface. Because our interceptor doesn't implement the interface directly,
         // we need to invoke these default methods through the interface itself.
         if (method.isDefault()) {
-            Object result = defaultMethodHandleLookup.
-                unreflectSpecial(method, executionInterceptorInterface).
-                bindTo(proxy).
-                invokeWithArguments(args);
+            Object result = defaultMethodHandleLookup
+                .unreflectSpecial(method, executionInterceptorInterface)
+                .bindTo(proxy)
+                .invokeWithArguments(args);
 
             return result;
         }

@@ -24,7 +24,7 @@ import net.bytebuddy.matcher.ElementMatchers;
 import software.amazon.disco.agent.interception.Installable;
 
 /**
- * Base class for the HTTP Servlet Interceptor for inbound requests and outbound responses.
+ * Base class for the Aws Client Interceptors to modify intercept all newly generated Aws SDK v2 clients.
  */
 public abstract class AWSClientInterceptor implements Installable {
 
@@ -44,9 +44,11 @@ public abstract class AWSClientInterceptor implements Installable {
      * @return An ElementMatcher suitable for passing to the method() method of a DynamicType.Builder
      */
     ElementMatcher<? super MethodDescription> buildMethodMatcher() {
-        ElementMatcher.Junction<? super MethodDescription> hasZeroArgs = ElementMatchers.takesArguments(0);
-        ElementMatcher.Junction<? super MethodDescription> methodMatches = ElementMatchers.named("build").and(hasZeroArgs).and(ElementMatchers.isFinal());
-        return methodMatches.and(ElementMatchers.not(ElementMatchers.isAbstract()));
+        ElementMatcher.Junction<? super MethodDescription> methodMatches = ElementMatchers.named("build")
+                .and(ElementMatchers.takesArguments(0))
+                .and(ElementMatchers.isFinal())
+                .and(ElementMatchers.not(ElementMatchers.isAbstract()));
+        return methodMatches;
     }
 
     /**

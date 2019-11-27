@@ -35,7 +35,7 @@ public class AWSClientBuilderAccessor {
      * @param executionInterceptor - The execution interceptor instance we want to add to the client builder.
      * @return the builder object if success. null otherwise.
      */
-    public Object overrideConfigurationWithExecutionInterceptor(Object executionInterceptor) {
+    public Object withExecutionInterceptor(Object executionInterceptor) {
         Consumer<Object> consumerConfig = builder -> {
             software.amazon.disco.agent.awsv2.ClientOverrideConfigurationBuilderAccessor builderAccessor = new ClientOverrideConfigurationBuilderAccessor(builder);
             builderAccessor.addExecutionInterceptor(executionInterceptor);

@@ -29,7 +29,7 @@ import java.util.Map;
  *  - The Arguments in this interceptor should at least be an Object (although accessors are better) and correspond
  *  to the interface objects by count.
  *
- *  On s successful call the ordering of method calls is:
+ *  On a successful call the ordering of method calls is:
  *  beforeExecution to modifyHttpRequest to beforeTransmission to afterExecution
  *
  * On an unsuccessful execution, the ordering method calls is:
@@ -65,6 +65,8 @@ public class DiscoExecutionInterceptor {
         InterceptorContextAccessor interceptorContextAccessor = new InterceptorContextAccessor(context);
         ExecutionAttributesAccessor executionAttributesAccessor = new ExecutionAttributesAccessor(executionAttributes);
 
+        // getAttribute returns an arbitrary object. For the service name and operation name, they are returned as Strings.
+        // For the region, it's an implemented object, hence why we need to call toString().
         String serviceName = (String) executionAttributesAccessor.getAttribute(ExecutionAttributesAccessor.SERVICE_NAME_ATTRIBUTE_NAME);
         String operationName = (String) executionAttributesAccessor.getAttribute(ExecutionAttributesAccessor.OPERATION_NAME_ATTRIBUTE_NAME);
         String region = executionAttributesAccessor.getAttribute(ExecutionAttributesAccessor.AWS_REGION_ATTRIBUTE_NAME).toString();
@@ -99,7 +101,6 @@ public class DiscoExecutionInterceptor {
 
     /**
      * This is called before every API attempt. We use this to keep track of how many API attempts are made
-     * This is called after it has been potentially modified by other request interceptors before it is sent to the service.
      * @param context The Context object passed in by the execution interceptor.
      *                This changes as we progress through different method calls.
      * @param executionAttributes The execution attributes which contain information such as region, service name, etc.
@@ -117,7 +118,6 @@ public class DiscoExecutionInterceptor {
     }
 
     /**
-     * This is called before every API attempt. We use this to keep track of how many API attempts are made
      * This is called after it has been potentially modified by other request interceptors before it is sent to the service.
      * @param context The Context object passed in by the execution interceptor.
      *                This changes as we progress through different method calls.
@@ -209,17 +209,11 @@ public class DiscoExecutionInterceptor {
         return new InterceptorContextAccessor(context).getException();
     }
 
-
-
-
-
-
-
-        /**
-         * Helper method for extracting the request Id from the Http Response.
-         * @param httpResponseAccessor The accessor which is used to retrieve the request Id
-         * @return The request Id. Null if it had failed to find it.
-         */
+    /**
+     * Helper method for extracting the request Id from the Http Response.
+     * @param httpResponseAccessor The accessor which is used to retrieve the request Id
+     * @return The request Id. Null if it had failed to find it.
+     */
     private String extractRequestId(SdkHttpResponseAccessor httpResponseAccessor) {
         Map<String, List<String>> headerMap = httpResponseAccessor.getImmutableHeadersMap();
         if (headerMap == null) return null;

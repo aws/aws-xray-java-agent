@@ -4,6 +4,8 @@ import software.amazon.disco.agent.reflect.MethodHandleWrapper;
 
 import java.util.Optional;
 
+import static software.amazon.disco.agent.awsv2.executioninterceptor.accessors.AccessorUtils.getClassOrNull;
+
 /**
  * Accessor used to access the interceptor context. Typically passed in the beforeExecution() call of the execution
  * interceptor.
@@ -90,17 +92,4 @@ public class InterceptorContextAccessor implements ContextAccessor {
         return (Throwable) exceptionMethod.invoke(interceptorContext);
     }
 
-    /**
-     * Helper method to retrieve a class given the class path and classLoader. returns null if it fails.
-     * @param classPath The class path string to retrieve.
-     * @param classLoader The classloader to use
-     * @return The class object if it can be found. Null otherwise.
-     */
-    private static Class getClassOrNull(String classPath, ClassLoader classLoader) {
-        try {
-            return Class.forName(classPath, false, classLoader);
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
-    }
 }

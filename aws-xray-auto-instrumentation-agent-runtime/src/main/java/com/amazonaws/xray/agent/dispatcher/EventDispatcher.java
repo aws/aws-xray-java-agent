@@ -50,7 +50,6 @@ public class EventDispatcher {
         if (xrayHandler == null) {
             String logMessage = String.format("Unable to retrieve a handler from event [%s] and origin [%s].", event.toString(), event.getOrigin());
             LOG.error(logMessage);
-            return null;
         }
         return xrayHandler;
 

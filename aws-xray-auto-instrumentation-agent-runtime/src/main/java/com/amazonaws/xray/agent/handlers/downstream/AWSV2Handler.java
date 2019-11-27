@@ -1,7 +1,5 @@
 package com.amazonaws.xray.agent.handlers.downstream;
 
-import com.amazonaws.Request;
-import com.amazonaws.Response;
 import com.amazonaws.xray.agent.handlers.XRayHandler;
 import com.amazonaws.xray.entities.EntityDataKeys;
 import com.amazonaws.xray.entities.EntityHeaderKeys;
