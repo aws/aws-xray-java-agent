@@ -23,7 +23,7 @@ The AWS X-Ray Java Agent is a drop-in solution to enable X-ray traces on a web a
 
 The AWS X-Ray Java Agent is compatible with Java 8.
 
-The first step is to build the agent JAR files. Insert the following dependencies into your project’s pom.xml file:
+The first step is to bring in the agent JAR files into your environment. Insert the following dependencies into your project’s pom.xml file:
 ```
   <dependencies>
       <dependency>
@@ -35,16 +35,6 @@ The first step is to build the agent JAR files. Insert the following dependencie
       <dependency>
           <groupId>com.amazonaws</groupId>
           <artifactId>aws-xray-auto-instrumentation-agent-runtime</artifactId>
-          <version>2.4.0</version>
-      </dependency>
-      <dependency>
-          <groupId>com.amazonaws</groupId>
-          <artifactId>aws-xray-recorder-sdk-core</artifactId>
-          <version>2.4.0</version>
-      </dependency>
-      <dependency>
-          <groupId>com.amazonaws</groupId>
-          <artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
           <version>2.4.0</version>
       </dependency>
   </dependencies>
@@ -106,6 +96,11 @@ Please make sure to have the following dependencies in your target application b
           <artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
           <version>2.4.0</version>
       </dependency>
+        <dependency>
+          <groupId>com.amazonaws</groupId>
+          <artifactId>aws-xray-recorder-sdk-aws-sdk-v2</artifactId>
+          <version>2.4.0</version>
+      </dependency>
   </dependencies>
 ```
 ## Lambda Layers
@@ -121,7 +116,7 @@ Build the agent as you would in the *Installing* section but add an additional a
       <version>2.4.0</version>
   </dependency>
 ```
-Add the following artifact item into the unpack-xray-agent execution in the :
+Add the following artifact item into the unpack-xray-agent execution id of the maven-dependency-plugin:
 ```
   <artifactItem>
       <!--Obtain the Agent installer artifact-->
@@ -157,7 +152,7 @@ Build the agent and it should contain three additional jars in the ./target/xray
 ```
 With the transitive dependencies and agent built, add them as a lambda layer.
 
-To use the agent, import the following class:
+To use the agent, import the following class, making sure that the `aws-xray-auto-instrumentation-agent-installer` artifact is consumed as a dependency:
 ```
 import com.amazonaws.xray.agent.XRayAgentInstaller;
 ```
