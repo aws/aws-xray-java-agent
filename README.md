@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/aws/aws-xray-java-agent.svg?branch=master)](https://travis-ci.org/aws/aws-xray-java-agent)
-
 ## AWS X-Ray Java Agent
 
 The AWS X-Ray Java Agent is a drop-in solution to enable X-ray traces on a web application, including automatic tracing of X-Ray SDK supported frameworks and libraries. The Java Agent provides use of the X-Ray SDK out of box, but requires no code changes to enable basic propagated traces. Please see the compatibility chart below for current feature parity between the X-Ray SDK and this Java Agent.
