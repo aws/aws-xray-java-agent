@@ -16,7 +16,7 @@ public class AWSSupport implements Package {
     @Override
     public Collection<Installable> get() {
         return Arrays.asList(
-            new AWSClientInvokeRecordInterceptor()
+            new AWSClientInvokeInterceptor()
         );
     }
 }

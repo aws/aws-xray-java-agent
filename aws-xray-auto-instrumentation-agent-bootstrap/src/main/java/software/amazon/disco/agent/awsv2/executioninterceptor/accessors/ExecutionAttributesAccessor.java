@@ -8,6 +8,8 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import static software.amazon.disco.agent.awsv2.executioninterceptor.accessors.AccessorUtils.getClassOrNull;
+
 /**
  * Accessor for execution attributes usually passed in from the execution interceptor.
  */
@@ -98,20 +100,6 @@ public class ExecutionAttributesAccessor {
         } catch (ClassNotFoundException e) {
             log.error("DiSCo(AWSv2) Unable to capture execution attributes from classpath: " + classPath);
             return new Field[0];
-        }
-    }
-
-    /**
-     * Helper method to retrieve a class given the class path and classLoader. returns null if it fails.
-     * @param classPath The class path string to retrieve.
-     * @param classLoader The classloader to use
-     * @return The class object if it can be found. Null otherwise.
-     */
-    private static Class getClassOrNull(String classPath, ClassLoader classLoader) {
-        try {
-            return Class.forName(classPath, false, classLoader);
-        } catch (ClassNotFoundException e) {
-            return null;
         }
     }
 }

@@ -12,7 +12,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 public class XRayAgentInstaller {
-
     static class ProxiedInstrumentation implements InvocationHandler {
         // Proxied instrumentation to backhandedly pass the executing classloader to the agent
         private final Instrumentation original;
@@ -74,11 +73,11 @@ public class XRayAgentInstaller {
      * @param agentArgs
      */
     public static void installInLambda(String agentArgs) {
-        // TODO Dynamic Versioning based on maven properties
+        // TODO Dynamic Versioning based on maven properties.
         // Should we parse agentArgs directly or assume it's the service name or config?
         System.setProperty("software.amazon.disco.agent.jar.bytebuddy.agent.toolsjar", "/opt/java/lib/tools.jar");
-        final String bootstrapJarPath = "/opt/java/lib/aws-xray-auto-instrumentation-agent-bootstrap-2.3.0.jar";
-        final String runtimeJarPath = "/opt/java/lib/aws-xray-auto-instrumentation-agent-runtime-2.3.0.jar";
+        final String bootstrapJarPath = "/opt/java/lib/aws-xray-auto-instrumentation-agent-bootstrap-2.4.0.jar";
+        final String runtimeJarPath = "/opt/java/lib/aws-xray-auto-instrumentation-agent-runtime-2.4.0.jar";
 
         install(bootstrapJarPath, runtimeJarPath, agentArgs);
     }

@@ -48,10 +48,9 @@ public class AWSClientInvokeInterceptor implements Installable {
 
         //Original request contains both the operation name and the request object
         Object originalRequest = request.getClass().getMethod("getOriginalRequest").invoke(request);
-        String operationName = originalRequest.getClass().getSimpleName();
-        operationName = operationName.replace("Request", "");
+        String operationName = originalRequest.getClass().getSimpleName().replace("Request", "");
 
-        ServiceDownstreamRequestEvent requestEvent = new ServiceDownstreamRequestEvent("AWS", serviceName, operationName);
+        ServiceDownstreamRequestEvent requestEvent = new ServiceDownstreamRequestEvent("AWSv1", serviceName, operationName);
         requestEvent.withRequest(request);
         EventBus.publish(requestEvent);
 
@@ -67,7 +66,7 @@ public class AWSClientInvokeInterceptor implements Installable {
 
         log.debug("DiSCo(AWS) publishing event from "+serviceName+"."+operationName);
 
-        ServiceDownstreamResponseEvent responseEvent = new ServiceDownstreamResponseEvent("AWS", serviceName, operationName, requestEvent);
+        ServiceDownstreamResponseEvent responseEvent = new ServiceDownstreamResponseEvent("AWSv1", serviceName, operationName, requestEvent);
         responseEvent.withResponse(output);
         responseEvent.withThrown(thrown);
         EventBus.publish(responseEvent);

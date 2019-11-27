@@ -1,14 +1,20 @@
 package software.amazon.disco.agent.awsv2.executioninterceptor.accessors.sdkrequest;
 
+import software.amazon.disco.agent.logging.LogManager;
+import software.amazon.disco.agent.logging.Logger;
 import software.amazon.disco.agent.reflect.MethodHandleWrapper;
 
 import java.util.List;
 import java.util.Map;
 
+import static software.amazon.disco.agent.awsv2.executioninterceptor.accessors.AccessorUtils.getClassOrNull;
+
 /**
  * Accessor class used to retrieve the Http specific information
  */
 public class SdkHttpRequestAccessor {
+    private static final Logger LOG = LogManager.getLogger(SdkHttpRequestAccessor.class);
+
     /**
      * The classpath for the underlying Sdk Http Request
      */
@@ -61,6 +67,7 @@ public class SdkHttpRequestAccessor {
     public Map<String, List<String>> replaceHeader(String key, String value) {
         Object builderObject = builderMethod.invoke(sdkHttpRequest);
         if (builderObject == null) {
+            LOG.error("DiSCo(SdkHttpRequestAccessor) unable to replace header; Unable to convert the Sdk http request object to a builder.");
             // If we fail to rebuild the current http request, we return null as an indicator.
             return null;
         }
@@ -77,19 +84,5 @@ public class SdkHttpRequestAccessor {
      */
     public Object getSdkHttpRequestObject() {
         return this.sdkHttpRequest;
-    }
-
-    /**
-     * Helper method to retrieve a class given the class path and classLoader. returns null if it fails.
-     * @param classPath The class path string to retrieve.
-     * @param classLoader The classloader to use
-     * @return The class object if it can be found. Null otherwise.
-     */
-    private static Class getClassOrNull(String classPath, ClassLoader classLoader) {
-        try {
-            return Class.forName(classPath, false, classLoader);
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
     }
 }

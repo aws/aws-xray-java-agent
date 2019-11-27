@@ -8,6 +8,13 @@
     <artifactId>aws-xray-auto-instrumentation-agent-installer</artifactId>
     <name>AWS X-Ray Auto Instrumentation Agent for Java - Installer</name>
     <build>
+        <!-- Used to add the app.properties resource. Consumed by installer for ensuring the correct version on import. -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -1,12 +1,12 @@
 package software.amazon.disco.agent;
 
+import software.amazon.disco.agent.awsv1.AWSClientInvokeInterceptor;
 import software.amazon.disco.agent.concurrent.ConcurrencySupport;
 import software.amazon.disco.agent.event.EventBus;
 import software.amazon.disco.agent.web.WebSupport;
 import software.amazon.disco.agent.logging.LogManager;
 import software.amazon.disco.agent.logging.Logger;
 import software.amazon.disco.agent.interception.Installable;
-import software.amazon.disco.agent.awsv1.AWSClientInvokeRecordInterceptor;
 import software.amazon.disco.agent.awsv2.AWSClientBuilderInterceptor;
 
 import java.lang.instrument.Instrumentation;
@@ -28,7 +28,7 @@ import java.util.Set;
 public class XRayInstrumentationAgent {
     public static final String TRACE_HEADER_KEY = "X-Amzn-Trace-Id"; // TODO Merge this into a single file.
     public static final String SERVICE_NAME_ARG = "servicename"; // TODO Merge this into a single file.
-    public static final String DEFAULT_SERVICE_NAME = "DefaultServiceName";
+    public static final String DEFAULT_SERVICE_NAME = "UnnamedXRayInstrumentedService";
 
     /**
      * log4j logger for log messages.
@@ -54,7 +54,7 @@ public class XRayInstrumentationAgent {
         installables.addAll(new WebSupport().get());
 
         // AWS SDK instrumentation
-        installables.add(new AWSClientInvokeRecordInterceptor()); // V1
+        installables.add(new AWSClientInvokeInterceptor()); // V1
         installables.add(new AWSClientBuilderInterceptor()); // V2
 
         // Note that we should not load any other classes before we install the interceptors. Many of the interceptors
@@ -107,8 +107,7 @@ public class XRayInstrumentationAgent {
     }
 
     private static String getServiceNameFromArgs(String agentArgs, String defaultName) {
-        // *VERY* crude method for obtaining just the service name.
-        // Should probably write or find an arg parser to do more complicated stuff.
+        // TODO Add a more proficient parser.
         if (agentArgs == null) {
             return defaultName;
         }

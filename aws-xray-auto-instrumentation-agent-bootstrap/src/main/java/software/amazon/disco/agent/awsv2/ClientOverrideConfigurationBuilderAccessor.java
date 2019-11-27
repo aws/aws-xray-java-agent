@@ -4,38 +4,22 @@ import software.amazon.disco.agent.logging.LogManager;
 import software.amazon.disco.agent.logging.Logger;
 import software.amazon.disco.agent.reflect.MethodHandleWrapper;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 /**
  * Used to reflectively access the Client Override Configuration Builder primarily for adding execution interceptors.
  */
 public class ClientOverrideConfigurationBuilderAccessor {
-    private static final String CLIENT_OVERRIDE_CONFIGURATION_NAME = "software.amazon.awssdk.core.client.config.ClientOverrideConfiguration";
+    private static final String EXECUTION_INTERCEPTOR_INTERFACE_NAME = "software.amazon.awssdk.core.interceptor.ExecutionInterceptor";
     private static final String CLIENT_OVERRIDE_CONFIGURATION_BUILDER_NAME = "software.amazon.awssdk.core.client.config.ClientOverrideConfiguration$Builder";
-    private static final String ADD_EXECUTION_INTERCEPTOR_METHOD_NAME = "addExecutionInterceptor";
     private static final ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 
-    private static final MethodHandleWrapper builderMethod = new MethodHandleWrapper(CLIENT_OVERRIDE_CONFIGURATION_NAME, classLoader, "builder", Object.class);
-    private static final MethodHandleWrapper configurationBuildMethod = new MethodHandleWrapper(CLIENT_OVERRIDE_CONFIGURATION_BUILDER_NAME, classLoader, "build", Object.class);
-    private static final MethodHandleWrapper addExecutionInterceptorMethod = new MethodHandleWrapper(CLIENT_OVERRIDE_CONFIGURATION_BUILDER_NAME, classLoader, "addExecutionInterceptor", Object.class);
-    private Object clientOverrideConfigurationBuilder;
+    private static Class CLIENT_OVERRIDE_CONFIGURATION_BUILDER_CLASS = getClassOrNull(CLIENT_OVERRIDE_CONFIGURATION_BUILDER_NAME, classLoader);
+    private static Class EXECUTION_INTERCEPTOR_CLASS = getClassOrNull(EXECUTION_INTERCEPTOR_INTERFACE_NAME, classLoader);
+
+    private static final MethodHandleWrapper addExecutionInterceptorMethod = new MethodHandleWrapper(CLIENT_OVERRIDE_CONFIGURATION_BUILDER_NAME, classLoader, "addExecutionInterceptor", CLIENT_OVERRIDE_CONFIGURATION_BUILDER_CLASS, EXECUTION_INTERCEPTOR_CLASS);
 
     private final static Logger log = LogManager.getLogger(ClientOverrideConfigurationBuilderAccessor.class);
 
-    /**
-     * Obtain the override configuration method reflectively from the Client Builder instance.
-     * @return The override configuration method. Null if it can't find it.
-     */
-    private Method getAddExecutionInterceptorMethod() {
-        try {
-            Class executionInterceptorClass = Class.forName("software.amazon.awssdk.core.interceptor.ExecutionInterceptor", false, classLoader);
-            return Class.forName("software.amazon.awssdk.core.client.config.ClientOverrideConfiguration$Builder", false, classLoader).getMethod(ADD_EXECUTION_INTERCEPTOR_METHOD_NAME, executionInterceptorClass);
-        } catch (ClassNotFoundException | NoSuchMethodException e) {
-            log.error("Unable to find the " + ADD_EXECUTION_INTERCEPTOR_METHOD_NAME + " method from the execution interceptor class");
-            return null;
-        }
-    }
+    private Object clientOverrideConfigurationBuilder;
 
     /**
      * Construct a new AWSClientBuilderAccessor with a concrete client builder object.
@@ -43,26 +27,15 @@ public class ClientOverrideConfigurationBuilderAccessor {
      */
     public ClientOverrideConfigurationBuilderAccessor(Object configBuilder) {
         this.clientOverrideConfigurationBuilder = configBuilder;
-
     }
 
     /**
      * Add the execution interceptor into the current client override configuration instance.
      * @param executionInterceptor The execution interceptor object to be added into the execution interceptor chain.
-     * @return Return
+     * @return Return the updated client override configuration. Null otherwise.
      */
     public Object addExecutionInterceptor(Object executionInterceptor) {
-//        return addExecutionInterceptorMethod.invoke(this.clientOverrideConfigurationBuilder, executionInterceptor);
-        Method addExecutionInterceptorMethodRefl = getAddExecutionInterceptorMethod();
-        if (addExecutionInterceptorMethodRefl != null) {
-            try {
-                return addExecutionInterceptorMethodRefl.invoke(this.clientOverrideConfigurationBuilder, executionInterceptor);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                ;
-                log.error("Had trouble executing the method.");
-            }
-        }
-        return null;
+        return addExecutionInterceptorMethod.invoke(this.clientOverrideConfigurationBuilder, executionInterceptor);
     }
 
     /**

@@ -55,7 +55,6 @@ public class XRayTransactionContext implements SegmentContext {
     public void endSubsegment(AWSXRayRecorder recorder) {
         Entity current = getTraceEntity();
         if (current instanceof Subsegment) {
-            // LogManager.isDebugEnabled()
             if (LogManager.isDebugEnabled()) {
                 logger.debug("Ending subsegment named: " + current.getName());
             }

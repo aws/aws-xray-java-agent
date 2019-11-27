@@ -1,5 +1,6 @@
 # Remove .DS_Store
 .DS_Store
+**/.DS_Store
 
 # Ignore Gradle project-specific cache directory
 .gradle
@@ -13,12 +14,11 @@ build
 
 target/*
 **/target/*
+
 .gradle/*
 **/.gradle/*
+
 .settings/
 .project
 .classpath
 build
-.DS_Store
-*.iml
-/.idea
