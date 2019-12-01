@@ -185,7 +185,15 @@ Please use these community resources for getting help.
 
 ## Documentation
 
-The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java.html) provides guidance on using the AWS X-Ray Java Agent. Agent sample app coming soon!
+The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java.html) provides guidance on using the AWS X-Ray Java Agent. Please refer to the [Sample App](https://github.com/aws/aws-xray-java-agent/tree/master/sample) for an example.
+
+## Building from Source
+Once you check out the code from GitHub, you can build it using Maven. As a prerquisite, you may need to build DiSCo into Maven Local first. Follow the instructions [here](https://github.com/awslabs/disco#including-disco-as-a-dependency-in-your-product).
+
+Once DiSCo has been built, you can build the package locally by running the following command:
+```
+mvn clean package -Dgpg.skip=true
+```
 
 ## License
 
