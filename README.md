@@ -119,7 +119,7 @@ Build the agent as you would in the *Installing* section but add an additional a
 ```
   <dependency>
       <groupId>com.amazonaws</groupId>
-      <artifactId>aws-xray-auto-instrumentation-agent-runtime</artifactId>
+      <artifactId>aws-xray-auto-instrumentation-agent-installer</artifactId>
       <version>2.4.0</version>
   </dependency>
 ```
