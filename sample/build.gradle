@@ -27,18 +27,37 @@ dependencies {
 }
 
 task buildSourceZip(type: Zip) {
+    // Bundle the compiled function code itself
     archiveFileName = "XRayJavaAgentLambda1Source.zip"
     from compileJava
 }
 
-task buildLayerZip(type: Zip) {
+task buildFunctionLayerZip(type: Zip) {
     archiveFileName = "XRayJavaAgentLambda1Dep.zip"
     into('java') {
         into('lib') {
-            from configurations.runtime
+            // Add all the dependencies except the agent jars.
+            from configurations.runtime.copyRecursive()
+                    .exclude(group: 'com.amazonaws', module:'aws-xray-auto-instrumentation-agent-installer')
+                    .exclude(group: 'com.amazonaws', module:'aws-xray-auto-instrumentation-agent-bootstrap')
+                    .exclude(group: 'com.amazonaws', module:'aws-xray-auto-instrumentation-agent-runtime')
+        }
+    }
+}
+
+task buildAgentLayerZip(type: Zip) {
+    archiveFileName = "XRayJavaAgent.zip"
+    into('java') {
+        into('lib') {
+            // Needed for bundling agent.
+            from configurations.runtime.copyRecursive().findAll {
+                it.name.startsWith('aws-xray-auto-instrumentation-agent')
+            }
+
+            // Needed for tools.jar
             from processResources
         }
     }
 }
 
-build.dependsOn buildSourceZip, buildLayerZip // Add this when dependencies change.
+build.dependsOn buildSourceZip, buildFunctionLayerZip, buildAgentLayerZip // Add this when dependencies change.
