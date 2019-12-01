@@ -2,7 +2,12 @@
 
 The AWS X-Ray Java Agent is a drop-in solution to enable X-ray traces on a web application, including automatic tracing of X-Ray SDK supported frameworks and libraries. The Java Agent provides use of the X-Ray SDK out of box, but requires no code changes to enable basic propagated traces. Please see the compatibility chart below for current feature parity between the X-Ray SDK and this Java Agent.
 
-## Compatibility Chart [WIP]
+## Versioning
+Each version of the agent corresponds to the supported version of the SDK in order to ensure version compatibility between the SDK dependency brought in by the agent consumers and the version of the agent itself. This agent is released under beta as there are a few known issues that are being ironed out. You may track these issues through the issues tab of this repository. 
+
+The agent provides auto instrumentation support for customers using version **2.4.0** of the [X-Ray SDK](https://github.com/aws/aws-xray-sdk-java/), with an artifact version number of **2.4.0-beta**.
+
+## Compatibility Chart
 
 | *Feature*	| *X-Ray SDK*	| *X-Ray Agent* |
 | ----------- | ----------- | ----------- |
@@ -127,7 +132,9 @@ Add the following artifact item into the unpack-xray-agent execution id of the m
 ```
 This artifact is used for installing the agent during runtime. This is necessary for consumption in a Lambda environment. We do not recommend using this installer in a regular runtime environment as running the agent using the java agent argument is more reliable in ensuring all the frameworks are properly instrumented. 
 
-Build the agent and it should contain three additional jars in the ./target/xray-agent directory. The next step is to add all the transitive dependencies of the agent as a layer. The dependencies it requires are the runtime agent (which is built in the step above), the X-Ray SDK Core package, and the X-Ray AWS SDK instrumentor package. You may use the following plugin to do so:
+Build the agent and it should contain three additional jars in the ./target/xray-agent directory. Next, we need to obtain the **tools.jar** file from the JDK. Lambda executes the Java code in a Linux environment. In order to get this jar file, we recommend downloading the latest [Correto JDK 1.8](https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html) version from the website and extracting it from the distribution. Download the **tar.gz** bundled version of the Correto JDK and unzip it into a directory. The tools.jar should be located in `lib/tools.jar`. With all the jar files ready, upload them as a Lambda Layer.
+
+The next step is to add all the transitive dependencies of the agent as a layer. The dependencies it requires are the runtime agent (which is built in the step above), the X-Ray SDK Core package, and the X-Ray AWS SDK instrumentor package. You may use the following plugin to do so:
 ```
   <plugin>
     <groupId>org.apache.maven.plugins</groupId>
@@ -174,7 +181,7 @@ Please use these community resources for getting help.
 * Ask a question in the [AWS X-Ray Forum](https://forums.aws.amazon.com/forum.jspa?forumID=241&start=0).
 * For contributing guidelines refer to [CONTRIBUTING.md](https://github.com/aws/aws-xray-java-agent/blob/master/CONTRIBUTING.md).
 
-## Documentation [WIP]
+## Documentation
 
 The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java.html) provides guidance on using the AWS X-Ray Java Agent. Agent sample app coming soon!
 
