@@ -2,6 +2,8 @@
 
 The AWS X-Ray Java Agent is a drop-in solution to enable X-ray traces on a web application, including automatic tracing of X-Ray SDK supported frameworks and libraries. The Java Agent provides use of the X-Ray SDK out of box, but requires no code changes to enable basic propagated traces. Please see the compatibility chart below for current feature parity between the X-Ray SDK and this Java Agent.
 
+The Java Agent is implemented using the new [DiSCo library](https://github.com/awslabs/disco), an all purpose toolkit for building Java Agents.
+
 ## Versioning
 Each version of the agent corresponds to the supported version of the SDK in order to ensure version compatibility between the SDK dependency brought in by the agent consumers and the version of the agent itself. This agent is released under beta as there are a few known issues that are being ironed out. You may track these issues through the issues tab of this repository. 
 
