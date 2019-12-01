@@ -20,9 +20,9 @@ dependencies {
 
         // Agent dependencies
         "com.amazonaws:aws-xray-recorder-sdk-core:2.4.0",
-        "com.amazonaws:aws-xray-auto-instrumentation-agent-installer:2.4.0",
-        "com.amazonaws:aws-xray-auto-instrumentation-agent-runtime:2.4.0",
-        "com.amazonaws:aws-xray-auto-instrumentation-agent-bootstrap:2.4.0",
+        "com.amazonaws:aws-xray-auto-instrumentation-agent-installer:2.4.0-beta",
+        "com.amazonaws:aws-xray-auto-instrumentation-agent-runtime:2.4.0-beta",
+        "com.amazonaws:aws-xray-auto-instrumentation-agent-bootstrap:2.4.0-beta",
     )
 }
 
