@@ -39,7 +39,7 @@ public class Hello implements RequestHandler<Object, String> {
     // It is very important that this is executed as soon as possible.
     static {
         System.out.println("Starting AWS clients tests...");
-        XRayAgentInstaller.installInLambda("servicename=" + System.getenv("AWS_LAMBDA_FUNCTION_NAME") + ":loggerfactory=software.amazon.disco.agent.reflect.logging.StandardOutputLoggerFactory:verbose");
+        XRayAgentInstaller.installInLambda("servicename=" + System.getenv("AWS_LAMBDA_FUNCTION_NAME"));
     }
 
     static final String DYNAMO_TABLE_NAME = "XRayJavaAgentSampleTable";
@@ -96,13 +96,14 @@ public class Hello implements RequestHandler<Object, String> {
 
         System.out.println("Starting Lambda client test...");
 
-        // Lambda Test
-
-        InvokeRequest invokeRequest = new InvokeRequest();
-        invokeRequest.setFunctionName(LAMBDA2_FCN_NAME);
-        InvokeResult lambda_result = lambda_client.invoke(invokeRequest);
-        String data = new String(lambda_result.getPayload().array(), StandardCharsets.UTF_8);
-        System.out.println("lambda - sendPollMessage() - " + data);
+        if (!System.getenv("AWS_LAMBDA_FUNCTION_NAME").equals(LAMBDA2_FCN_NAME)) {
+            // Lambda Test
+            InvokeRequest invokeRequest = new InvokeRequest();
+            invokeRequest.setFunctionName(LAMBDA2_FCN_NAME);
+            InvokeResult lambda_result = lambda_client.invoke(invokeRequest);
+            String data = new String(lambda_result.getPayload().array(), StandardCharsets.UTF_8);
+            System.out.println("lambda - sendPollMessage() - " + data);
+        }
     }
 
     public String handleRequest(Object input, Context context) {
