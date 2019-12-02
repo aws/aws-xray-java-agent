@@ -17,7 +17,7 @@
     </parent>
     <artifactId>aws-xray-auto-instrumentation-agent-pom</artifactId>
     <name>AWS X-Ray Auto Instrumentation Agent for Java</name>
-    <version>2.4.0-beta</version>
+    <version>2.4.0-beta.1</version>
     <modules>
         <module>aws-xray-auto-instrumentation-agent-bootstrap</module>
         <module>aws-xray-auto-instrumentation-agent-runtime</module>

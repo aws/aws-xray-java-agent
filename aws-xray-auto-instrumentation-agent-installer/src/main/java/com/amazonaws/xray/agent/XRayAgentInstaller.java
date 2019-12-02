@@ -76,8 +76,8 @@ public class XRayAgentInstaller {
         // TODO Dynamic Versioning based on maven properties.
         // Should we parse agentArgs directly or assume it's the service name or config?
         System.setProperty("software.amazon.disco.agent.jar.bytebuddy.agent.toolsjar", "/opt/java/lib/tools.jar");
-        final String bootstrapJarPath = "/opt/java/lib/aws-xray-auto-instrumentation-agent-bootstrap-2.4.0.jar";
-        final String runtimeJarPath = "/opt/java/lib/aws-xray-auto-instrumentation-agent-runtime-2.4.0.jar";
+        final String bootstrapJarPath = "/opt/java/lib/aws-xray-auto-instrumentation-agent-bootstrap-2.4.0-beta.1.jar";
+        final String runtimeJarPath = "/opt/java/lib/aws-xray-auto-instrumentation-agent-runtime-2.4.0-beta.1.jar";
 
         install(bootstrapJarPath, runtimeJarPath, agentArgs);
     }
