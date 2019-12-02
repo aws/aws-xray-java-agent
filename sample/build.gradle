@@ -19,9 +19,6 @@ dependencies {
         "com.amazonaws:aws-java-sdk-s3:1.11.398",
 
         // Agent dependencies
-//        "com.amazonaws:aws-xray-recorder-sdk-core:2.4.0",
-//        "com.amazonaws:aws-xray-recorder-sdk-aws-sdk:2.4.0",
-//        "com.amazonaws:aws-xray-recorder-sdk-aws-sdk-v2:2.4.0",
         "com.amazonaws:aws-xray-auto-instrumentation-agent-installer:2.4.0-beta.1",
         "com.amazonaws:aws-xray-auto-instrumentation-agent-runtime:2.4.0-beta.1",
         "com.amazonaws:aws-xray-auto-instrumentation-agent-bootstrap:2.4.0-beta.1",
@@ -39,6 +36,8 @@ task buildFunctionLayerZip(type: Zip) {
     into('java') {
         into('lib') {
             // Add all the dependencies except the agent jars.
+            // We exclude the agent packages to separate out the dependencies the function itself
+            // makes, and the dependencies the agent makes.
             from configurations.runtime.copyRecursive()
                     .exclude(group: 'com.amazonaws', module:'aws-xray-auto-instrumentation-agent-installer')
                     .exclude(group: 'com.amazonaws', module:'aws-xray-auto-instrumentation-agent-bootstrap')
@@ -51,7 +50,7 @@ task buildAgentLayerZip(type: Zip) {
     archiveFileName = "XRayJavaAgent.zip"
     into('java') {
         into('lib') {
-            // Needed for bundling the agent.
+            // Needed for bundling the agent and its transitive dependencies, including the AWS X-Ray SDK
             from configurations.compile.resolvedConfiguration.getFiles {
                 it.name == "aws-xray-auto-instrumentation-agent-bootstrap" ||
                 it.name == "aws-xray-auto-instrumentation-agent-runtime" ||
