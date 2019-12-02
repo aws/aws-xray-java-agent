@@ -1,0 +1,230 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "SourceBucket": {
+            "Description": "SourceBucket defined",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+
+        "XRayJavaAgentSampleTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "Person",
+                        "AttributeType": "S",
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName" : "Person",
+                        "KeyType" : "HASH"
+                    }
+                ],
+                "TableName": "XRayJavaAgentSampleTable",
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": 1,
+                    "WriteCapacityUnits": 1
+                }
+            },
+        },
+
+        "XRayJavaAgentSampleQueue": {
+            "Type": "AWS::SQS::Queue",
+            "Properties" : {
+                "QueueName" : "XRayJavaAgentSampleQueue",
+            }
+        },
+
+        "XRayJavaAgentLambdaLayer": {
+            "Type" : "AWS::Lambda::LayerVersion",
+             "Properties" : {
+                "CompatibleRuntimes" : [ "java8"],
+                "Content" : {
+                    "S3Bucket" : { "Ref" : "SourceBucket" },
+                    "S3Key" : "XRayJavaAgent.zip",
+                },
+                "Description" : "AWS X-Ray Java Agent",
+                "LicenseInfo" : "Apache-2.0",
+            }
+        },
+
+        "XRaySampleDependenciesLambdaLayer": {
+            "Type" : "AWS::Lambda::LayerVersion",
+             "Properties" : {
+                "CompatibleRuntimes" : [ "java8"],
+                "Content" : {
+                    "S3Bucket" : { "Ref" : "SourceBucket" },
+                    "S3Key" : "XRayJavaAgentLambda1Dep.zip",
+                },
+                "Description" : "Dependencies for the X-Ray Java Agent Lambda sample app",
+                "LicenseInfo" : "Apache-2.0",
+            }
+        },
+
+        "XRayJavaAgentLambdaRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "RoleName": "XRayJavaAgentLambdaRole",
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [{
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": [ "lambda.amazonaws.com" ]
+                    },
+                    "Action": [ "sts:AssumeRole" ]
+                    }]
+                },
+                "Path": "/",
+                "Policies": [{
+                    "PolicyName": "AWSLambdaBasicExecutionRole",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogGroup",
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents",
+                                "xray:PutTraceSegments",
+                                "xray:PutTelemetryRecords"
+                            ],
+                            "Resource": "*"
+                        }]
+                    }
+                },
+                {
+                    "PolicyName": "XRayAgentSampleLambda-SQSAccess",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                            "Effect": "Allow",
+                            "Action": "sqs:*",
+                            "Resource": "arn:aws:sqs:*:*:XRayJavaAgentSampleQueue"
+                        }]
+                    }
+                },
+                {
+                    "PolicyName": "XRayAgentSampleLambda-S3Access",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                            "Effect": "Allow",
+                            "Action": "s3:*",
+                            "Resource": [
+                                { "Fn::Join": ["", [ "arn:aws:s3:::", { "Ref": "SourceBucket" }, "/*"]] }
+                            ]
+                        }]
+                    }
+                },
+                {
+                    "PolicyName": "XRayAgentSampleLambda-LambdaAccess",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                            "Effect": "Allow",
+                            "Action": "lambda:InvokeFunction",
+                            "Resource": [ "*" ]
+                        }]
+                    }
+                },
+                {
+                    "PolicyName": "XRayAgentSampleLambda-DynamoAccess",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                            "Sid": "ListAndDescribe",
+                            "Effect": "Allow",
+                            "Action": [
+                                "dynamodb:List*",
+                                "dynamodb:DescribeReservedCapacity*",
+                                "dynamodb:DescribeLimits",
+                                "dynamodb:DescribeTimeToLive"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Sid": "SpecificTable",
+                            "Effect": "Allow",
+                            "Action": [
+                                "dynamodb:BatchGet*",
+                                "dynamodb:DescribeStream",
+                                "dynamodb:DescribeTable",
+                                "dynamodb:Get*",
+                                "dynamodb:Query",
+                                "dynamodb:Scan",
+                                "dynamodb:BatchWrite*",
+                                "dynamodb:CreateTable",
+                                "dynamodb:Delete*",
+                                "dynamodb:Update*",
+                                "dynamodb:PutItem"
+                            ],
+                            "Resource": [
+                                {"Fn::Join": [ ":", ["arn:aws:dynamodb", {"Ref": "AWS::Region"}, {"Ref": "AWS::AccountId"}, {"Fn::Join": [ "/", [ "table", {"Ref": "XRayJavaAgentSampleTable"}]]}]]}
+                            ]
+                        }]
+                    }
+                }]
+            }
+        },
+
+        "XRayJavaAgentLambda1": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Code": {
+                    "S3Bucket" : { "Ref" : "SourceBucket" },
+                    "S3Key" : "XRayJavaAgentLambda1Source.zip",
+                },
+                "FunctionName": "XRayJavaAgentLambda1",
+                "Handler": "test.Hello::handleRequest",
+                "Layers": [
+                    { "Ref": "XRaySampleDependenciesLambdaLayer" },
+                    { "Ref": "XRayJavaAgentLambdaLayer" }
+                ],
+                "MemorySize": 2048,
+                "Role": {"Fn::GetAtt": [ "XRayJavaAgentLambdaRole","Arn"]},
+                "Runtime": "java8",
+                "Timeout": 240,
+                "TracingConfig": {
+                    "Mode": "Active"
+                },
+                "Environment": {
+                    "Variables": {
+                        "SOURCE_BUCKET": { "Ref" : "SourceBucket" }
+                    },
+                }
+            },
+        },
+
+        "XRayJavaAgentLambda2": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Code": {
+                    "S3Bucket" : { "Ref" : "SourceBucket" },
+                    "S3Key" : "XRayJavaAgentLambda1Source.zip",
+                },
+                "FunctionName": "XRayJavaAgentLambda2",
+                "Handler": "test.Hello::handleRequest",
+                "Layers": [
+                    { "Ref": "XRaySampleDependenciesLambdaLayer" },
+                    { "Ref": "XRayJavaAgentLambdaLayer" }
+                ],
+                "MemorySize": 2048,
+                "Role": {"Fn::GetAtt": [ "XRayJavaAgentLambdaRole","Arn"]},
+                "Runtime": "java8",
+                "Timeout": 240,
+                "TracingConfig": {
+                    "Mode": "Active"
+                },
+                "Environment": {
+                    "Variables": {
+                        "SOURCE_BUCKET": { "Ref" : "SourceBucket" }
+                    },
+                }
+            },
+        },
+    }
+}
