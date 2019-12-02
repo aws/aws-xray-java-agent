@@ -11,7 +11,7 @@ The Java Agent is implemented using the new [DiSCo library](https://github.com/a
 ## Versioning
 Each version of the agent corresponds to the supported version of the SDK in order to ensure version compatibility between the SDK dependency brought in by the agent consumers and the version of the agent itself. This agent is released under beta as there are a few known issues that are being ironed out. You may track these issues through the issues tab of this repository. 
 
-The agent provides auto instrumentation support for customers using version **2.4.0** of the [X-Ray SDK](https://github.com/aws/aws-xray-sdk-java/), with an artifact version number of **2.4.0-beta**.
+The agent provides auto instrumentation support for customers using version **2.4.0** of the [X-Ray SDK](https://github.com/aws/aws-xray-sdk-java/), with an artifact version number of **2.4.0-beta.1**.
 
 ## Compatibility Chart
 
@@ -40,13 +40,13 @@ The first step is to bring in the agent JAR files into your environment. Insert 
       <dependency>
           <groupId>com.amazonaws</groupId>
           <artifactId>aws-xray-auto-instrumentation-agent-bootstrap</artifactId>
-          <version>2.4.0-beta</version>
+          <version>2.4.0-beta.1</version>
           <scope>runtime</scope>
       </dependency>
       <dependency>
           <groupId>com.amazonaws</groupId>
           <artifactId>aws-xray-auto-instrumentation-agent-runtime</artifactId>
-          <version>2.4.0-beta</version>
+          <version>2.4.0-beta.1</version>
       </dependency>
   </dependencies>
 ```
@@ -90,9 +90,9 @@ The agent will be built in your project’s target/xray-agent folder. There will
 
 Prior to running your application, add the following Java arguments, making sure to modify the service name with your service’s name:
 ```
--javaagent:/path-to-project/target/xray-agent/aws-xray-auto-instrumentation-agent-bootstrap-2.4.0-beta.jar=servicename=TheServiceName
+-javaagent:/path-to-project/target/xray-agent/aws-xray-auto-instrumentation-agent-bootstrap-2.4.0-beta.1.jar=servicename=TheServiceName
 
--cp:/path-to-project/target/xray-agent/aws-xray-auto-instrumentation-agent-runtime-2.4.0-beta.jar
+-cp:/path-to-project/target/xray-agent/aws-xray-auto-instrumentation-agent-runtime-2.4.0-beta.1.jar
 ```
 Please make sure to have the following dependencies in your target application before adding the Agent into your environment.
 ```
@@ -124,7 +124,7 @@ Build the agent as you would in the *Installing* section but add an additional a
   <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-xray-auto-instrumentation-agent-installer</artifactId>
-      <version>2.4.0-beta</version>
+      <version>2.4.0-beta.1</version>
   </dependency>
 ```
 Add the following artifact item into the unpack-xray-agent execution id of the maven-dependency-plugin:
