@@ -14,6 +14,7 @@ https://github.com/awslabs/disco
 
 Create an S3 bucket for this project:
 ```
+   # must be lowercased
    bucket='MY_BUCKET_NAME'
    aws s3api create-bucket --bucket $bucket --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
 ```
@@ -35,7 +36,7 @@ This will create three ZIP files in build/distributions:
 ```
    aws s3api put-object --bucket $bucket --key XRayJavaAgentLambda1Source.zip --body build/distributions/XRayJavaAgentLambda1Source.zip
    aws s3api put-object --bucket $bucket --key XRayJavaAgentLambda1Dep.zip --body build/distributions/XRayJavaAgentLambda1Dep.zip
-   aws s3api put-object --bucket $bucket --key XRayJavaAgent.zip --body XRayJavaAgent.zip
+   aws s3api put-object --bucket $bucket --key XRayJavaAgent.zip --body build/distributions/XRayJavaAgent.zip
 
    aws cloudformation create-stack --stack-name "XRayJavaAgentSample" --template-body file://XRayJavaAgentCFNTemplate.json --capabilities CAPABILITY_NAMED_IAM --parameters  ParameterKey=SourceBucket,ParameterValue=$bucket
 ```
