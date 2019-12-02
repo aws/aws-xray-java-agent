@@ -48,15 +48,13 @@ public class Hello implements RequestHandler<Object, String> {
     static final String S3_BUCKET_KEY = "SOURCE_BUCKET";
     static final String S3_BUCKET_NAME = System.getenv(S3_BUCKET_KEY);
 
-    // We're going to use a variety of clients to show the auto-instrumentation
-    // feature of the Agent
-
-    public static AmazonDynamoDB dynamo_client = AmazonDynamoDBClientBuilder.defaultClient();
-    public static AmazonSQS sqs_client = AmazonSQSClientBuilder.defaultClient();
-    public static AmazonS3 s3_client = AmazonS3ClientBuilder.defaultClient();
-    public static AWSLambda lambda_client = AWSLambdaClientBuilder.defaultClient();
-
-    public void testAWSClientInstrumentation() {
+    private void testAWSClientInstrumentation() {
+        // We're going to use a variety of clients to show the auto-instrumentation
+        // feature of the Agent
+        AmazonDynamoDB dynamo_client = AmazonDynamoDBClientBuilder.defaultClient();
+        AmazonSQS sqs_client = AmazonSQSClientBuilder.defaultClient();
+        AmazonS3 s3_client = AmazonS3ClientBuilder.defaultClient();
+        AWSLambda lambda_client = AWSLambdaClientBuilder.defaultClient();
 
         System.out.println("Starting Dynamo client test...");
 
