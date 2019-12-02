@@ -2,6 +2,8 @@
 
 The AWS X-Ray Java Agent is a drop-in solution to enable X-ray traces on a web application, including automatic tracing of X-Ray SDK supported frameworks and libraries. The Java Agent provides use of the X-Ray SDK out of box, but requires no code changes to enable basic propagated traces. Please see the compatibility chart below for current feature parity between the X-Ray SDK and this Java Agent.
 
+Please take a look at the [Sample App](https://github.com/aws/aws-xray-java-agent/tree/master/sample) for an example of using this agent.
+
 The Java Agent is implemented using the new [DiSCo library](https://github.com/awslabs/disco), an all purpose toolkit for building Java Agents.
 
 ## Versioning
@@ -119,7 +121,7 @@ Build the agent as you would in the *Installing* section but add an additional a
 ```
   <dependency>
       <groupId>com.amazonaws</groupId>
-      <artifactId>aws-xray-auto-instrumentation-agent-runtime</artifactId>
+      <artifactId>aws-xray-auto-instrumentation-agent-installer</artifactId>
       <version>2.4.0-beta</version>
   </dependency>
 ```
@@ -134,7 +136,7 @@ Add the following artifact item into the unpack-xray-agent execution id of the m
 ```
 This artifact is used for installing the agent during runtime. This is necessary for consumption in a Lambda environment. We do not recommend using this installer in a regular runtime environment as running the agent using the java agent argument is more reliable in ensuring all the frameworks are properly instrumented. 
 
-Build the agent and it should contain three additional jars in the ./target/xray-agent directory. Next, we need to obtain the **tools.jar** file from the JDK. Lambda executes the Java code in a Linux environment. In order to get this jar file, we recommend downloading the latest [Correto JDK 1.8](https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html) version from the website and extracting it from the distribution. Download the **tar.gz** bundled version of the Correto JDK under Linux x64 and unzip it into a directory. The tools.jar should be located in `lib/tools.jar`. With all the jar files ready, upload them as a Lambda Layer.
+Build the agent and it should contain three additional jars in the ./target/xray-agent directory. Next, we need to obtain the **tools.jar** file from the JDK. Lambda executes the Java code in a Linux environment. In order to get this jar file, we recommend downloading the latest [Correto JDK 1.8](https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html) version from the website and extracting it from the distribution. Download the **tar.gz** bundled version of the Correto JDK under Linux x64 and unzip it into a directory. The tools.jar should be located in `lib/tools.jar`. With all the jar files ready, upload them as a Lambda Layer. For your convenience, you may also retrieve the `tools.jar` file from the sample app resource [here](https://github.com/aws/aws-xray-java-agent/tree/master/sample/src/main/resources).
 
 The next step is to add all the transitive dependencies of the agent as a layer. The dependencies it requires are the runtime agent (which is built in the step above), the X-Ray SDK Core package, and the X-Ray AWS SDK instrumentor package. You may use the following plugin to do so:
 ```
@@ -185,7 +187,15 @@ Please use these community resources for getting help.
 
 ## Documentation
 
-The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java.html) provides guidance on using the AWS X-Ray Java Agent. Agent sample app coming soon!
+The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java.html) provides guidance on using the AWS X-Ray Java Agent. Please refer to the [Sample App](https://github.com/aws/aws-xray-java-agent/tree/master/sample) for an example.
+
+## Building from Source
+Once you check out the code from GitHub, you can build it using Maven. As a prerequisite, you may need to build DiSCo into Maven Local first. Follow the instructions [here](https://github.com/awslabs/disco#including-disco-as-a-dependency-in-your-product).
+
+Once DiSCo has been built, you can build the package locally by running the following command:
+```
+mvn clean package -Dgpg.skip=true
+```
 
 ## License
 
