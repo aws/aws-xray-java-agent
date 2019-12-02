@@ -40,13 +40,13 @@ The first step is to bring in the agent JAR files into your environment. Insert 
       <dependency>
           <groupId>com.amazonaws</groupId>
           <artifactId>aws-xray-auto-instrumentation-agent-bootstrap</artifactId>
-          <version>2.4.0</version>
+          <version>2.4.0-beta</version>
           <scope>runtime</scope>
       </dependency>
       <dependency>
           <groupId>com.amazonaws</groupId>
           <artifactId>aws-xray-auto-instrumentation-agent-runtime</artifactId>
-          <version>2.4.0</version>
+          <version>2.4.0-beta</version>
       </dependency>
   </dependencies>
 ```
@@ -90,9 +90,9 @@ The agent will be built in your project’s target/xray-agent folder. There will
 
 Prior to running your application, add the following Java arguments, making sure to modify the service name with your service’s name:
 ```
--javaagent:/path-to-project/target/xray-agent/aws-xray-auto-instrumentation-agent-bootstrap-2.4.0.jar=servicename=TheServiceName
+-javaagent:/path-to-project/target/xray-agent/aws-xray-auto-instrumentation-agent-bootstrap-2.4.0-beta.jar=servicename=TheServiceName
 
--cp:/path-to-project/target/xray-agent/aws-xray-auto-instrumentation-agent-runtime-2.4.0.jar
+-cp:/path-to-project/target/xray-agent/aws-xray-auto-instrumentation-agent-runtime-2.4.0-beta.jar
 ```
 Please make sure to have the following dependencies in your target application before adding the Agent into your environment.
 ```
@@ -124,7 +124,7 @@ Build the agent as you would in the *Installing* section but add an additional a
   <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-xray-auto-instrumentation-agent-installer</artifactId>
-      <version>2.4.0</version>
+      <version>2.4.0-beta</version>
   </dependency>
 ```
 Add the following artifact item into the unpack-xray-agent execution id of the maven-dependency-plugin:
