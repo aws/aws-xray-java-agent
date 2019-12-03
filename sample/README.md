@@ -2,7 +2,7 @@
 
 This repo contains a few items to show off the capabilities of the AWS X-Ray Java Agent for auto-instrumenting your Lambda function.
 
-The CloudformationStack and source code included will setup a small distributed service using DynamoDB, S3, Lambda, S3 and SQS. It will also create a Lambda layer for the Agent, so it can be easily reused in other projects. Deleting the stack will delete all resources, including the Agent Lambda Layer, making for easy cleanup.
+The CloudformationStack and source code included will setup a small distributed service using DynamoDB, Lambda, S3 and SQS. It will also create a Lambda layer for the Agent, so it can be easily reused in other projects. Deleting the stack will delete all resources, including the Agent Lambda Layer, making for easy cleanup.
 
 Under the hood, the Java Agent utilizes the new DISCO library, an all purpose toolkit for building Java Agents:
 https://github.com/awslabs/disco
@@ -23,7 +23,7 @@ Create an S3 bucket for this project:
 
 Build the Sample App with Gradle.
 ```
-   cd AWSXRayJavaAgentSample
+   cd aws-xray-java-agent/sample
    ./gradlew build
 ```
 This will create three ZIP files in build/distributions:
