@@ -196,7 +196,7 @@ Once you check out the code from GitHub, you can build it using Maven. As a prer
 
 Once DiSCo has been built, you can build the package locally by running the following command:
 ```
-mvn clean package -Dgpg.skip=true
+./mvnw clean package -Dgpg.skip=true
 ```
 
 ## License
