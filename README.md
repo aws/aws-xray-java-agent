@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/aws/aws-xray-java-agent.svg?branch=master)](https://travis-ci.org/aws/aws-xray-java-agent)
 
+![Screenshot of the AWS X-Ray console](/images/xray-agent-service-graph-example.png?raw=true)
+
 ## AWS X-Ray Java Agent
 
 The AWS X-Ray Java Agent is a drop-in solution to enable X-ray traces on a web application, including automatic tracing of X-Ray SDK supported frameworks and libraries. The Java Agent provides use of the X-Ray SDK out of box, but requires no code changes to enable basic propagated traces. Please see the compatibility chart below for current feature parity between the X-Ray SDK and this Java Agent.
@@ -99,21 +101,12 @@ Please make sure to have the following dependencies in your target application b
   <dependencies>
       <dependency>
           <groupId>com.amazonaws</groupId>
-          <artifactId>aws-xray-recorder-sdk-core</artifactId>
-          <version>2.4.0</version>
-      </dependency>
-      <dependency>
-          <groupId>com.amazonaws</groupId>
-          <artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
-          <version>2.4.0</version>
-      </dependency>
-        <dependency>
-          <groupId>com.amazonaws</groupId>
-          <artifactId>aws-xray-recorder-sdk-aws-sdk-v2</artifactId>
-          <version>2.4.0</version>
+          <artifactId>aws-xray-auto-instrumentation-agent-runtime</artifactId>
+          <version>2.4.0-beta.1</version>
       </dependency>
   </dependencies>
 ```
+This runtime agent artifact will bring in all the necessary transitive dependencies into your environment.
 ## Lambda Layers
 
 Using Lambda Layers, you can configure a reusable Agent to include in your Lambda functions without needing to upload the source every time. To configure a Lambda Layer, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html#configuration-layers-manage.
@@ -186,6 +179,14 @@ Please use these community resources for getting help.
 * Open a support ticket with [AWS Support](http://docs.aws.amazon.com/awssupport/latest/user/getting-started.html).
 * Ask a question in the [AWS X-Ray Forum](https://forums.aws.amazon.com/forum.jspa?forumID=241&start=0).
 * For contributing guidelines refer to [CONTRIBUTING.md](https://github.com/aws/aws-xray-java-agent/blob/master/CONTRIBUTING.md).
+
+## Troubleshooting
+
+Here is a list of the most common issues and how to resolve them.
+
+**I've built the agent and published it as a Lambda Layer but it's still not instrumenting any of my downstream calls.**
+
+One of the most common reasons why this might be happening is that your Lambda Function does not contain all the necessary transitive dependencies the agent requires. As a sanity check, we'd recommend downloading the lambda layer and manually seeing if any dependencies are missing. You may cross reference it with the `compile` scoped dependencies seen [here](/aws-xray-auto-instrumentation-agent-runtime/pom.xml)
 
 ## Documentation
 
