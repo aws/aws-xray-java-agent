@@ -186,7 +186,7 @@ Here is a list of the most common issues and how to resolve them.
 
 **I've built the agent and published it as a Lambda Layer but it's still not instrumenting any of my downstream calls.**
 
-One of the most common reasons why this might be happening is that your Lambda Function does not contain all the necessary transitive dependencies the agent requires. As a sanity check, we'd recommend downloading the lambda layer and manually seeing if any depencies are missing. You may cross reference it with the `compile` scoped dependencies seen [here](/aws-xray-auto-instrumentation-agent-runtime/pom.xml)
+One of the most common reasons why this might be happening is that your Lambda Function does not contain all the necessary transitive dependencies the agent requires. As a sanity check, we'd recommend downloading the lambda layer and manually seeing if any dependencies are missing. You may cross reference it with the `compile` scoped dependencies seen [here](/aws-xray-auto-instrumentation-agent-runtime/pom.xml)
 
 ## Documentation
 
