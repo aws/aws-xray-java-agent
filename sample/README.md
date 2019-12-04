@@ -10,7 +10,6 @@ https://github.com/awslabs/disco
 ## Setup
 
 [Install the AWS SDK CLI tool for your development environment](https://aws.amazon.com/cli/)  
-[Install Gradle](https://gradle.org/install/)
 
 Create an S3 bucket for this project:
 ```
