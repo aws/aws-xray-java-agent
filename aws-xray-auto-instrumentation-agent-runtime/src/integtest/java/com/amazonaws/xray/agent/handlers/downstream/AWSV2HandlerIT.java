@@ -508,4 +508,40 @@ public class AWSV2HandlerIT {
             Assert.assertEquals(true, cause.getExceptions().get(0).isRemote());
         }
     }
+
+
+    @Test
+    public void testMissingContentLength() throws Exception {
+        String responseBody = "{\"LastEvaluatedTableName\":\"baz\",\"TableNames\":[\"foo\",\"bar\",\"baz\"]}";
+        SdkHttpResponse mockResponse = SdkHttpResponse.builder()
+                .statusCode(200)
+                .putHeader("x-amzn-requestid", "1111-2222-3333-4444")
+                .putHeader("Content-Type", "application/x-amz-json-1.0")
+                .build();
+        SdkHttpClient mockClient = mockSdkHttpClient(mockResponse, responseBody);
+
+        DynamoDbClient client = DynamoDbClient.builder()
+                .httpClient(mockClient)
+                .endpointOverride(URI.create("http://example.com"))
+                .region(Region.of("us-west-42"))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsSessionCredentials.create("key", "secret", "session")
+                ))
+                .build();
+
+        Segment segment = AWSXRay.getCurrentSegment();
+        client.listTables();
+
+        Assert.assertEquals(1, segment.getSubsegments().size());
+        Subsegment subsegment = segment.getSubsegments().get(0);
+        Map<String, Object> awsStats = subsegment.getAws();
+        Map<String, Object> httpResponseStats = (Map<String, Object>)subsegment.getHttp().get("response");
+
+        Assert.assertEquals("ListTables", awsStats.get("operation"));
+        Assert.assertEquals("1111-2222-3333-4444", awsStats.get("request_id"));
+        Assert.assertEquals("us-west-42", awsStats.get("region"));
+        Assert.assertEquals(200, httpResponseStats.get("status"));
+        Assert.assertEquals(false, subsegment.isInProgress());
+    }
+
 }

@@ -235,7 +235,7 @@ public class AWSV2Handler extends XRayHandler {
         // Obtain the content length from the header map and store it in the subsegment
         Map<String, List<String>> headerMap = responseEvent.getHeaderMap();
         List<String> contentLengthList = headerMap.get(EntityHeaderKeys.HTTP.CONTENT_LENGTH_HEADER);
-        if (contentLengthList.size() > 0) {
+        if (contentLengthList != null && contentLengthList.size() > 0) {
             long contentLength = Long.parseLong(contentLengthList.get(0));
             responseInformation.put(CONTENT_LENGTH_KEY, contentLength);
         }
