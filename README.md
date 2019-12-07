@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/aws/aws-xray-java-agent.svg?branch=master)](https://travis-ci.org/aws/aws-xray-java-agent)
+[![Build Status](https://travis-ci.com/aws/aws-xray-java-agent.svg?branch=master)](https://travis-ci.com/aws/aws-xray-java-agent)
 
 ![Screenshot of the AWS X-Ray console](/images/xray-agent-service-graph-example.png?raw=true)
 
