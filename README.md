@@ -182,10 +182,10 @@ Please use these community resources for getting help.
 
 ## Troubleshooting
 When troubleshooting the agent, one of the first steps of troubleshooting is to enable logging in the Agent. In this case, logging would mean publishing the internal log outputs to Standard Out. Logging to a standardized file is still in the works. To enable logging, please append the following line to your JVM arguments, with an equal sign as a delimiter:
-`loggerfactory=com.amazon.disco.agent.reflect.logging.StandardOutputLoggerFactory:verbose`
+`loggerfactory=software.amazon.disco.agent.reflect.logging.StandardOutputLoggerFactory:verbose`
 
 For example, if your JFM args looks like `servicename=YourServiceNameHere`, then the log-enabled argument would look like
-`servicename=YourServiceNameHere=loggerfactory=com.amazon.disco.agent.reflect.logging.StandardOutputLoggerFactory:verbose`
+`servicename=YourServiceNameHere=loggerfactory=software.amazon.disco.agent.reflect.logging.StandardOutputLoggerFactory:verbose`
 
 Here is a list of the most common issues and how to resolve them.
 
