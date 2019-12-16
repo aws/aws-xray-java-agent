@@ -30,6 +30,17 @@
             <url>https://aws.oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
     </distributionManagement>
+
+    <!-- Remove this when Disco has been published to maven local -->
+    <!-- Remove the disco-lib directories from installer and bootstrap also -->
+    <repositories>
+      <repository>
+        <id>local_disco</id>
+        <name>Local Repository Containing Disco</name>
+        <url>file://${project.basedir}/disco-lib/</url>
+      </repository>
+    </repositories>
+
     <build>
         <plugins>
             <plugin>
