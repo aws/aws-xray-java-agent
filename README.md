@@ -4,16 +4,17 @@
 
 ## AWS X-Ray Java Agent
 
-The AWS X-Ray Java Agent is a drop-in solution to enable X-ray traces on a web application, including automatic tracing of X-Ray SDK supported frameworks and libraries. The Java Agent provides use of the X-Ray SDK out of box, but requires no code changes to enable basic propagated traces. Please see the compatibility chart below for current feature parity between the X-Ray SDK and this Java Agent.
+The AWS X-Ray Java Agent is a drop-in solution that enables the propogation of X-Ray traces within your web applications. This includes automatic tracing for AWS X-Ray SDK supported frameworks and libraries. The agent enables you to use the X-Ray SDK out of box, and requires no code changes to enable the basic propogation of traces. See the compatibility chart below for the current feature parity between the AWS X-Ray SDK and the AWS X-Ray Java Agent.
 
-Please take a look at the [Sample App](https://github.com/aws/aws-xray-java-agent/tree/master/sample) for an example of using this agent.
+See the [Sample App](https://github.com/aws/aws-xray-java-agent/tree/master/sample) for a demonstration on how to use the agent.
 
-The Java Agent is implemented using the new [DiSCo library](https://github.com/awslabs/disco), an all purpose toolkit for building Java Agents.
+The X-Ray Java Agent is implemented using the [DiSCo library](https://github.com/awslabs/disco), an all purpose AWS toolkit for building Java Agents.
 
 ## Versioning
-Each version of the agent corresponds to the supported version of the SDK in order to ensure version compatibility between the SDK dependency brought in by the agent consumers and the version of the agent itself. This agent is released under beta as there are a few known issues that are being ironed out. You may track these issues through the issues tab of this repository. 
 
-The agent provides auto instrumentation support for customers using version **2.4.0** of the [X-Ray SDK](https://github.com/aws/aws-xray-sdk-java/), with an artifact version number of **2.4.0-beta.1**.
+Each version of the agent corresponds to the supported version of the SDK in order to ensure version compatibility. This agent is a beta release. You may track issues and fixes through the issues tab of the repository. 
+
+The agent provides auto-instrumentation support for customers using version **2.4.0** of the [X-Ray SDK](https://github.com/aws/aws-xray-sdk-java/), with an artifact version number of **2.4.0-beta.1**.
 
 ## Compatibility Chart
 
@@ -32,9 +33,11 @@ The agent provides auto instrumentation support for customers using version **2.
 | Log Injection | ✔ | ❌ | 
 | Spring Framework | ✔ | ❌ | 
 
-## Installing
+## Prerequisites
 
 The AWS X-Ray Java Agent is compatible with Java 8.
+
+## Installation
 
 The first step is to bring in the agent JAR files into your environment. Insert the following dependencies into your project’s pom.xml file:
 ```
@@ -88,15 +91,15 @@ Add the following plugin to your project:
       </executions>
   </plugin>
 ```
-The agent will be built in your project’s target/xray-agent folder. There will be two JAR files, a JAR file that has a “runtime” classifier on it and one without a classifier. 
+The agent will be built in your project’s target/xray-agent folder. There will be two JAR files. A JAR file that has a “runtime” classifier, and one without. 
 
-Prior to running your application, add the following Java arguments, making sure to modify the service name with your service’s name:
+Prior to running your application, add the following Java arguments. Make sure to modify the service name with your service’s name:
 ```
 -javaagent:/path-to-project/target/xray-agent/aws-xray-auto-instrumentation-agent-bootstrap-2.4.0-beta.1.jar=servicename=TheServiceName
 
 -cp:/path-to-project/target/xray-agent/aws-xray-auto-instrumentation-agent-runtime-2.4.0-beta.1.jar
 ```
-Please make sure to have the following dependencies in your target application before adding the Agent into your environment.
+Make sure to have the following dependencies in your target application before adding the agent into your environment.
 ```
   <dependencies>
       <dependency>
@@ -106,12 +109,13 @@ Please make sure to have the following dependencies in your target application b
       </dependency>
   </dependencies>
 ```
-This runtime agent artifact will bring in all the necessary transitive dependencies into your environment.
+This runtime agent artifact will include all the necessary transitive dependencies into your environment.
+
 ## Lambda Layers
 
-Using Lambda Layers, you can configure a reusable Agent to include in your Lambda functions without needing to upload the source every time. To configure a Lambda Layer, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html#configuration-layers-manage.
+Using AWS Lambda layers, you can configure a reusable agent to be includeed in your Lambda function without needing to upload the source every time. To configure layers in Lambda, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html#configuration-layers-manage.
 
-Build the agent as you would in the *Installing* section but add an additional artifact dependency:
+You will build the agent as you did in during the *Installation* section, but you will add an additional artifact dependency:
 
 ```
   <dependency>
@@ -129,11 +133,15 @@ Add the following artifact item into the unpack-xray-agent execution id of the m
       <outputDirectory>${project.build.directory}/xray-agent</outputDirectory>
   </artifactItem>
 ```
-This artifact is used for installing the agent during runtime. This is necessary for consumption in a Lambda environment. We do not recommend using this installer in a regular runtime environment as running the agent using the java agent argument is more reliable in ensuring all the frameworks are properly instrumented. 
+This artifact is used for installing the agent during runtime. This is required for the consumption of the Lambda environment. 
 
-Build the agent and it should contain three additional jars in the ./target/xray-agent directory. Next, we need to obtain the **tools.jar** file from the JDK. Lambda executes the Java code in a Linux environment. In order to get this jar file, we recommend downloading the latest [Correto JDK 1.8](https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html) version from the website and extracting it from the distribution. Download the **tar.gz** bundled version of the Correto JDK under Linux x64 and unzip it into a directory. The tools.jar should be located in `lib/tools.jar`. With all the jar files ready, upload them as a Lambda Layer. For your convenience, you may also retrieve the `tools.jar` file from the sample app resource [here](https://github.com/aws/aws-xray-java-agent/tree/master/sample/src/main/resources).
+We do not recommend using this installer in a regular runtime environment. Running the X-Ray agent using the Java agent argument is more reliable when ensuring all frameworks are properly instrumented. 
 
-The next step is to add all the transitive dependencies of the agent as a layer. The dependencies it requires are the runtime agent (which is built in the step above), the X-Ray SDK Core package, and the X-Ray AWS SDK instrumentor package. You may use the following plugin to do so:
+After building the agent, it should add three additional JAR files to the ./target/xray-agent directory. 
+
+Then, we need to obtain the **tools.jar** file from the JDK. Lambda executes the Java code in a Linux environment. In order to use this JAR file, we recommend downloading the latest [Correto JDK 1.8](https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html) version from this website and extracting it from the distribution. Download the **tar.gz** bundled version of the Correto JDK, under Linux x64, and unzip it into a directory. The **tools.jar** file should be located in `lib/tools.jar`. With all the JAR files decomperssed, upload them as a layer in Lambda. For convenience, you may also retrieve the `tools.jar` file from the sample app resource [here](https://github.com/aws/aws-xray-java-agent/tree/master/sample/src/main/resources).
+
+The next step is to add all the transitive dependencies of the agent as a layer. The dependencies required are the runtime agent (which is built in the step above), the X-Ray SDK Core package, and the X-Ray AWS SDK instrumentor package. Use the following plugin:
 ```
   <plugin>
     <groupId>org.apache.maven.plugins</groupId>
@@ -156,19 +164,19 @@ The next step is to add all the transitive dependencies of the agent as a layer.
     </executions>
   </plugin>
 ```
-With the transitive dependencies and agent built, add them as a lambda layer.
+With the transitive dependencies and the agent built, add them as a layer in Lambda.
 
-To use the agent, import the following class, making sure that the `aws-xray-auto-instrumentation-agent-installer` artifact is consumed as a dependency:
+To use the agent, import the following class. Make sure that the `aws-xray-auto-instrumentation-agent-installer` artifact is consumed as a dependency:
 ```
 import com.amazonaws.xray.agent.XRayAgentInstaller;
 ```
-Add the following line to the top most section within the class definition:
+Add the following line to the top of the class definition:
 ```
 static {
     XRayAgentInstaller.installInLambda("servicename=YourServiceNameHere");
 }
 ```
-Your lambda function should now be instrumented.
+Your Lambda function should now be instrumented.
 
 
 ## Getting Help
@@ -181,17 +189,17 @@ Please use these community resources for getting help.
 * For contributing guidelines refer to [CONTRIBUTING.md](https://github.com/aws/aws-xray-java-agent/blob/master/CONTRIBUTING.md).
 
 ## Troubleshooting
-When troubleshooting the agent, one of the first steps of troubleshooting is to enable logging in the Agent. In this case, logging would mean publishing the internal log outputs to Standard Out. Logging to a standardized file is still in the works. To enable logging, please append the following line to your JVM arguments, with an equal sign as a delimiter:
+When troubleshooting the agent, one of the first steps is to enable logging in the agent. In this case, that means publishing the internal log outputs to Standard Out. To enable logging, please append the following line to your JVM arguments, with an equal sign as a delimiter:
 `loggerfactory=software.amazon.disco.agent.reflect.logging.StandardOutputLoggerFactory:verbose`
 
 For example, if your JFM args looks like `servicename=YourServiceNameHere`, then the log-enabled argument would look like
 `servicename=YourServiceNameHere=loggerfactory=software.amazon.disco.agent.reflect.logging.StandardOutputLoggerFactory:verbose`
 
-Here is a list of the most common issues and how to resolve them.
+Following is a list of the most common issues, and how to resolve them.
 
-**I've built the agent and published it as a Lambda Layer but it's still not instrumenting any of my downstream calls.**
+**I've built the agent and published it as a Lambda layer but it's still not instrumenting any of my downstream calls.**
 
-One of the most common reasons why this might be happening is that your Lambda Function does not contain all the necessary transitive dependencies the agent requires. As a sanity check, we'd recommend downloading the lambda layer and manually seeing if any dependencies are missing. You may cross reference it with the `compile` scoped dependencies seen [here](/aws-xray-auto-instrumentation-agent-runtime/pom.xml)
+One of the most common reasons this might be happening is your Lambda function does not contain all the necessary transitive dependencies that the agent requires. We recommend downloading the Lambda layer and manually verifying your dependencies. You may cross reference it with the `compile` scoped dependencies seen [here](/aws-xray-auto-instrumentation-agent-runtime/pom.xml)
 
 ## Documentation
 
