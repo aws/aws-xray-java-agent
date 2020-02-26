@@ -8,6 +8,9 @@
 # Ignore Gradle build output directory
 build
 
+# Dependency reduced POMs for building local dependencies
+dependency-reduced-pom.xml
+
 # IDEA stuffs
 *.iml
 .idea
