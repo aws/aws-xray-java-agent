@@ -49,7 +49,6 @@ public class ServletHandlerIT {
 
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
-        response = mock(HttpServletResponse.class);
         mockEmitter = mock(UDPEmitter.class);
 
         recorder = AWSXRay.getGlobalRecorder();
@@ -166,6 +165,7 @@ public class ServletHandlerIT {
     private void mockHttpObjects() {
         // Mock HttpServletRequest object.
         when(request.getMethod()).thenReturn("GET");
+        when(request.getProtocol()).thenReturn("http");
 
         // Add common http header
         Map<String, String> reqHeaderMap = new HashMap<>();
