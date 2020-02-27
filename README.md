@@ -206,9 +206,8 @@ One of the most common reasons this might be happening is your Lambda function d
 The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java.html) provides guidance on using the AWS X-Ray Java Agent. Please refer to the [Sample App](https://github.com/aws/aws-xray-java-agent/tree/master/sample) for an example.
 
 ## Building from Source
-Once you check out the code from GitHub, you can build it using Maven. As a prerequisite, you may need to build DiSCo into Maven Local first. Follow the instructions [here](https://github.com/awslabs/disco#including-disco-as-a-dependency-in-your-product).
+Once you check out the code from GitHub, you can build it using Maven. You can build the package locally by running the following command from the repository root:
 
-Once DiSCo has been built, you can build the package locally by running the following command:
 ```
 ./mvnw clean package -Dgpg.skip=true
 ```
