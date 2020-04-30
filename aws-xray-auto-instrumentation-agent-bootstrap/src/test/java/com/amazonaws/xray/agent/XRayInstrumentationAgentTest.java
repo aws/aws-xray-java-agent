@@ -1,7 +1,5 @@
-package software.amazon.disco.agent;
-import software.amazon.disco.agent.interception.Installable;
-import software.amazon.disco.agent.DiscoAgentTemplate;
-import software.amazon.disco.agent.AgentRuntimeLoaderInterface;
+package com.amazonaws.xray.agent;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,6 +8,8 @@ import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import software.amazon.disco.agent.DiscoAgentTemplate;
+import software.amazon.disco.agent.interception.Installable;
 
 import java.lang.instrument.Instrumentation;
 

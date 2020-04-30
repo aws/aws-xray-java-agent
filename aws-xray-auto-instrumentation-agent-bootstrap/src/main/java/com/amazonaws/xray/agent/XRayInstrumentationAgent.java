@@ -1,13 +1,14 @@
-package software.amazon.disco.agent;
+package com.amazonaws.xray.agent;
 
 import software.amazon.disco.agent.awsv1.AWSClientInvokeInterceptor;
+import software.amazon.disco.agent.awsv2.AWSClientBuilderInterceptor;
+import software.amazon.disco.agent.DiscoAgentTemplate;
 import software.amazon.disco.agent.concurrent.ConcurrencySupport;
 import software.amazon.disco.agent.event.EventBus;
-import software.amazon.disco.agent.web.WebSupport;
+import software.amazon.disco.agent.interception.Installable;
 import software.amazon.disco.agent.logging.LogManager;
 import software.amazon.disco.agent.logging.Logger;
-import software.amazon.disco.agent.interception.Installable;
-import software.amazon.disco.agent.awsv2.AWSClientBuilderInterceptor;
+import software.amazon.disco.agent.web.WebSupport;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;

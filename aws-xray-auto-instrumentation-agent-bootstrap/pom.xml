@@ -22,8 +22,8 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Premain-Class>software.amazon.disco.agent.XRayInstrumentationAgent</Premain-Class>
-                                        <Agent-Class>software.amazon.disco.agent.XRayInstrumentationAgent</Agent-Class>
+                                        <Premain-Class>com.amazonaws.xray.agent.XRayInstrumentationAgent</Premain-Class>
+                                        <Agent-Class>com.amazonaws.xray.agent.XRayInstrumentationAgent</Agent-Class>
                                         <Can-Redefine-Classes>true</Can-Redefine-Classes>
                                         <Can-Retransform-Classes>true</Can-Retransform-Classes>
                                         <Boot-Class-Path>${project.build.finalName}.jar</Boot-Class-Path>

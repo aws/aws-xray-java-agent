@@ -1,4 +1,4 @@
-package software.amazon.disco.agent;
+package com.amazonaws.xray.agent;
 
 /**
  * Interface for the bridge between the agent runtime loader and the application class loader.

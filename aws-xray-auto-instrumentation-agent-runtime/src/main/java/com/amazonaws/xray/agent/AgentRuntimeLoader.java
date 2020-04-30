@@ -1,19 +1,18 @@
 package com.amazonaws.xray.agent;
 
-import com.amazonaws.xray.agent.handlers.downstream.AWSV2Handler;
-import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
-import software.amazon.disco.agent.AgentRuntimeLoaderInterface;
 import software.amazon.disco.agent.event.EventBus;
 import software.amazon.disco.agent.logging.LogManager;
 import software.amazon.disco.agent.logging.Logger;
 import com.amazonaws.xray.agent.config.XRaySDKConfiguration;
 import com.amazonaws.xray.agent.dispatcher.EventDispatcher;
 import com.amazonaws.xray.agent.handlers.downstream.AWSHandler;
+import com.amazonaws.xray.agent.handlers.downstream.AWSV2Handler;
 import com.amazonaws.xray.agent.handlers.downstream.HttpClientHandler;
 import com.amazonaws.xray.agent.handlers.upstream.ServletHandler;
 import com.amazonaws.xray.agent.listeners.XRayListener;
 import com.amazonaws.xray.agent.models.XRayTransactionContextResolver;
 import com.amazonaws.xray.agent.models.XRayTransactionState;
+import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
 import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.strategy.DefaultContextMissingStrategy;
 import com.amazonaws.xray.strategy.sampling.CentralizedSamplingStrategy;
