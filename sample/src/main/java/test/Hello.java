@@ -22,6 +22,9 @@ import com.amazonaws.services.sqs.model.SendMessageResult;
 // Import the Agent installer (Lambda Only)
 import com.amazonaws.xray.agent.XRayAgentInstaller;
 
+// Importing the SDK here is optional
+import com.amazonaws.xray.AWSXRay;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -29,17 +32,24 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
 import java.io.File;
-
-// The SDK here is optional
-// import com.amazonaws.xray.AWSXRay;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Hello implements RequestHandler<Object, String> {
+    // We're going to use a variety of clients to show the auto-instrumentation capabilities of the Agent
+    AmazonDynamoDB dynamo_client = AmazonDynamoDBClientBuilder.defaultClient();
+    AmazonSQS sqs_client = AmazonSQSClientBuilder.defaultClient();
+    AmazonS3 s3_client = AmazonS3ClientBuilder.defaultClient();
+    AWSLambda lambda_client = AWSLambdaClientBuilder.defaultClient();
+    ExecutorService executor = Executors.newFixedThreadPool(2);
 
-    // Here we define the segment name the Agent will use to publish.
-    // It is very important that this is executed as soon as possible.
+    // It is very important that this is executed before other classes are loaded,
+    // which is why we place it in a static block
     static {
         System.out.println("Starting AWS clients tests...");
-        XRayAgentInstaller.installInLambda("servicename=" + System.getenv("AWS_LAMBDA_FUNCTION_NAME"));
+        XRayAgentInstaller.installInLambda();
     }
 
     static final String DYNAMO_TABLE_NAME = "XRayJavaAgentSampleTable";
@@ -49,20 +59,6 @@ public class Hello implements RequestHandler<Object, String> {
     static final String S3_BUCKET_NAME = System.getenv(S3_BUCKET_KEY);
 
     private void testAWSClientInstrumentation() {
-        // We're going to use a variety of clients to show the auto-instrumentation
-        // feature of the Agent
-        AmazonDynamoDB dynamo_client = AmazonDynamoDBClientBuilder.defaultClient();
-        AmazonSQS sqs_client = AmazonSQSClientBuilder.defaultClient();
-        AmazonS3 s3_client = AmazonS3ClientBuilder.defaultClient();
-        AWSLambda lambda_client = AWSLambdaClientBuilder.defaultClient();
-
-        System.out.println("Starting Dynamo client test...");
-
-        // DynamoDB Test
-        ScanRequest scanRequest = new ScanRequest().withTableName(DYNAMO_TABLE_NAME);
-        ScanResult ddbResult = dynamo_client.scan(scanRequest);
-        System.out.println(ddbResult);
-
         System.out.println("Starting SQS client test...");
 
         // SQS Test
@@ -104,9 +100,37 @@ public class Hello implements RequestHandler<Object, String> {
         }
     }
 
+    private Future<Void> scanTable() {
+        // Executed in a separate thread with X-Ray context maintained
+        return executor.submit(() -> {
+            // Dynamo test
+            ScanRequest scanRequest = new ScanRequest().withTableName(DYNAMO_TABLE_NAME);
+            ScanResult ddbResult = dynamo_client.scan(scanRequest);
+            System.out.println(ddbResult);
+            return null;
+        });
+    }
+
+    public void testConcurrency() {
+        System.out.println("Starting DynamoDB Concurrency test...");
+        AWSXRay.beginSubsegment("handleDynamoRequest");
+        Future<Void> eventFuture = scanTable();
+
+        try {
+            eventFuture.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } finally {
+            AWSXRay.endSubsegment();
+        }
+    }
+
     public String handleRequest(Object input, Context context) {
         System.out.println("Lambda Request Handler...");
         testAWSClientInstrumentation();
+        testConcurrency();
         return "Done!";
     }
 }
