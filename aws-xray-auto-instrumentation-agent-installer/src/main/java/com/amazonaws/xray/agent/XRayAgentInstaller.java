@@ -67,6 +67,10 @@ public class XRayAgentInstaller {
         Injector.loadAgent(instrumentationProxy, bootstrapJarPath, agentArgs);
     }
 
+    public static void installInLambda() {
+        installInLambda("");
+    }
+
     /**
      * Convenience method to install directly into lambda. Requires Linux version of Tools.jar, the Boostrap JAR
      * and the Runtime JAR.
@@ -74,13 +78,10 @@ public class XRayAgentInstaller {
      */
     public static void installInLambda(String agentArgs) {
         // TODO Dynamic Versioning based on maven properties.
-        // Should we parse agentArgs directly or assume it's the service name or config?
         System.setProperty("software.amazon.disco.agent.jar.bytebuddy.agent.toolsjar", "/opt/java/lib/tools.jar");
         final String bootstrapJarPath = "/opt/java/lib/aws-xray-auto-instrumentation-agent-bootstrap-2.4.0-beta.1.jar";
         final String runtimeJarPath = "/opt/java/lib/aws-xray-auto-instrumentation-agent-runtime-2.4.0-beta.1.jar";
 
         install(bootstrapJarPath, runtimeJarPath, agentArgs);
     }
-
-
 }
