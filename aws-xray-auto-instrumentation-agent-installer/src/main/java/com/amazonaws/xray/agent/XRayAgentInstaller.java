@@ -67,10 +67,6 @@ public class XRayAgentInstaller {
         Injector.loadAgent(instrumentationProxy, bootstrapJarPath, agentArgs);
     }
 
-    public static void installInLambda() {
-        installInLambda("");
-    }
-
     /**
      * Convenience method to install directly into lambda. Requires Linux version of Tools.jar, the Boostrap JAR
      * and the Runtime JAR.
