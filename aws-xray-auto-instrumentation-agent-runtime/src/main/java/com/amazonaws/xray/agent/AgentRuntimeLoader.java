@@ -1,8 +1,6 @@
 package com.amazonaws.xray.agent;
 
 import software.amazon.disco.agent.event.EventBus;
-import software.amazon.disco.agent.logging.LogManager;
-import software.amazon.disco.agent.logging.Logger;
 import com.amazonaws.xray.agent.config.XRaySDKConfiguration;
 import com.amazonaws.xray.agent.dispatcher.EventDispatcher;
 import com.amazonaws.xray.agent.handlers.downstream.AWSHandler;
@@ -17,6 +15,9 @@ import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.strategy.DefaultContextMissingStrategy;
 import com.amazonaws.xray.strategy.sampling.CentralizedSamplingStrategy;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Bridge between classes residing in the bootstrap classloader or application classloader;
  * basically, modules that need to be invoked during application runtime--not the Agent's premain.
@@ -26,7 +27,7 @@ public class AgentRuntimeLoader implements AgentRuntimeLoaderInterface {
     private static final String AWS_V2_ORIGIN = "AWSv2";
     private static final String APACHE_HTTP_CLIENT_ORIGIN = "ApacheHttpClient";
     private static final String HTTP_SERVLET_ORIGIN = "httpServlet";
-    private static final Logger LOG = LogManager.getLogger(AgentRuntimeLoader.class);
+    private static final Log LOG = LogFactory.getLog(AgentRuntimeLoader.class);
 
     /**
      * Initialize the classes belonging in the runtime.

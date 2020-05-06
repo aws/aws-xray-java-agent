@@ -7,16 +7,13 @@ import software.amazon.disco.agent.event.Listener;
 import software.amazon.disco.agent.event.ServiceEvent;
 import software.amazon.disco.agent.event.ServiceRequestEvent;
 import software.amazon.disco.agent.event.ServiceResponseEvent;
-import software.amazon.disco.agent.logging.LogManager;
-import software.amazon.disco.agent.logging.Logger;
 import com.amazonaws.xray.agent.dispatcher.EventDispatcher;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class XRayListener implements Listener {
-    /**
-     * log4j logger for log messages.
-     */
-    private static final Logger LOG = LogManager.getLogger(XRayListener.class);
+    private static final Log log = LogFactory.getLog(XRayListener.class);
 
     private final EventDispatcher upstreamEventDispatcher;
     private final EventDispatcher downstreamEventDispatcher;
@@ -47,7 +44,7 @@ public class XRayListener implements Listener {
         } catch (Exception e) {
             // We dont want to propagate any exceptions back to the bus nor the application code, so we
             // just log it and continue.
-            LOG.error("The X-Ray Agent had encountered an unexpected exception for the following event: "
+            log.error("The X-Ray Agent had encountered an unexpected exception for the following event: "
                     + event.toString(), e);
         }
     }

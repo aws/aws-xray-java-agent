@@ -35,7 +35,7 @@ The agent provides auto-instrumentation support for customers using version **2.
 
 ## Prerequisites
 
-The AWS X-Ray Java Agent is compatible with Java 8.
+The AWS X-Ray Java Agent is compatible with Java 8 and 11.
 
 ## Installation
 

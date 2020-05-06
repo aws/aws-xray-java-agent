@@ -4,13 +4,14 @@ import com.amazonaws.xray.AWSXRay;
 import software.amazon.disco.agent.event.Event;
 import software.amazon.disco.agent.event.HttpServiceDownstreamRequestEvent;
 import software.amazon.disco.agent.event.HttpServiceDownstreamResponseEvent;
-import software.amazon.disco.agent.logging.LogManager;
-import software.amazon.disco.agent.logging.Logger;
 import com.amazonaws.xray.agent.handlers.XRayHandler;
 import com.amazonaws.xray.entities.Namespace;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class HttpClientHandler extends XRayHandler {
-    private static final Logger LOG = LogManager.getLogger(HttpClientHandler.class);
+    private static final Log log = LogFactory.getLog(HttpClientHandler.class);
 
     // Request Fields
     private static final String URL_KEY = "url";
@@ -63,7 +64,7 @@ public class HttpClientHandler extends XRayHandler {
         try {
             uri = new URI(requestEvent.getUri());
         } catch (URISyntaxException e) {
-            LOG.error("HttpClientHandler: Unable to generate URI from request event service; using request object's URI: "
+            log.error("HttpClientHandler: Unable to generate URI from request event service; using request object's URI: "
                     + requestEvent.getService());
             uri = null;
         }

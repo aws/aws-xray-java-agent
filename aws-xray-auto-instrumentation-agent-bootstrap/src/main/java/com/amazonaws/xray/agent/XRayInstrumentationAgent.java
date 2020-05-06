@@ -24,17 +24,19 @@ import java.util.Set;
  * classes are actually used. At this time, the classes can be instrumented/transformed. The 'ByteBuddy' library
  * is used to rewrite/rebase the intercepted classes.
  *
+ * We minimize work done and classes loaded in this method so we can allow anything to be configurable in the
+ * @link{AgentRuntimeLoader Runtime loader} which uses the application classloader.
+ *
  * For more on ByteBuddy see: http://bytebuddy.net
  */
 public class XRayInstrumentationAgent {
-    public static final String TRACE_HEADER_KEY = "X-Amzn-Trace-Id"; // TODO Merge this into a single file.
-    public static final String SERVICE_NAME_ARG = "servicename"; // TODO Merge this into a single file.
+    public static final String SERVICE_NAME_ARG = "servicename";
     public static final String DEFAULT_SERVICE_NAME = "UnnamedXRayInstrumentedService";
 
     /**
-     * log4j logger for log messages.
+     * DiSCo logger is used to avoid loading Apache logger before it's configured
      */
-    private static final Logger LOG = LogManager.getLogger(XRayInstrumentationAgent.class);
+    private static final Logger log = LogManager.getLogger(XRayInstrumentationAgent.class);
 
     /**
      * The agent is loaded by a -javaagent command line parameter, which will treat 'premain' as its
@@ -44,8 +46,6 @@ public class XRayInstrumentationAgent {
      * @param instrumentation - the Instrumentation object given to every Agent, to transform bytecode
      */
     public static void premain(String agentArgs, Instrumentation instrumentation) {
-        LogManager.setMinimumLevel(Logger.Level.ERROR);
-
         DiscoAgentTemplate discoAgentTemplate = new DiscoAgentTemplate(agentArgs);
         Set<Installable> installables = new HashSet<>();
 
@@ -68,7 +68,7 @@ public class XRayInstrumentationAgent {
         // classloader would the customerClassloader; in a general case, the instrumentation would be instantiated
         // at the bootstrap classloader, so we by default use the system classloader during those scenarios.
         if (!initializeRuntimeAgent(agentArgs, instrumentation.getClass().getClassLoader())) {
-            LOG.error("Unable to initialize the runtime agent. Running without instrumentation.");
+            log.error("Unable to initialize the runtime agent. Running without instrumentation.");
             EventBus.removeAllListeners();
             return;
         }
@@ -82,11 +82,11 @@ public class XRayInstrumentationAgent {
             agentRuntimeLoader.init(serviceName);
             return true;
         } catch (ClassNotFoundException e) {
-            LOG.error("Unable to locate agent runtime loader. Please make sure it's imported as a dependency.");
+            log.error("Unable to locate agent runtime loader. Please make sure it's imported as a dependency.");
         } catch (NoSuchMethodException e) {
-            LOG.error("Unable to locate the agent runtime loader constructor.");
+            log.error("Unable to locate the agent runtime loader constructor.");
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            LOG.error("Unable to initialize the agent runtime loader.");
+            log.error("Unable to initialize the agent runtime loader.");
         }
         return false;
     }
@@ -107,8 +107,15 @@ public class XRayInstrumentationAgent {
         return (AgentRuntimeLoaderInterface) runtimeLoaderConstructor.newInstance();
     }
 
+    /**
+     * NOTE: THIS WILL BE REMOVED WHEN THE AGENT COMES OUT OF BETA
+     * Parses the name for segments from JVM command line args. Going forward this name will be taken from
+     * a configuration file.
+     * @param agentArgs
+     * @param defaultName
+     * @return
+     */
     private static String getServiceNameFromArgs(String agentArgs, String defaultName) {
-        // TODO Add a more proficient parser.
         if (agentArgs == null) {
             return defaultName;
         }

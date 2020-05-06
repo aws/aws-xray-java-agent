@@ -1,8 +1,8 @@
 package com.amazonaws.xray.agent.config;
 
 import com.amazonaws.xray.AWSXRay;
-import software.amazon.disco.agent.logging.LogManager;
-import software.amazon.disco.agent.logging.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.emitters.Emitter;
@@ -20,7 +20,7 @@ import java.net.URL;
  */
 public class XRaySDKConfiguration {
     private static XRaySDKConfiguration instance = new XRaySDKConfiguration();
-    private static final Logger log = LogManager.getLogger(XRaySDKConfiguration.class);
+    private static final Log log = LogFactory.getLog(XRaySDKConfiguration.class);
     private static final int DEFAULT_MAX_STACK_TRACE_LENGTH = 10;
 
     /**

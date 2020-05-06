@@ -20,8 +20,9 @@ import software.amazon.awssdk.core.exception.SdkServiceException;
 import software.amazon.disco.agent.event.AwsServiceDownstreamRequestEvent;
 import software.amazon.disco.agent.event.AwsServiceDownstreamResponseEvent;
 import software.amazon.disco.agent.event.Event;
-import software.amazon.disco.agent.logging.LogManager;
-import software.amazon.disco.agent.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.net.URL;
@@ -39,7 +40,7 @@ import java.util.Optional;
  * calls.
  */
 public class AWSV2Handler extends XRayHandler {
-    private static final Logger logger = LogManager.getLogger(AWSV2Handler.class);
+    private static final Log log = LogFactory.getLog(AWSV2Handler.class);
     private TracingHandler tracingHandler;
     private AWSServiceHandlerManifest awsServiceHandlerManifest;
     private ObjectMapper mapper = new ObjectMapper()
@@ -303,7 +304,7 @@ public class AWSV2Handler extends XRayHandler {
                 awsServiceHandlerManifest = mapper.readValue(parameterWhitelist, AWSServiceHandlerManifest.class);
                 return;
             } catch (IOException e) {
-                logger.error(
+                log.error(
                         "Unable to parse operation parameter whitelist at " + parameterWhitelist.getPath() +
                                 ". Falling back to default operation parameter whitelist at " + DEFAULT_OPERATION_PARAMETER_WHITELIST.getPath() + ".",
                         e
@@ -313,7 +314,7 @@ public class AWSV2Handler extends XRayHandler {
         try {
             awsServiceHandlerManifest = mapper.readValue(DEFAULT_OPERATION_PARAMETER_WHITELIST, AWSServiceHandlerManifest.class);
         } catch (IOException e) {
-            logger.error(
+            log.error(
                     "Unable to parse default operation parameter whitelist at " + DEFAULT_OPERATION_PARAMETER_WHITELIST.getPath() +
                             ". This will affect this handler's ability to capture AWS operation parameter information.",
                     e
