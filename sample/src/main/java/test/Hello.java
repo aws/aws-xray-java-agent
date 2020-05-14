@@ -24,6 +24,7 @@ import com.amazonaws.xray.agent.XRayAgentInstaller;
 
 // Importing the SDK here is optional
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Subsegment;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -111,26 +112,32 @@ public class Hello implements RequestHandler<Object, String> {
         });
     }
 
-    public void testConcurrency() {
+    /**
+     * This test verifies that the X-Ray agent is correctly passing context between threads. The DynamoDB transaction
+     * is done in a separate thread but its subsegment is still recorded without the need for manual context propagation.
+     */
+    public void testContextPropagation() {
         System.out.println("Starting DynamoDB Concurrency test...");
-        AWSXRay.beginSubsegment("handleDynamoRequest");
+        Subsegment sub = AWSXRay.beginSubsegment("handleDynamoRequest");
         Future<Void> eventFuture = scanTable();
 
         try {
             eventFuture.get();
         } catch (InterruptedException e) {
             e.printStackTrace();
+            sub.addException(e);
         } catch (ExecutionException e) {
             e.printStackTrace();
-        } finally {
-            AWSXRay.endSubsegment();
+            sub.addException(e);
         }
+        
+        AWSXRay.endSubsegment();
     }
 
     public String handleRequest(Object input, Context context) {
         System.out.println("Lambda Request Handler...");
         testAWSClientInstrumentation();
-        testConcurrency();
+        testContextPropagation();
         return "Done!";
     }
 }
