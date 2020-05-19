@@ -1,4 +1,4 @@
 /**
  * Classes used for initializing the X-Ray Agent.
  */
-package software.amazon.disco.agent;
+package com.amazonaws.xray.agent;

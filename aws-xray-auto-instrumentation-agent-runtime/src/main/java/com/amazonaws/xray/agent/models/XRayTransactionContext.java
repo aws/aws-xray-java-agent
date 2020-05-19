@@ -1,8 +1,6 @@
 package com.amazonaws.xray.agent.models;
 
 import software.amazon.disco.agent.concurrent.TransactionContext;
-import software.amazon.disco.agent.logging.LogManager;
-import software.amazon.disco.agent.logging.Logger;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.contexts.SegmentContext;
 import com.amazonaws.xray.entities.Entity;
@@ -12,13 +10,16 @@ import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * X-Ray-friendly context that utilizes the TransactionContext object to propagate across thread boundaries. This context
  * is used by the global recorder to maintain segments and subsegments.
  */
 public class XRayTransactionContext implements SegmentContext {
     private static final String XRAY_ENTITY_KEY = "DiSCoXRayEntity";
-    private static final Logger logger = LogManager.getLogger(XRayTransactionContext.class);
+    private static final Log log = LogFactory.getLog(XRayTransactionContext.class);
 
     // Transaction Context approach.
     public Entity getTraceEntity() {
@@ -40,8 +41,8 @@ public class XRayTransactionContext implements SegmentContext {
             recorder.getContextMissingStrategy().contextMissing("Failed to begin subsegment named '" + name + "': segment cannot be found.", SegmentNotFoundException.class);
             return null;
         }
-        if (LogManager.isDebugEnabled()) {
-            logger.debug("Beginning subsegment named: " + name);
+        if (log.isDebugEnabled()) {
+            log.debug("Beginning subsegment named: " + name);
         }
         Segment parentSegment = getTraceEntity().getParentSegment();
         Subsegment subsegment = new SubsegmentImpl(recorder, name, parentSegment);
@@ -55,8 +56,8 @@ public class XRayTransactionContext implements SegmentContext {
     public void endSubsegment(AWSXRayRecorder recorder) {
         Entity current = getTraceEntity();
         if (current instanceof Subsegment) {
-            if (LogManager.isDebugEnabled()) {
-                logger.debug("Ending subsegment named: " + current.getName());
+            if (log.isDebugEnabled()) {
+                log.debug("Ending subsegment named: " + current.getName());
             }
             Subsegment currentSubsegment = (Subsegment) current;
             if (currentSubsegment.end()) {

@@ -11,7 +11,19 @@ import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+/**
+ * A wrapper class for using the X-Ray agent in Lambda environments. Normally a Java program would use the -javaagent
+ * JVM argument to know to begin in the agent's premain method. This is not currently possible in Lambda, and so we
+ * use this class to do a workaround that starts the agent after JVM startup.
+ *
+ * Since classes loaded here will be loaded before the agent, and therefore possibly impact instrumentation, we must
+ * minimize dependencies here. This means also not using a logger.
+ *
+ * This class should not be used outside Lambda functions.
+ */
 public class XRayAgentInstaller {
+    private static final String LAMBDA_TASK_ROOT_KEY = "LAMBDA_TASK_ROOT";
+
     static class ProxiedInstrumentation implements InvocationHandler {
         // Proxied instrumentation to backhandedly pass the executing classloader to the agent
         private final Instrumentation original;
@@ -60,11 +72,10 @@ public class XRayAgentInstaller {
         File runtimeJar = new File(runtimeJarPath);
         try {
             addURL(Injector.class.getClassLoader(), runtimeJar.toURI().toURL());
+            Injector.loadAgent(instrumentationProxy, bootstrapJarPath, agentArgs);
         } catch (Throwable e) {
-            ; // TO throw an exception or not...
+            System.out.println("Failed to add runtime agent loader to classpath, aborting instrumentation");
         }
-
-        Injector.loadAgent(instrumentationProxy, bootstrapJarPath, agentArgs);
     }
 
     /**
@@ -73,14 +84,17 @@ public class XRayAgentInstaller {
      * @param agentArgs
      */
     public static void installInLambda(String agentArgs) {
-        // TODO Dynamic Versioning based on maven properties.
-        // Should we parse agentArgs directly or assume it's the service name or config?
+        if (System.getenv(LAMBDA_TASK_ROOT_KEY) == null) {
+            System.out.println("The X-Ray Agent Installer can only be used in AWS Lambda functions");
+            return;
+        }
+
         System.setProperty("software.amazon.disco.agent.jar.bytebuddy.agent.toolsjar", "/opt/java/lib/tools.jar");
+
+        // TODO Dynamic Versioning based on maven properties.
         final String bootstrapJarPath = "/opt/java/lib/aws-xray-auto-instrumentation-agent-bootstrap-2.4.0-beta.1.jar";
         final String runtimeJarPath = "/opt/java/lib/aws-xray-auto-instrumentation-agent-runtime-2.4.0-beta.1.jar";
 
         install(bootstrapJarPath, runtimeJarPath, agentArgs);
     }
-
-
 }

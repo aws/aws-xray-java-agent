@@ -1,9 +1,10 @@
 package com.amazonaws.xray.agent.dispatcher;
 
 import software.amazon.disco.agent.event.Event;
-import software.amazon.disco.agent.logging.LogManager;
-import software.amazon.disco.agent.logging.Logger;
 import com.amazonaws.xray.agent.handlers.XRayHandlerInterface;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,10 +15,7 @@ import java.util.Map;
  * instantiated to represent the downstream or upstream dispatcher.
  */
 public class EventDispatcher {
-    /**
-     * log4j logger for log messages.
-     */
-    private static final Logger LOG = LogManager.getLogger(EventDispatcher.class);
+    private static final Log log = LogFactory.getLog(EventDispatcher.class);
 
     /**
      * Map that holds a reference between the origin and its handler
@@ -49,7 +47,7 @@ public class EventDispatcher {
         XRayHandlerInterface xrayHandler = originHandlerMap.get(eventOrigin);
         if (xrayHandler == null) {
             String logMessage = String.format("Unable to retrieve a handler from event [%s] and origin [%s].", event.toString(), event.getOrigin());
-            LOG.error(logMessage);
+            log.error(logMessage);
         }
         return xrayHandler;
 

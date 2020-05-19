@@ -1,8 +1,6 @@
 package com.amazonaws.xray.agent.handlers;
 
 import software.amazon.disco.agent.concurrent.TransactionContext;
-import software.amazon.disco.agent.logging.LogManager;
-import software.amazon.disco.agent.logging.Logger;
 import com.amazonaws.xray.agent.models.XRayTransactionState;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Entity;
@@ -13,6 +11,9 @@ import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import com.amazonaws.xray.strategy.sampling.SamplingResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,10 +22,7 @@ import java.util.Optional;
  * Base class for an X-Ray handler which contains methods that help initiate
  */
 public abstract class XRayHandler implements XRayHandlerInterface {
-    /**
-     * log4j logger for log messages.
-     */
-    private static final Logger LOG = LogManager.getLogger(XRayHandler.class);
+    private static final Log log = LogFactory.getLog(XRayHandler.class);
 
     /**
      * DiSCo TransactionContext key for XRay State data.
@@ -80,7 +78,7 @@ public abstract class XRayHandler implements XRayHandlerInterface {
         if (awsMap == null) {
             // If this is null, the global recorder wasn't properly initialized. Just ignore putting in the version
             // altogether, log this, and continue along.
-            LOG.error("Unable to retrieve AWS map to set the auto instrumentation flag.");
+            log.error("Unable to retrieve AWS map to set the auto instrumentation flag.");
             return segment;
         }
 
@@ -88,7 +86,7 @@ public abstract class XRayHandler implements XRayHandlerInterface {
         if (xrayMap != null) {
             xrayMap.put(AUTO_INSTRUMENTATION_KEY, true);
         } else {
-            LOG.error("Unable to retrieve X-Ray map from AWS map of segment.");
+            log.error("Unable to retrieve X-Ray map from AWS map of segment.");
         }
 
         return segment;
@@ -141,7 +139,7 @@ public abstract class XRayHandler implements XRayHandlerInterface {
 
         TraceHeader.SampleDecision sampleDecision = traceHeader.map(TraceHeader::getSampled).orElse(null);
         if (sampleDecision != null) {
-            LOG.debug(String.format("Received sampling decision from trace header: %s", sampleDecision.toString()));
+            log.debug(String.format("Received sampling decision from trace header: %s", sampleDecision.toString()));
             return sampleDecision.equals(TraceHeader.SampleDecision.SAMPLED);
         }
 
