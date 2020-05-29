@@ -8,6 +8,8 @@ import com.amazonaws.Response;
 import com.amazonaws.xray.agent.handlers.XRayHandler;
 import com.amazonaws.xray.handlers.TracingHandler;
 
+import java.net.URL;
+
 /**
  * The AWS handler generates a subsegment from a given AWS downstream service event.
  * Due to a limitation in the AWS SDK V1 interceptor, S3 is currently not supported.
@@ -20,6 +22,10 @@ public class AWSHandler extends XRayHandler {
         // The tracing handler's internal call to beforeExecution doesn't need to be done because this agent
         // uses its own context for propagating segments using the TransactionContext.
         tracingHandler = new TracingHandler();
+    }
+
+    public AWSHandler(URL serviceHandlerManifest) {
+        tracingHandler = new TracingHandler(serviceHandlerManifest);
     }
 
     @Override

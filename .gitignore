@@ -25,3 +25,6 @@ target/*
 .project
 .classpath
 build
+
+# Don't include personal scripts
+sample/*.sh

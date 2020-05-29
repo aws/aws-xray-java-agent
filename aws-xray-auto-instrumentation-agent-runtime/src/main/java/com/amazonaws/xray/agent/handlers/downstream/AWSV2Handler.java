@@ -62,6 +62,11 @@ public class AWSV2Handler extends XRayHandler {
         initInterceptorManifest(DEFAULT_OPERATION_PARAMETER_WHITELIST);
     }
 
+    public AWSV2Handler(URL serviceHandlerManifest) {
+        tracingHandler = new TracingHandler();
+        initInterceptorManifest(serviceHandlerManifest);
+    }
+
     @Override
     public void handleRequest(Event event) {
         AwsServiceDownstreamRequestEvent requestEvent = (AwsServiceDownstreamRequestEvent) event;

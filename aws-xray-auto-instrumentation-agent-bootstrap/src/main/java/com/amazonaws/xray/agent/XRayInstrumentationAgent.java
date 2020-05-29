@@ -31,7 +31,6 @@ import java.util.Set;
  */
 public class XRayInstrumentationAgent {
     public static final String SERVICE_NAME_ARG = "servicename";
-    public static final String DEFAULT_SERVICE_NAME = "UnnamedXRayInstrumentedService";
 
     /**
      * DiSCo logger is used to avoid loading Apache logger before it's configured
@@ -78,7 +77,7 @@ public class XRayInstrumentationAgent {
         // Reflectively acquire the agent runtime loader and initialize it to configure X-Ray.
         try {
             AgentRuntimeLoaderInterface agentRuntimeLoader = getAgentRuntimeLoader(classLoader);
-            String serviceName = getServiceNameFromArgs(agentArgs, DEFAULT_SERVICE_NAME);
+            String serviceName = getServiceNameFromArgs(agentArgs);
             agentRuntimeLoader.init(serviceName);
             return true;
         } catch (ClassNotFoundException e) {
@@ -111,13 +110,12 @@ public class XRayInstrumentationAgent {
      * NOTE: THIS WILL BE REMOVED WHEN THE AGENT COMES OUT OF BETA
      * Parses the name for segments from JVM command line args. Going forward this name will be taken from
      * a configuration file.
-     * @param agentArgs
-     * @param defaultName
-     * @return
+     * @param agentArgs the string
+     * @return the service name parsed from command line args, or null if none was discovered
      */
-    private static String getServiceNameFromArgs(String agentArgs, String defaultName) {
+    private static String getServiceNameFromArgs(String agentArgs) {
         if (agentArgs == null) {
-            return defaultName;
+            return null;
         }
 
         String[] argArray = agentArgs.split("=");
@@ -127,7 +125,7 @@ public class XRayInstrumentationAgent {
                 return argArray[i+1];
             }
         }
-        return defaultName;
+        return null;
     }
 
 

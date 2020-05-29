@@ -1,0 +1,4 @@
+{
+  "awsServiceHandlerManifest": "/path/to/manifest",
+  "awsSDKVersion": 1
+}

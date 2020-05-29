@@ -28,7 +28,6 @@ public class ServletHandlerTest {
 
     private final String ORIGIN = "httpServlet";
     private final String SERVICE_NAME = "SomeServletHostedService";
-    private final String SDK_VERSION = "2.4.0";
     private final String SDK = "X-Ray for Java";
 
     // Transaction State configurations
@@ -76,7 +75,6 @@ public class ServletHandlerTest {
         Assert.assertEquals(USER_AGENT, httpMap.get("user_agent"));
 
         Map<String, Object> xrayMap = (Map<String, Object>) servletSegment.getAws().get("xray");
-        Assert.assertEquals(SDK_VERSION, xrayMap.get("sdk_version"));
         Assert.assertEquals(SDK, xrayMap.get("sdk"));
         Assert.assertEquals(Boolean.TRUE, xrayMap.get("auto_instrumentation"));
     }

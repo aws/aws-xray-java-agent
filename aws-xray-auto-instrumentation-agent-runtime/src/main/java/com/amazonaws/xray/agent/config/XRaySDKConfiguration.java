@@ -1,104 +1,389 @@
 package com.amazonaws.xray.agent.config;
 
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.agent.models.XRayTransactionContextResolver;
+import com.amazonaws.xray.agent.models.XRayTransactionState;
+import com.amazonaws.xray.config.DaemonConfiguration;
+import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
+import com.amazonaws.xray.emitters.UDPEmitter;
+import com.amazonaws.xray.entities.StringValidator;
+import com.amazonaws.xray.strategy.DefaultStreamingStrategy;
+import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
+import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
+import com.amazonaws.xray.strategy.SegmentNamingStrategy;
+import com.amazonaws.xray.strategy.sampling.AllSamplingStrategy;
+import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
+import com.amazonaws.xray.strategy.sampling.NoSamplingStrategy;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.contexts.SegmentContextResolverChain;
-import com.amazonaws.xray.emitters.Emitter;
-import com.amazonaws.xray.strategy.ContextMissingStrategy;
 import com.amazonaws.xray.strategy.DefaultThrowableSerializationStrategy;
-import com.amazonaws.xray.strategy.StreamingStrategy;
 import com.amazonaws.xray.strategy.sampling.CentralizedSamplingStrategy;
-import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * Basic configuration for the global recorder used by all listener to generate segments.
+ * Singleton class that represents the X-Ray Agent's configuration programatically. This class is responsible for
+ * parsing and validating the contents of the agent's configuration file. It also reads the environment variables
+ * and system properties for relevant configurations. Priority for settings is as follows:
+ *
+ * 1. Environment variables
+ * 2. System properties
+ * 3. Configuration file values
+ * 4. Default value
+ *
+ * For now, environment variable and system property overrides are handled in various locations of the SDK.
+ * Note that configuring these values programatically is still possible, and will override the configuration file and
+ * default value set here, but that is not recommended.
  */
 public class XRaySDKConfiguration {
-    private static XRaySDKConfiguration instance = new XRaySDKConfiguration();
-    private static final Log log = LogFactory.getLog(XRaySDKConfiguration.class);
-    private static final int DEFAULT_MAX_STACK_TRACE_LENGTH = 10;
+    static final String DEFAULT_SERVICE_NAME = "XRayInstrumentedService";
+    static final String ENABLED_ENVIRONMENT_VARIABLE_KEY = "AWS_XRAY_TRACING_ENABLED";
+    static final String ENABLED_SYSTEM_PROPERTY_KEY = "com.amazonaws.xray.tracingEnabled";
 
-    /**
-     * X-Ray-specific configuration
-     **/
-    private int maxStackTraceLength = DEFAULT_MAX_STACK_TRACE_LENGTH;
-    private SamplingStrategy samplingStrategy = null;
-    private String samplingRuleFilePath = null;
-    private ContextMissingStrategy contextMissingStrategy = null;
-    private SegmentContextResolverChain segmentContextResolverChain = null;
-    private StreamingStrategy streamingStrategy = null;
-    private Emitter emitter = null;
+    private static final Log log = LogFactory.getLog(XRaySDKConfiguration.class);
+
+    /* JSON factory used instead of mapper for performance */
+    JsonFactory factory = new JsonFactory();
+
+    /* Singleton instance */
+    private static XRaySDKConfiguration instance;
+
+    /* Configuration storage */
+    private AgentConfiguration agentConfiguration;
+
+    /* AWS Manifest whitelist, for runtime loader access */
+    private URL awsServiceHandlerManifest = null;
+    private int awsSDKVersion;
+
+    /* Context missing enums */
+    enum ContextMissingStrategy {
+        LOG_ERROR,
+        IGNORE_ERROR,
+    }
+
+    /* Sampling strategy enums */
+    enum SamplingStrategy {
+        LOCAL,
+        CENTRAL,
+        NONE,
+        ALL,
+    }
+
+    public int getAwsSDKVersion() {
+        return awsSDKVersion;
+    }
+
+    void setAwsSDKVersion(int version) {
+        this.awsSDKVersion = version;
+    }
+
+    public URL getAwsServiceHandlerManifest() {
+        return awsServiceHandlerManifest;
+    }
+
+    // For testing
+    void setAwsServiceHandlerManifest(URL awsServiceHandlerManifest) {
+        this.awsServiceHandlerManifest = awsServiceHandlerManifest;
+    }
+
+    // For testing
+    AgentConfiguration getAgentConfiguration() {
+        return agentConfiguration;
+    }
+
+    // For testing
+    void setAgentConfiguration(AgentConfiguration agentConfiguration) {
+        this.agentConfiguration = agentConfiguration;
+    }
+
+    public boolean isEnabled() {
+        return agentConfiguration.isTracingEnabled();
+    }
+
+    private XRaySDKConfiguration() {
+    }
 
     /**
      * @return XRaySDKConfiguration - The global instance of this agent recorder configuration.
      */
     public static XRaySDKConfiguration getInstance() {
+        if (instance == null) {
+            instance = new XRaySDKConfiguration();
+        }
         return instance;
     }
 
     /**
-     * Initialize the Agent Recorder with the set attributes.
-     * @throws MalformedURLException Thrown if no sampling strategy was passed in and the sampling rule file path is invalid.
+     * Parses the given agent configuration file and stores its properties. If file is missing or incorrectly formatted,
+     * the agent is configured with the default settings.
+     * @param configFile - Location of configuration file
      */
-    public void init() throws MalformedURLException {
+    public void init(URL configFile) {
+        try {
+            log.info("Reading X-Ray Agent config file at: " + configFile.getPath());
+            this.agentConfiguration = parseConfig(configFile);
+        } catch (IOException e) {
+            throw new InvalidAgentConfigException("Failed to read X-Ray Agent configuration file " + configFile.getPath(), e);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Starting the X-Ray Agent with the following properties:\n" + agentConfiguration.toString());
+        }
+        init();
+    }
+
+    /**
+     * Initialize the X-Ray SDK's Recorder used by the agent.
+     */
+    public void init() {
+        init(AWSXRayRecorderBuilder.standard());
+    }
+
+    // For testing only
+    void init(AWSXRayRecorderBuilder builder) {
         log.info("Initializing the X-Ray Agent Recorder");
-        AWSXRayRecorderBuilder builder = AWSXRayRecorderBuilder.standard();
-        builder.withThrowableSerializationStrategy(new DefaultThrowableSerializationStrategy(maxStackTraceLength));
-        if (segmentContextResolverChain != null) {
-            builder.withSegmentContextResolverChain(segmentContextResolverChain);
+
+        // Reset to defaults
+        if (agentConfiguration == null) {
+            agentConfiguration = new AgentConfiguration();
         }
-        if (contextMissingStrategy != null) {
-            builder.withContextMissingStrategy(contextMissingStrategy);
+
+        this.awsServiceHandlerManifest = null;
+        this.awsSDKVersion = 0;
+
+        // X-Ray Enabled
+        String envString = System.getenv(ENABLED_ENVIRONMENT_VARIABLE_KEY);
+        String sysString = System.getProperty(ENABLED_SYSTEM_PROPERTY_KEY);
+        if (envString != null && envString.toLowerCase().equals("false") ||
+            sysString != null && sysString.toLowerCase().equals("false") ||
+            !agentConfiguration.isTracingEnabled())
+        {
+            log.info("Instrumentation via the X-Ray Agent has been disabled by user configuration.");
+            return;
         }
-        if (streamingStrategy != null) {
-            builder.withStreamingStrategy(streamingStrategy);
+
+        /*
+        Service name is unique since it can still be set via JVM arg. So we check for that first, then proceed with
+        the normal priority of properties. Once the JVM arg option is removed, we can remove the first condition
+         */
+        if (XRayTransactionState.getServiceName() == null) {
+            String environmentNameOverrideValue = System.getenv(SegmentNamingStrategy.NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY);
+            String systemNameOverrideValue = System.getProperty(SegmentNamingStrategy.NAME_OVERRIDE_SYSTEM_PROPERTY_KEY);
+
+            if (StringValidator.isNotNullOrBlank(environmentNameOverrideValue)) {
+                XRayTransactionState.setServiceName(environmentNameOverrideValue);
+            } else if (StringValidator.isNotNullOrBlank(systemNameOverrideValue)) {
+                XRayTransactionState.setServiceName(systemNameOverrideValue);
+            } else if (agentConfiguration.getServiceName() != null) {
+                XRayTransactionState.setServiceName(agentConfiguration.getServiceName());
+            } else {
+                log.warn("No service name for X-Ray Agent set, using default service name.");
+                XRayTransactionState.setServiceName(DEFAULT_SERVICE_NAME);
+            }
         }
-        if (emitter != null) {
-            builder.withEmitter(emitter);
+
+        // Context missing
+        if (agentConfiguration.getContextMissingStrategy() != null) {
+            ContextMissingStrategy contextMissing;
+            try {
+                contextMissing = ContextMissingStrategy
+                        .valueOf(agentConfiguration.getContextMissingStrategy().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new InvalidAgentConfigException("Invalid context missing strategy given in X-Ray Agent " +
+                        "configuration file: " + agentConfiguration.getContextMissingStrategy());
+            }
+            switch (contextMissing) {
+                case LOG_ERROR:
+                    builder.withContextMissingStrategy(new LogErrorContextMissingStrategy());
+                    break;
+                case IGNORE_ERROR:
+                    builder.withContextMissingStrategy(new IgnoreErrorContextMissingStrategy());
+                    break;
+                default:
+            }
         }
-        if (samplingStrategy != null) {
-            builder.withSamplingStrategy(samplingStrategy);
-        } else if (samplingRuleFilePath != null) {
-            URL ruleFile = new URL("file:" + samplingRuleFilePath);
-            log.info("Using the Centralized Sampling Strategy with the sampling rule file: " + samplingRuleFilePath);
-            builder.withSamplingStrategy(new CentralizedSamplingStrategy(ruleFile));
+
+        // Daemon address
+        if (agentConfiguration.getDaemonAddress() != null) {
+            DaemonConfiguration daemonConfiguration = new DaemonConfiguration();
+
+            try {
+                // SDK handles all validation & environment overrides
+                daemonConfiguration.setDaemonAddress(agentConfiguration.getDaemonAddress());
+                builder.withEmitter(new UDPEmitter(daemonConfiguration));
+            } catch (Exception e) {
+                throw new InvalidAgentConfigException("Invalid daemon address provided in X-Ray Agent configuration " +
+                        "file: " + agentConfiguration.getDaemonAddress(), e);
+            }
         }
+
+        // Sampling Rules manifest
+        URL samplingManifest = null;
+        if (agentConfiguration.getSamplingRulesManifest() != null) {
+            try {
+                samplingManifest = new File(agentConfiguration.getSamplingRulesManifest()).toURI().toURL();
+            } catch (MalformedURLException e) {
+                throw new InvalidAgentConfigException("Invalid sampling rules manifest location provided in X-Ray Agent " +
+                        "configuration file: " + agentConfiguration.getSamplingRulesManifest(), e);
+            }
+        }
+
+        // Sampling strategy
+        if (agentConfiguration.getSamplingStrategy() != null) {
+            SamplingStrategy samplingStrategy;
+            try {
+                samplingStrategy = SamplingStrategy.valueOf(agentConfiguration.getSamplingStrategy().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new InvalidAgentConfigException("Invalid sampling strategy given in X-Ray Agent " +
+                        "configuration file: " + agentConfiguration.getSamplingStrategy());
+            }
+            switch (samplingStrategy) {
+                case ALL:
+                    builder.withSamplingStrategy(new AllSamplingStrategy());
+                    break;
+                case NONE:
+                    builder.withSamplingStrategy(new NoSamplingStrategy());
+                    break;
+                case LOCAL:
+                    builder.withSamplingStrategy(samplingManifest != null ?
+                            new LocalizedSamplingStrategy(samplingManifest) :
+                            new LocalizedSamplingStrategy());
+                    break;
+                case CENTRAL:
+                    builder.withSamplingStrategy(samplingManifest != null ?
+                            new CentralizedSamplingStrategy(samplingManifest) :
+                            new CentralizedSamplingStrategy());
+                    break;
+                default:
+            }
+        } else if (samplingManifest != null) {
+            // Case where sampling manifest is provided but sampling strategy is NOT
+            builder.withSamplingStrategy(new CentralizedSamplingStrategy(samplingManifest));
+        }
+
+        // Max stack trace length
+        if (agentConfiguration.getMaxStackTraceLength() >= 0) {
+            builder.withThrowableSerializationStrategy(
+                    new DefaultThrowableSerializationStrategy(agentConfiguration.getMaxStackTraceLength()));
+        }
+
+        // Streaming threshold
+        if (agentConfiguration.getStreamingThreshold() >= 0) {
+            builder.withStreamingStrategy(new DefaultStreamingStrategy(agentConfiguration.getStreamingThreshold()));
+        }
+
+        // AWS Service handler manifest
+        if (agentConfiguration.getAwsServiceHandlerManifest() != null) {
+            int version = agentConfiguration.getAwsSDKVersion();
+            if (version != 1 && version != 2) {
+                throw new InvalidAgentConfigException("Invalid AWS SDK version given in X-Ray Agent configuration file: " + version);
+            } else {
+                this.awsSDKVersion = version;
+                try {
+                    this.awsServiceHandlerManifest = new File(agentConfiguration.getAwsServiceHandlerManifest()).toURI().toURL();
+                } catch (MalformedURLException e) {
+                    throw new InvalidAgentConfigException("Invalid AWS Service Handler Manifest location given in X-Ray Agent " +
+                            "configuration file: " + agentConfiguration.getAwsServiceHandlerManifest(), e);
+                }
+            }
+        }
+
+        // Non-configurable properties
+        SegmentContextResolverChain segmentContextResolverChain = new SegmentContextResolverChain();
+        segmentContextResolverChain.addResolver(new LambdaSegmentContextResolver());
+        segmentContextResolverChain.addResolver(new XRayTransactionContextResolver());
+        builder.withSegmentContextResolverChain(segmentContextResolverChain);
+
+        log.debug("Successfully configured the X-Ray Agent's recorder.");
+
         AWSXRay.setGlobalRecorder(builder.build());
     }
 
-    /*
-     * Setter functions for configuring this global recorder.
-     */
+    private AgentConfiguration parseConfig(URL configFile) throws IOException {
+        AgentConfiguration config = new AgentConfiguration();
+        JsonParser parser = factory.createParser(configFile);
+        parser.nextToken();
 
-    public void setMaxStackTraceLength(int maxStackTraceLength) {
-        this.maxStackTraceLength = maxStackTraceLength;
-    }
-
-    public void setSamplingStrategy(SamplingStrategy samplingStrategy) {
-        this.samplingStrategy = samplingStrategy;
-    }
-
-    public void setEmitter(Emitter emitter) {
-        this.emitter = emitter;
-    }
-
-    public void setContextMissingStrategy(ContextMissingStrategy contextMissingStrategy) {
-        this.contextMissingStrategy = contextMissingStrategy;
-    }
-
-    public void setSamplingRuleFilePath(String samplingRuleFilePath) {
-        if (samplingRuleFilePath.isEmpty()) {
-            throw new IllegalArgumentException("SamplingRuleFilePath cannot be empty.");
+        if (!parser.isExpectedStartObjectToken()) {
+            throw new InvalidAgentConfigException("X-Ray Agent configuration file is not valid JSON");
         }
-        this.samplingRuleFilePath = samplingRuleFilePath;
+
+        while (!parser.isClosed()) {
+            String field = parser.nextFieldName();
+            if (field == null) {
+                continue;  // Ignore trailing null fields
+            }
+
+            parser.nextToken();
+
+            switch (field) {
+                case "serviceName":
+                    config.setServiceName(getStringFromParser(parser));
+                    break;
+                case "contextMissingStrategy":
+                    config.setContextMissingStrategy(getStringFromParser(parser));
+                    break;
+                case "daemonAddress":
+                    config.setDaemonAddress(getStringFromParser(parser));
+                    break;
+                case "samplingStrategy":
+                    config.setSamplingStrategy(getStringFromParser(parser));
+                    break;
+                case "maxStackTraceLength":
+                    config.setMaxStackTraceLength(getIntFromParser(parser));
+                    break;
+                case "streamingThreshold":
+                    config.setStreamingThreshold(getIntFromParser(parser));
+                    break;
+                case "samplingRulesManifest":
+                    config.setSamplingRulesManifest(getStringFromParser(parser));
+                    break;
+                case "awsSDKVersion":
+                    config.setAwsSDKVersion(getIntFromParser(parser));
+                    break;
+                case "awsServiceHandlerManifest":
+                    config.setAwsServiceHandlerManifest(getStringFromParser(parser));
+                    break;
+                case "tracingEnabled":
+                    config.setTracingEnabled(getBooleanFromParser(parser));
+                    break;
+                default:
+                    log.debug("Encountered unknown property " + field + " in X-Ray agent configuration. Ignoring.");
+                    break;
+            }
+        }
+        return config;
     }
 
-    public void setSegmentContextResolverChain(SegmentContextResolverChain segmentContextResolverChain) {
-        this.segmentContextResolverChain = segmentContextResolverChain;
+    private String getStringFromParser(JsonParser parser) throws IOException {
+        if (parser.getCurrentToken() != JsonToken.VALUE_STRING) {
+            throw new InvalidAgentConfigException("Expected String for property " + parser.currentName() + " but got "
+                    + parser.getCurrentToken().asString() + " instead.");
+        }
+        return parser.getValueAsString();
+    }
+
+    private int getIntFromParser(JsonParser parser) throws IOException {
+        if (parser.getCurrentToken() != JsonToken.VALUE_NUMBER_INT) {
+            throw new InvalidAgentConfigException("Expected Integer for property " + parser.currentName() + " but got "
+                    + parser.getCurrentToken().asString() + " instead.");
+        }
+        return parser.getValueAsInt();
+    }
+
+    private boolean getBooleanFromParser(JsonParser parser) throws IOException {
+        if (parser.getCurrentToken() != JsonToken.VALUE_FALSE && parser.getCurrentToken() != JsonToken.VALUE_TRUE) {
+            throw new InvalidAgentConfigException("Expected Boolean for property " + parser.currentName() + " but got "
+                    + parser.getCurrentToken().asString() + " instead.");
+        }
+        return parser.getValueAsBoolean();
     }
 }
