@@ -16,6 +16,9 @@
             <testResource>
                 <directory>${project.basedir}/src/integtest/java</directory>
             </testResource>
+            <testResource>
+                <directory>${project.basedir}/src/test/resources</directory>
+            </testResource>
         </testResources>
         <plugins>
             <!-- Pull in only the runtime agent artifacts into the JAR. -->
