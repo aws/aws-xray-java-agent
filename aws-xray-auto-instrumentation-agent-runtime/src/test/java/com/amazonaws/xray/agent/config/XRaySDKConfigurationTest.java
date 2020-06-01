@@ -29,6 +29,8 @@ import static org.mockito.Mockito.verify;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class XRaySDKConfigurationTest {
     private static final String JVM_NAME = "jvm_name";
@@ -37,7 +39,7 @@ public class XRaySDKConfigurationTest {
     private static final String CONFIG_NAME = "config_name";
 
     XRaySDKConfiguration config = XRaySDKConfiguration.getInstance();
-    AgentConfiguration agentConfig;
+    Map<String, String> configMap;
 
     @Rule
     public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -45,8 +47,8 @@ public class XRaySDKConfigurationTest {
     @Before
     public void setup() {
         AWSXRay.setGlobalRecorder(new AWSXRayRecorder());
-        agentConfig = new AgentConfiguration();
-        config.setAgentConfiguration(agentConfig);
+        configMap = new HashMap<>();
+        config.setAgentConfiguration(null);
     }
 
     @After
@@ -72,16 +74,17 @@ public class XRaySDKConfigurationTest {
 
     @Test
     public void testInitWithValidFile() {
-        agentConfig.setServiceName("myServiceName");
-        agentConfig.setContextMissingStrategy("myTestContext");
-        agentConfig.setDaemonAddress("myTestAddress");
-        agentConfig.setSamplingStrategy("myTestSampling");
-        agentConfig.setSamplingRulesManifest("myTestManifest");
-        agentConfig.setMaxStackTraceLength(20);
-        agentConfig.setStreamingThreshold(10);
-        agentConfig.setAwsSDKVersion(1);
-        agentConfig.setAwsServiceHandlerManifest("myTestHandler");
-        agentConfig.setTracingEnabled(false);
+        configMap.put("serviceName", "myServiceName");
+        configMap.put("contextMissingStrategy", "myTestContext");
+        configMap.put("daemonAddress", "myTestAddress");
+        configMap.put("samplingStrategy", "myTestSampling");
+        configMap.put("samplingRulesManifest", "myTestManifest");
+        configMap.put("maxStackTraceLength", "20");
+        configMap.put("streamingThreshold", "10");
+        configMap.put("awsSDKVersion", "1");
+        configMap.put("awsServiceHandlerManifest", "myTestHandler");
+        configMap.put("tracingEnabled", "false");
+        AgentConfiguration agentConfig = new AgentConfiguration(configMap);
         config.init(XRaySDKConfigurationTest.class.getResource("/com/amazonaws/xray/agent/validAgentConfig.json"));
 
         Assert.assertEquals(agentConfig, config.getAgentConfiguration());
@@ -113,7 +116,8 @@ public class XRaySDKConfigurationTest {
     @Test
     public void testFileTracingDisabled() {
         AWSXRayRecorderBuilder builderMock = mock(AWSXRayRecorderBuilder.class);
-        agentConfig.setTracingEnabled(false);
+        configMap.put("tracingEnabled", "false");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init(builderMock);
 
@@ -126,7 +130,8 @@ public class XRaySDKConfigurationTest {
         XRayTransactionState.setServiceName(JVM_NAME);
         environmentVariables.set(SegmentNamingStrategy.NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY, ENV_NAME);
         System.setProperty(SegmentNamingStrategy.NAME_OVERRIDE_SYSTEM_PROPERTY_KEY, SYS_NAME);
-        agentConfig.setServiceName(CONFIG_NAME);
+        configMap.put("serviceName", CONFIG_NAME);
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
 
@@ -137,9 +142,8 @@ public class XRaySDKConfigurationTest {
     public void testEnvServiceName() {
         environmentVariables.set(SegmentNamingStrategy.NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY, ENV_NAME);
         System.setProperty(SegmentNamingStrategy.NAME_OVERRIDE_SYSTEM_PROPERTY_KEY, SYS_NAME);
-        AgentConfiguration agentConfig = new AgentConfiguration();
-        agentConfig.setServiceName(CONFIG_NAME);
-        config.setAgentConfiguration(agentConfig);
+        configMap.put("serviceName", CONFIG_NAME);
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
 
@@ -149,9 +153,8 @@ public class XRaySDKConfigurationTest {
     @Test
     public void testSysServiceName() {
         System.setProperty(SegmentNamingStrategy.NAME_OVERRIDE_SYSTEM_PROPERTY_KEY, SYS_NAME);
-        AgentConfiguration agentConfig = new AgentConfiguration();
-        agentConfig.setServiceName(CONFIG_NAME);
-        config.setAgentConfiguration(agentConfig);
+        configMap.put("serviceName", CONFIG_NAME);
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
 
@@ -160,9 +163,8 @@ public class XRaySDKConfigurationTest {
 
     @Test
     public void testConfigServiceName() {
-        AgentConfiguration agentConfig = new AgentConfiguration();
-        agentConfig.setServiceName(CONFIG_NAME);
-        config.setAgentConfiguration(agentConfig);
+        configMap.put("serviceName", CONFIG_NAME);
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
 
@@ -173,7 +175,7 @@ public class XRaySDKConfigurationTest {
     public void testDefaultServiceName() {
         config.init();
 
-        Assert.assertEquals(XRaySDKConfiguration.DEFAULT_SERVICE_NAME, XRayTransactionState.getServiceName());
+        Assert.assertEquals(AgentConfiguration.DEFAULT_SERVICE_NAME, XRayTransactionState.getServiceName());
     }
 
     @Test
@@ -185,14 +187,16 @@ public class XRaySDKConfigurationTest {
 
     @Test(expected = InvalidAgentConfigException.class)
     public void testInvalidContextMissingStrategy() {
-        agentConfig.setContextMissingStrategy("FAKE_STRATEGY");
+        configMap.put("contextMissingStrategy", "FAKE_STRATEGY");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
     }
 
     @Test
     public void testIgnoreErrorContextMissingStrategy() {
-        agentConfig.setContextMissingStrategy("IGNORE_ERROR");
+        configMap.put("contextMissingStrategy", "IGNORE_ERROR");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
 
@@ -201,7 +205,8 @@ public class XRaySDKConfigurationTest {
 
     @Test
     public void testContextMissingStrategyIsCaseInsensitive() {
-        agentConfig.setContextMissingStrategy("ignore_erroR");
+        configMap.put("contextMissingStrategy", "igNoRe_ErrOR");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
 
@@ -211,7 +216,8 @@ public class XRaySDKConfigurationTest {
     @Test(expected = InvalidAgentConfigException.class)
     public void testInvalidDaemonAddress() {
         AWSXRayRecorderBuilder builderMock = mock(AWSXRayRecorderBuilder.class);
-        agentConfig.setDaemonAddress("notAValidAddress");
+        configMap.put("daemonAddress", "invalidAddress");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init(builderMock);
     }
@@ -219,7 +225,8 @@ public class XRaySDKConfigurationTest {
     @Test
     public void testValidDaemonAddress() {
         AWSXRayRecorderBuilder builderMock = mock(AWSXRayRecorderBuilder.class);
-        agentConfig.setDaemonAddress("123.4.5.6:1234");
+        configMap.put("daemonAddress", "123.4.5.6:1234");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init(builderMock);
 
@@ -233,7 +240,8 @@ public class XRaySDKConfigurationTest {
     @Test
     public void testInvalidSamplingRuleManifest() {
         AWSXRayRecorderBuilder builderMock = mock(AWSXRayRecorderBuilder.class);
-        agentConfig.setSamplingRulesManifest("notAFile");
+        configMap.put("sampingRulesManifest", "notAFile");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init(builderMock);
 
@@ -245,7 +253,8 @@ public class XRaySDKConfigurationTest {
     @Test
     public void testValidSamplingRuleManifest() {
         AWSXRayRecorderBuilder builderMock = mock(AWSXRayRecorderBuilder.class);
-        agentConfig.setSamplingRulesManifest("/path/to/file");
+        configMap.put("sampingRulesManifest", "/path/to/file");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init(builderMock);
 
@@ -264,32 +273,36 @@ public class XRaySDKConfigurationTest {
 
     @Test(expected = InvalidAgentConfigException.class)
     public void testInvalidSamplingStrategy() {
-        agentConfig.setSamplingStrategy("notAStrategy");
+        configMap.put("samplingStrategy", "FakeStrategy");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
     }
 
     @Test
     public void testLocalSamplingStrategy() {
-        agentConfig.setSamplingStrategy("LOCAL");
+        configMap.put("samplingStrategy", "LOCAL");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
 
         Assert.assertTrue(AWSXRay.getGlobalRecorder().getSamplingStrategy() instanceof LocalizedSamplingStrategy);
     }
 
-    @Test
-    public void testCentralizedSamplingStrategy() {
-        agentConfig.setSamplingStrategy("CENTRAL");
-
-        config.init();
-
-        Assert.assertTrue(AWSXRay.getGlobalRecorder().getSamplingStrategy() instanceof CentralizedSamplingStrategy);
-    }
+//    @Test
+//    public void testCentralizedSamplingStrategy() {
+//        configMap.put("samplingStrategy", "CENTRAL");
+//        config.setAgentConfiguration(new AgentConfiguration(configMap));
+//
+//        config.init();
+//
+//        Assert.assertTrue(AWSXRay.getGlobalRecorder().getSamplingStrategy() instanceof CentralizedSamplingStrategy);
+//    }
 
     @Test
     public void testNoSamplingStrategy() {
-        agentConfig.setSamplingStrategy("NONE");
+        configMap.put("samplingStrategy", "NONE");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
 
@@ -298,7 +311,8 @@ public class XRaySDKConfigurationTest {
 
     @Test
     public void testAllSamplingStrategy() {
-        agentConfig.setSamplingStrategy("ALL");
+        configMap.put("samplingStrategy", "ALL");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
 
@@ -307,7 +321,8 @@ public class XRaySDKConfigurationTest {
 
     @Test
     public void testSamplingStrategyIsCaseInsensitive() {
-        agentConfig.setSamplingStrategy("LoCal");
+        configMap.put("samplingStrategy", "LoCaL");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
 
@@ -316,7 +331,8 @@ public class XRaySDKConfigurationTest {
 
     @Test
     public void testMaxStackTraceLength() {
-        agentConfig.setMaxStackTraceLength(42);
+        configMap.put("maxStackTraceLength", "42");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
 
@@ -329,7 +345,8 @@ public class XRaySDKConfigurationTest {
     @Test
     public void testStreamingThreshold() {
         AWSXRayRecorderBuilder builderMock = mock(AWSXRayRecorderBuilder.class);
-        agentConfig.setStreamingThreshold(42);
+        configMap.put("streamingThreshold", "42");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init(builderMock);
 
@@ -342,16 +359,18 @@ public class XRaySDKConfigurationTest {
 
     @Test(expected = InvalidAgentConfigException.class)
     public void testInvalidVersionNumber() {
-        agentConfig.setAwsSDKVersion(11);
-        agentConfig.setAwsServiceHandlerManifest("/path/to/manifest");
+        configMap.put("awsSDKVersion", "11");
+        configMap.put("awsServiceHandlerManifest", "/path/to/manifest");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init();
     }
 
     @Test
     public void testValidServiceManifest() throws MalformedURLException {
-        agentConfig.setAwsServiceHandlerManifest("/some/path/to/manifest");
-        URL location = new File("/some/path/to/manifest").toURI().toURL();
+        configMap.put("awsServiceHandlerManifest", "/path/to/manifest");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
+        URL location = new File("/path/to/manifest").toURI().toURL();
 
         config.init();
 

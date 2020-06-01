@@ -102,9 +102,12 @@ public class HttpClientHandler extends XRayHandler {
             return;
         }
 
+        // TODO: Refactor getSubsegment to getSubsegmentOptional and check for emptiness to avoid CMEs
         Subsegment subsegment = getSubsegment();
-        addResponseInformation(subsegment, responseEvent);
-        endSubsegment();
+        if (subsegment != null) {
+            addResponseInformation(subsegment, responseEvent);
+            endSubsegment();
+        }
     }
 
     private static void addResponseInformation(Subsegment subsegment, HttpServiceDownstreamResponseEvent responseEvent) {
