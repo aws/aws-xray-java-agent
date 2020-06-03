@@ -50,7 +50,9 @@ public class HttpClientHandler extends XRayHandler {
         Subsegment subsegment = beginSubsegment(hostName);
 
         // Adds http metadata and stores the Trace Header into the request header.
-        addRequestInformation(subsegment, requestEvent, uri);
+        if (subsegment != null) {
+            addRequestInformation(subsegment, requestEvent, uri);
+        }
     }
 
     /**
@@ -100,9 +102,12 @@ public class HttpClientHandler extends XRayHandler {
             return;
         }
 
+        // TODO: Refactor getSubsegment to getSubsegmentOptional and check for emptiness to avoid CMEs
         Subsegment subsegment = getSubsegment();
-        addResponseInformation(subsegment, responseEvent);
-        endSubsegment();
+        if (subsegment != null) {
+            addResponseInformation(subsegment, responseEvent);
+            endSubsegment();
+        }
     }
 
     private static void addResponseInformation(Subsegment subsegment, HttpServiceDownstreamResponseEvent responseEvent) {

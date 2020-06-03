@@ -178,6 +178,50 @@ static {
 ```
 Your Lambda function should now be instrumented.
 
+## Configuration
+
+The X-Ray Agent is configured by an external, user-provided JSON file. By default this file is expected to be located at 
+the root of the user's classpath and titled `xray-agent.json`. You can configure a custom location for the config
+file by setting the `com.amazonaws.xray.configFile` system property to the absolute filesystem path of your configuration file.
+
+An example configuration file is as follows:
+```json
+{
+    "serviceName": "XRayInstrumentedService",
+    "contextMissingStrategy": "LOG_ERROR",
+    "daemonAddress": "127.0.0.1:2000",
+    "tracingEnabled": true,
+    "samplingStrategy": "CENTRAL",
+    "samplingRulesManifest": "/path/to/manifest",
+    "maxStackTraceLength": 50,
+    "streamingThreshold": 100,
+    "awsSdkVersion": 2,
+    "awsServiceHandlerManifest": "/path/to/manifest"
+}
+```
+
+### Configuration Specification
+Refer to the below table for valid values and descriptions of each property. Note that property names
+are case sensitive, but their keys are not. For properties that can be overridden by environment variables and
+system properties, the order of priority is always Environment Variable, then System Property, then configuration
+file. See the [X-Ray Docs](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-configuration.html#xray-sdk-java-configuration-envvars) 
+for more context on some overrideable properties. All fields are optional.
+
+| ﻿**Property Name**        | **Type** | **Valid Values**                                                  | **Description**                                                                                                                                                                                                                                  | **Environment Variable**     | **System Property**                                    | **Default**                                                                                                                                                                                                                     |
+|---------------------------|---------|---------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| serviceName               | String  | Any string                                                    | The name of your instrumented service as it will appear in the X-Ray console                                                                                                                                                                 | AWS_XRAY_TRACING_NAME    | com.amazonaws.xray.strategy.tracingName            | XRayInstrumentedService                                                                                                                                                                                                     |
+| contextMissingStrategy    | String  | LOG_ERROR, IGNORE_ERROR                                       | The action taken by the agent when it attempts to use the X-Ray Segment context but none is present                                                                                                                                          | AWS_XRAY_CONTEXT_MISSING | com.amazonaws.xray.strategy.contextMissingStrategy | LOG_ERROR                                                                                                                                                                                                                   |
+| daemonAddress             | String  | Formatted IP address and port, or list of TCP and UDP address | The address the agent uses to communicate with the X-Ray Daemon                                                                                                                                                                              | AWS_XRAY_DAEMON_ADDRESS  | com.amazonaws.xray.emitter.daemonAddress           | 127.0.0.1:2000                                                                                                                                                                                                              |
+| tracingEnabled            | Boolean | True, False                                                   | Enables instrumentation by the X-Ray Agent                                                                                                                                                                                                   | AWS_XRAY_TRACING_ENABLED | com.amazonaws.xray.tracingEnabled                  | TRUE                                                                                                                                                                                                                        |
+| samplingStrategy          | String  | CENTRAL, LOCAL, NONE, ALL                                     | The sampling strategy used by the Agent. ALL captures all requests, NONE captures no requests. See [X-Ray Sampling](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-configuration.html#xray-sdk-java-configuration-sampling). | N/A                      | N/A                                                | CENTRAL                                                                                                                                                                                                                     |
+| samplingRulesManifest     | String  | An absolute file path                                         | The path to a custom sampling rules file to be used as the source of sampling rules for the local sampling strategy, or the fallback rules for the central strategy.                                                                         | N/A                      | N/A                                                | [DefaultSamplingRules.json](https://github.com/aws/aws-xray-sdk-java/blob/master/aws-xray-recorder-sdk-core/src/main/resources/com/amazonaws/xray/strategy/sampling/DefaultSamplingRules.json)                              |
+| maxStackTraceLength       | Integer | >= 0                                                          | The maximum lines of a stack trace to record in a trace                                                                                                                                                                                      | N/A                      | N/A                                                | 50                                                                                                                                                                                                                          |
+| streamingThreshold        | Integer | >= 0                                                          | Once at least this many subsegments have been closed, they will be streamed to the daemon out-of-band to avoid chunks being too large                                                                                                        | N/A                      | N/A                                                | 100                                                                                                                                                                                                                         |
+| awsSdkVersion             | Integer | 1, 2                                                          | Version of the [AWS SDK for Java](https://docs.aws.amazon.com/sdk-for-java/index.html) you're using. Ignored if `awsServiceHandlerManifest` is not also set.                                                                                 | N/A                      | N/A                                                | 2                                                                                                                                                                                                                           |
+| awsServiceHandlerManifest | String  | An absolute file path                                         | The path to a custom parameter whitelist to capture additional information from AWS SDK clients.                                                                                                                                             | N/A                      | N/A                                                | [DefaultOperationParameterWhitelist.json](https://github.com/aws/aws-xray-sdk-java/blob/master/aws-xray-recorder-sdk-aws-sdk-v2/src/main/resources/com/amazonaws/xray/interceptors/DefaultOperationParameterWhitelist.json) |
+
+Note that the `serviceName` property was configurable in the agent's JVM argument, but that behavior is deprecated
+and will be removed in a future version.
 
 ## Getting Help
 
