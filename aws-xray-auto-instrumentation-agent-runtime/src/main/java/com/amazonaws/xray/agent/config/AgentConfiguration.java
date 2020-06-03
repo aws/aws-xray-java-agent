@@ -3,6 +3,7 @@ package com.amazonaws.xray.agent.config;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Objects;
 
@@ -19,10 +20,14 @@ public final class AgentConfiguration {
     private final String samplingStrategy;
     private final int maxStackTraceLength;
     private final int streamingThreshold;
-    private final String samplingRulesManifest;
-    private final int awsSDKVersion;
-    private final String awsServiceHandlerManifest;
+    private final int awsSdkVersion;
     private final boolean tracingEnabled;
+
+    @Nullable
+    private final String samplingRulesManifest;
+
+    @Nullable
+    private final String awsServiceHandlerManifest;
 
     /**
      * Sets default values
@@ -35,7 +40,7 @@ public final class AgentConfiguration {
         maxStackTraceLength = 50;
         streamingThreshold = 100;
         samplingRulesManifest = null; // Manifests are null by default since the default location file will be found later
-        awsSDKVersion = 2;
+        awsSdkVersion = 2;
         awsServiceHandlerManifest = null;
         tracingEnabled = true;
     }
@@ -46,7 +51,7 @@ public final class AgentConfiguration {
      * property. Assigns all non-configured properties to default values.
      * @param properties - Map of property names to their values in string representation, which will be cast to proper types.
      */
-    public AgentConfiguration(Map<String, String> properties) {
+    public AgentConfiguration(@Nullable Map<String, String> properties) {
         String serviceName = DEFAULT_SERVICE_NAME,
                 contextMissingStrategy = "LOG_ERROR",
                 daemonAddress = "127.0.0.1:2000",
@@ -55,7 +60,7 @@ public final class AgentConfiguration {
                 awsServiceHandlerManifest = null;
         int maxStackTraceLength = 50,
                 streamingThreshold = 100,
-                awsSDKVersion = 2;
+                awsSdkVersion = 2;
         boolean tracingEnabled = true;
 
         if (properties != null) {
@@ -83,8 +88,8 @@ public final class AgentConfiguration {
                         case "samplingRulesManifest":
                             samplingRulesManifest = entry.getValue();
                             break;
-                        case "awsSDKVersion":
-                            awsSDKVersion = Integer.parseInt(entry.getValue());
+                        case "awsSdkVersion":
+                            awsSdkVersion = Integer.parseInt(entry.getValue());
                             break;
                         case "awsServiceHandlerManifest":
                             awsServiceHandlerManifest = entry.getValue();
@@ -93,7 +98,7 @@ public final class AgentConfiguration {
                             tracingEnabled = Boolean.parseBoolean(entry.getValue());
                             break;
                         default:
-                            log.debug("Encountered unknown property " + entry.getKey() + " in X-Ray agent configuration. Ignoring.");
+                            log.warn("Encountered unknown property " + entry.getKey() + " in X-Ray agent configuration. Ignoring.");
                             break;
                     }
                 }
@@ -109,7 +114,7 @@ public final class AgentConfiguration {
         this.maxStackTraceLength = maxStackTraceLength;
         this.streamingThreshold = streamingThreshold;
         this.samplingRulesManifest = samplingRulesManifest;
-        this.awsSDKVersion = awsSDKVersion;
+        this.awsSdkVersion = awsSdkVersion;
         this.awsServiceHandlerManifest = awsServiceHandlerManifest;
         this.tracingEnabled = tracingEnabled;
     }
@@ -138,14 +143,16 @@ public final class AgentConfiguration {
         return streamingThreshold;
     }
 
+    @Nullable
     public String getSamplingRulesManifest() {
         return samplingRulesManifest;
     }
 
-    public int getAwsSDKVersion() {
-        return awsSDKVersion;
+    public int getAwsSdkVersion() {
+        return awsSdkVersion;
     }
 
+    @Nullable
     public String getAwsServiceHandlerManifest() {
         return awsServiceHandlerManifest;
     }
@@ -164,7 +171,7 @@ public final class AgentConfiguration {
                 ", maxStackTraceLength=" + maxStackTraceLength +
                 ", streamingThreshold=" + streamingThreshold +
                 ", samplingRulesManifest='" + samplingRulesManifest + '\'' +
-                ", awsSDKVersion='" + awsSDKVersion + '\'' +
+                ", awsSdkVersion='" + awsSdkVersion + '\'' +
                 ", awsServiceHandlerManifest='" + awsServiceHandlerManifest + '\'' +
                 ", tracingEnabled=" + tracingEnabled +
                 '}';
@@ -177,7 +184,7 @@ public final class AgentConfiguration {
         AgentConfiguration that = (AgentConfiguration) o;
         return maxStackTraceLength == that.maxStackTraceLength &&
                 streamingThreshold == that.streamingThreshold &&
-                awsSDKVersion == that.awsSDKVersion &&
+                awsSdkVersion == that.awsSdkVersion &&
                 tracingEnabled == that.tracingEnabled &&
                 serviceName.equals(that.serviceName) &&
                 contextMissingStrategy.equals(that.contextMissingStrategy) &&
@@ -189,6 +196,6 @@ public final class AgentConfiguration {
 
     @Override
     public int hashCode() {
-        return Objects.hash(serviceName, contextMissingStrategy, daemonAddress, samplingStrategy, maxStackTraceLength, streamingThreshold, samplingRulesManifest, awsSDKVersion, awsServiceHandlerManifest, tracingEnabled);
+        return Objects.hash(serviceName, contextMissingStrategy, daemonAddress, samplingStrategy, maxStackTraceLength, streamingThreshold, samplingRulesManifest, awsSdkVersion, awsServiceHandlerManifest, tracingEnabled);
     }
 }

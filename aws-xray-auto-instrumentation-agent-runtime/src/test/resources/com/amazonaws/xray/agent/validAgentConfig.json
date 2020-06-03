@@ -6,7 +6,7 @@
   "samplingRulesManifest": "myTestManifest",
   "maxStackTraceLength": 20,
   "streamingThreshold": 10,
-  "awsSDKVersion": 1,
+  "awsSdkVersion": 1,
   "awsServiceHandlerManifest": "myTestHandler",
   "tracingEnabled": false
 }

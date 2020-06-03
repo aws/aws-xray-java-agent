@@ -92,7 +92,10 @@ public class AgentRuntimeLoader implements AgentRuntimeLoaderInterface {
     /**
      * Helper method to retrieve the xray-agent config file's URL
      * @return the URL of config file or null if it wasn't found
+     *
+     * Visible for testing
      */
+    @Nullable
     static URL getConfigFile() {
         String customLocation = System.getProperty(CONFIG_FILE_SYS_PROPERTY);
         if (customLocation != null && !customLocation.isEmpty()) {
@@ -116,9 +119,9 @@ public class AgentRuntimeLoader implements AgentRuntimeLoaderInterface {
      * @param version - version of AWS SDK for Java, 1 or 2
      * @return AWSHandler for appropriate Java SDK version with manifest file if present
      */
-    XRayHandlerInterface getAwsHandlerByVersion(int version) {
+    private XRayHandlerInterface getAwsHandlerByVersion(int version) {
         URL manifest = XRaySDKConfiguration.getInstance().getAwsServiceHandlerManifest();
-        int configVersion = XRaySDKConfiguration.getInstance().getAwsSDKVersion();
+        int configVersion = XRaySDKConfiguration.getInstance().getAwsSdkVersion();
         if (manifest != null && version == configVersion) {
             if (version == 1) {
                 return new AWSHandler(manifest);

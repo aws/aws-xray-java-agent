@@ -23,7 +23,7 @@ import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.strategy.DefaultThrowableSerializationStrategy;
 import com.amazonaws.xray.strategy.sampling.CentralizedSamplingStrategy;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -52,17 +52,18 @@ public class XRaySDKConfiguration {
     private static final Log log = LogFactory.getLog(XRaySDKConfiguration.class);
 
     /* JSON factory used instead of mapper for performance */
-    JsonFactory factory = new JsonFactory();
+    private static final JsonFactory factory = new JsonFactory();
 
     /* Singleton instance */
-    private static XRaySDKConfiguration instance;
+    private static final XRaySDKConfiguration instance = new XRaySDKConfiguration();
 
     /* Configuration storage */
     private AgentConfiguration agentConfiguration;
 
     /* AWS Manifest whitelist, for runtime loader access */
+    @Nullable
     private URL awsServiceHandlerManifest = null;
-    private int awsSDKVersion;
+    private int awsSdkVersion;
 
     /* Context missing enums */
     enum ContextMissingStrategy {
@@ -78,29 +79,21 @@ public class XRaySDKConfiguration {
         ALL,
     }
 
-    public int getAwsSDKVersion() {
-        return awsSDKVersion;
+    public int getAwsSdkVersion() {
+        return awsSdkVersion;
     }
 
-    void setAwsSDKVersion(int version) {
-        this.awsSDKVersion = version;
-    }
-
+    @Nullable
     public URL getAwsServiceHandlerManifest() {
         return awsServiceHandlerManifest;
     }
 
-    // For testing
-    void setAwsServiceHandlerManifest(URL awsServiceHandlerManifest) {
-        this.awsServiceHandlerManifest = awsServiceHandlerManifest;
-    }
-
-    // For testing
+    // Visible for testing
     AgentConfiguration getAgentConfiguration() {
         return agentConfiguration;
     }
 
-    // For testing
+    // Visible for testing
     void setAgentConfiguration(AgentConfiguration agentConfiguration) {
         this.agentConfiguration = agentConfiguration;
     }
@@ -116,11 +109,7 @@ public class XRaySDKConfiguration {
     /**
      * @return XRaySDKConfiguration - The global instance of this agent recorder configuration.
      */
-    @Nonnull
     public static XRaySDKConfiguration getInstance() {
-        if (instance == null) {
-            instance = new XRaySDKConfiguration();
-        }
         return instance;
     }
 
@@ -150,7 +139,7 @@ public class XRaySDKConfiguration {
         init(AWSXRayRecorderBuilder.standard());
     }
 
-    // For testing only
+    // Visible for testing
     void init(AWSXRayRecorderBuilder builder) {
         log.info("Initializing the X-Ray Agent Recorder");
 
@@ -160,13 +149,11 @@ public class XRaySDKConfiguration {
         }
 
         this.awsServiceHandlerManifest = null;
-        this.awsSDKVersion = 0;
+        this.awsSdkVersion = 0;
 
         // X-Ray Enabled
-        String envString = System.getenv(ENABLED_ENVIRONMENT_VARIABLE_KEY);
-        String sysString = System.getProperty(ENABLED_SYSTEM_PROPERTY_KEY);
-        if (envString != null && envString.toLowerCase().equals("false") ||
-            sysString != null && sysString.toLowerCase().equals("false") ||
+        if ("false".equalsIgnoreCase(System.getenv(ENABLED_ENVIRONMENT_VARIABLE_KEY)) ||
+            "false".equalsIgnoreCase(System.getProperty(ENABLED_SYSTEM_PROPERTY_KEY)) ||
             !agentConfiguration.isTracingEnabled())
         {
             log.info("Instrumentation via the X-Ray Agent has been disabled by user configuration.");
@@ -191,7 +178,7 @@ public class XRaySDKConfiguration {
         }
 
         // Context missing
-        ContextMissingStrategy contextMissing;
+        final ContextMissingStrategy contextMissing;
         try {
             contextMissing = ContextMissingStrategy.valueOf(agentConfiguration.getContextMissingStrategy().toUpperCase());
         } catch (IllegalArgumentException e) {
@@ -231,7 +218,7 @@ public class XRaySDKConfiguration {
         }
 
         // Sampling strategy
-        SamplingStrategy samplingStrategy;
+        final SamplingStrategy samplingStrategy;
         try {
             samplingStrategy = SamplingStrategy.valueOf(agentConfiguration.getSamplingStrategy().toUpperCase());
         } catch (IllegalArgumentException e) {
@@ -277,11 +264,11 @@ public class XRaySDKConfiguration {
 
         // AWS Service handler manifest
         if (agentConfiguration.getAwsServiceHandlerManifest() != null) {
-            int version = agentConfiguration.getAwsSDKVersion();
+            int version = agentConfiguration.getAwsSdkVersion();
             if (version != 1 && version != 2) {
                 throw new InvalidAgentConfigException("Invalid AWS SDK version given in X-Ray Agent configuration file: " + version);
             } else {
-                this.awsSDKVersion = version;
+                this.awsSdkVersion = version;
                 try {
                     this.awsServiceHandlerManifest = new File(agentConfiguration.getAwsServiceHandlerManifest()).toURI().toURL();
                 } catch (MalformedURLException e) {
@@ -302,7 +289,6 @@ public class XRaySDKConfiguration {
         AWSXRay.setGlobalRecorder(builder.build());
     }
 
-    @Nonnull
     private AgentConfiguration parseConfig(URL configFile) throws IOException {
         Map<String, String> propertyMap = new HashMap<>();
         JsonParser parser = factory.createParser(configFile);
@@ -315,7 +301,7 @@ public class XRaySDKConfiguration {
         while (!parser.isClosed()) {
             String field = parser.nextFieldName();
             if (field == null) {
-                continue;  // Ignore trailing null fields
+                return new AgentConfiguration(propertyMap);  // Hitting a null field implies end of JSON object
             }
 
             parser.nextToken();

@@ -26,7 +26,7 @@ import java.util.Set;
  * is used to rewrite/rebase the intercepted classes.
  *
  * We minimize work done and classes loaded in this method so we can allow anything to be configurable in the
- * @link{AgentRuntimeLoader Runtime loader} which uses the application classloader.
+ * {@code AgentRuntimeLoader} which uses the application classloader.
  *
  * For more on ByteBuddy see: http://bytebuddy.net
  */
@@ -70,7 +70,6 @@ public class XRayInstrumentationAgent {
         if (!initializeRuntimeAgent(agentArgs, instrumentation.getClass().getClassLoader())) {
             log.error("Unable to initialize the runtime agent. Running without instrumentation.");
             EventBus.removeAllListeners();
-            return;
         }
     }
 
@@ -114,6 +113,7 @@ public class XRayInstrumentationAgent {
      * @param agentArgs the string
      * @return the service name parsed from command line args, or null if none was discovered
      */
+    @Nullable
     private static String getServiceNameFromArgs(@Nullable String agentArgs) {
         if (agentArgs == null) {
             return null;

@@ -79,7 +79,7 @@ public class XRaySDKConfigurationTest {
         configMap.put("samplingRulesManifest", "myTestManifest");
         configMap.put("maxStackTraceLength", "20");
         configMap.put("streamingThreshold", "10");
-        configMap.put("awsSDKVersion", "1");
+        configMap.put("awsSdkVersion", "1");
         configMap.put("awsServiceHandlerManifest", "myTestHandler");
         configMap.put("tracingEnabled", "false");
         AgentConfiguration agentConfig = new AgentConfiguration(configMap);
@@ -347,7 +347,7 @@ public class XRaySDKConfigurationTest {
 
     @Test(expected = InvalidAgentConfigException.class)
     public void testInvalidVersionNumber() {
-        configMap.put("awsSDKVersion", "11");
+        configMap.put("awsSdkVersion", "11");
         configMap.put("awsServiceHandlerManifest", "/path/to/manifest");
         config.setAgentConfiguration(new AgentConfiguration(configMap));
 
