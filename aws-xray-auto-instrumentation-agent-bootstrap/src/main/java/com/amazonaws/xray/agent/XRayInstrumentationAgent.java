@@ -10,6 +10,7 @@ import software.amazon.disco.agent.logging.LogManager;
 import software.amazon.disco.agent.logging.Logger;
 import software.amazon.disco.agent.web.WebSupport;
 
+import javax.annotation.Nullable;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -113,7 +114,7 @@ public class XRayInstrumentationAgent {
      * @param agentArgs the string
      * @return the service name parsed from command line args, or null if none was discovered
      */
-    private static String getServiceNameFromArgs(String agentArgs) {
+    private static String getServiceNameFromArgs(@Nullable String agentArgs) {
         if (agentArgs == null) {
             return null;
         }
@@ -127,6 +128,4 @@ public class XRayInstrumentationAgent {
         }
         return null;
     }
-
-
 }

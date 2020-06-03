@@ -14,6 +14,7 @@ import com.amazonaws.xray.agent.models.XRayTransactionState;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,8 +29,8 @@ public class AgentRuntimeLoader implements AgentRuntimeLoaderInterface {
     private static final String APACHE_HTTP_CLIENT_ORIGIN = "ApacheHttpClient";
     private static final String HTTP_SERVLET_ORIGIN = "httpServlet";
 
-    private static final String CONFIG_FILE_SYS_PROPERTY="com.amazonaws.xray.configFile";
-    private static final String CONFIG_FILE_DEFAULT_LOCATION="/xray-agent.json";
+    private static final String CONFIG_FILE_SYS_PROPERTY = "com.amazonaws.xray.configFile";
+    private static final String CONFIG_FILE_DEFAULT_LOCATION = "/xray-agent.json";
 
     private static final Log log = LogFactory.getLog(AgentRuntimeLoader.class);
 
@@ -37,7 +38,7 @@ public class AgentRuntimeLoader implements AgentRuntimeLoaderInterface {
      * Initialize the classes belonging in the runtime.
      * @param serviceName - The service name that this agent represents passed from the command line.
      */
-    public void init(String serviceName) {
+    public void init(@Nullable String serviceName) {
         if (serviceName != null) {
             log.warn("Setting the X-Ray service name via JVM arguments is deprecated. Use the agent's " +
                     "configuration file instead.");
@@ -56,6 +57,7 @@ public class AgentRuntimeLoader implements AgentRuntimeLoaderInterface {
         EventBus.addListener(listener);
     }
 
+    // Visible for testing
     XRayListener generateXRayListener() {
         EventDispatcher upstreamEventDispatcher = new EventDispatcher();
         upstreamEventDispatcher.addHandler(HTTP_SERVLET_ORIGIN, new ServletHandler());
@@ -115,7 +117,6 @@ public class AgentRuntimeLoader implements AgentRuntimeLoaderInterface {
      * @return AWSHandler for appropriate Java SDK version with manifest file if present
      */
     XRayHandlerInterface getAwsHandlerByVersion(int version) {
-        if (version < 1 || version > 2) { return null; }
         URL manifest = XRaySDKConfiguration.getInstance().getAwsServiceHandlerManifest();
         int configVersion = XRaySDKConfiguration.getInstance().getAwsSDKVersion();
         if (manifest != null && version == configVersion) {

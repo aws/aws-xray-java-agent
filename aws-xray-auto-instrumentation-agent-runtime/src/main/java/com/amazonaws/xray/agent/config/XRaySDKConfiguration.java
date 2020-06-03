@@ -23,6 +23,7 @@ import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.strategy.DefaultThrowableSerializationStrategy;
 import com.amazonaws.xray.strategy.sampling.CentralizedSamplingStrategy;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -108,12 +109,14 @@ public class XRaySDKConfiguration {
         return agentConfiguration.isTracingEnabled();
     }
 
-    private XRaySDKConfiguration() {
+    // Visible for testing
+    XRaySDKConfiguration() {
     }
 
     /**
      * @return XRaySDKConfiguration - The global instance of this agent recorder configuration.
      */
+    @Nonnull
     public static XRaySDKConfiguration getInstance() {
         if (instance == null) {
             instance = new XRaySDKConfiguration();
@@ -299,6 +302,7 @@ public class XRaySDKConfiguration {
         AWSXRay.setGlobalRecorder(builder.build());
     }
 
+    @Nonnull
     private AgentConfiguration parseConfig(URL configFile) throws IOException {
         Map<String, String> propertyMap = new HashMap<>();
         JsonParser parser = factory.createParser(configFile);

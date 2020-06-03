@@ -38,7 +38,7 @@ public class XRaySDKConfigurationTest {
     private static final String SYS_NAME = "sys_name";
     private static final String CONFIG_NAME = "config_name";
 
-    XRaySDKConfiguration config = XRaySDKConfiguration.getInstance();
+    XRaySDKConfiguration config;
     Map<String, String> configMap;
 
     @Rule
@@ -48,7 +48,7 @@ public class XRaySDKConfigurationTest {
     public void setup() {
         AWSXRay.setGlobalRecorder(new AWSXRayRecorder());
         configMap = new HashMap<>();
-        config.setAgentConfiguration(null);
+        config = new XRaySDKConfiguration();
     }
 
     @After
@@ -58,8 +58,6 @@ public class XRaySDKConfigurationTest {
         System.clearProperty(XRaySDKConfiguration.ENABLED_SYSTEM_PROPERTY_KEY);
         environmentVariables.set(SegmentNamingStrategy.NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY, null);
         environmentVariables.set(XRaySDKConfiguration.ENABLED_ENVIRONMENT_VARIABLE_KEY, null);
-        config.setAwsSDKVersion(0);
-        config.setAwsServiceHandlerManifest(null);
     }
 
     @Test(expected = InvalidAgentConfigException.class)
@@ -288,16 +286,6 @@ public class XRaySDKConfigurationTest {
 
         Assert.assertTrue(AWSXRay.getGlobalRecorder().getSamplingStrategy() instanceof LocalizedSamplingStrategy);
     }
-
-//    @Test
-//    public void testCentralizedSamplingStrategy() {
-//        configMap.put("samplingStrategy", "CENTRAL");
-//        config.setAgentConfiguration(new AgentConfiguration(configMap));
-//
-//        config.init();
-//
-//        Assert.assertTrue(AWSXRay.getGlobalRecorder().getSamplingStrategy() instanceof CentralizedSamplingStrategy);
-//    }
 
     @Test
     public void testNoSamplingStrategy() {

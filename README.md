@@ -181,8 +181,8 @@ Your Lambda function should now be instrumented.
 ## Configuration
 
 The X-Ray Agent is configured by an external, user-provided JSON file. By default this file is expected to be located at 
-the root of the user's resources directory and titled `xray-agent.json`. You can configure a custom location for the config
-file by setting the `com.amazonaws.xray.configFile` system property to the absolute path of your configuration file.
+the root of the user's classpath and titled `xray-agent.json`. You can configure a custom location for the config
+file by setting the `com.amazonaws.xray.configFile` system property to the absolute filesystem path of your configuration file.
 
 An example configuration file is as follows:
 ```json
