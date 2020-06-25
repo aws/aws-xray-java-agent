@@ -1,25 +1,25 @@
 package com.amazonaws.xray.agent;
 
-import com.amazonaws.xray.agent.handlers.downstream.AWSHandler;
-import com.amazonaws.xray.agent.handlers.downstream.AWSV2Handler;
-import com.amazonaws.xray.agent.listeners.XRayListener;
-import org.apache.commons.io.FilenameUtils;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import software.amazon.disco.agent.event.EventBus;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.agent.config.XRaySDKConfiguration;
+import com.amazonaws.xray.agent.handlers.downstream.AWSHandler;
+import com.amazonaws.xray.agent.handlers.downstream.AWSV2Handler;
+import com.amazonaws.xray.agent.listeners.XRayListener;
 import com.amazonaws.xray.agent.models.XRayTransactionState;
+import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import software.amazon.disco.agent.event.EventBus;
 
 import java.io.File;
 import java.net.URL;
@@ -29,8 +29,8 @@ import java.net.URL;
 @PowerMockIgnore("javax.net.ssl.*")
 public class AgentRuntimeLoaderTest {
     private final String serviceName = "TestService";
-    private static final String CONFIG_FILE_SYS_PROPERTY="com.amazonaws.xray.configFile";
-    private static final String CONFIG_FILE_DEFAULT_NAME="xray-agent.json";
+    private static final String CONFIG_FILE_SYS_PROPERTY = "com.amazonaws.xray.configFile";
+    private static final String CONFIG_FILE_DEFAULT_NAME = "xray-agent.json";
 
     @Mock
     private XRayListener listenerMock;

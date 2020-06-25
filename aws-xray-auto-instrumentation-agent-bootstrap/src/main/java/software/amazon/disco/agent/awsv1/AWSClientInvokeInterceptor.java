@@ -1,11 +1,5 @@
 package software.amazon.disco.agent.awsv1;
 
-import software.amazon.disco.agent.event.EventBus;
-import software.amazon.disco.agent.event.ServiceDownstreamRequestEvent;
-import software.amazon.disco.agent.event.ServiceDownstreamResponseEvent;
-import software.amazon.disco.agent.interception.Installable;
-import software.amazon.disco.agent.logging.LogManager;
-import software.amazon.disco.agent.logging.Logger;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription;
@@ -16,6 +10,12 @@ import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
+import software.amazon.disco.agent.event.EventBus;
+import software.amazon.disco.agent.event.ServiceDownstreamRequestEvent;
+import software.amazon.disco.agent.event.ServiceDownstreamResponseEvent;
+import software.amazon.disco.agent.interception.Installable;
+import software.amazon.disco.agent.logging.LogManager;
+import software.amazon.disco.agent.logging.Logger;
 
 import java.util.concurrent.Callable;
 

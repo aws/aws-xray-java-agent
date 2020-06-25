@@ -1,18 +1,17 @@
 package com.amazonaws.xray.agent;
 
-import com.amazonaws.xray.agent.handlers.XRayHandlerInterface;
-import software.amazon.disco.agent.event.EventBus;
 import com.amazonaws.xray.agent.config.XRaySDKConfiguration;
 import com.amazonaws.xray.agent.dispatcher.EventDispatcher;
+import com.amazonaws.xray.agent.handlers.XRayHandlerInterface;
 import com.amazonaws.xray.agent.handlers.downstream.AWSHandler;
 import com.amazonaws.xray.agent.handlers.downstream.AWSV2Handler;
 import com.amazonaws.xray.agent.handlers.downstream.HttpClientHandler;
 import com.amazonaws.xray.agent.handlers.upstream.ServletHandler;
 import com.amazonaws.xray.agent.listeners.XRayListener;
 import com.amazonaws.xray.agent.models.XRayTransactionState;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import software.amazon.disco.agent.event.EventBus;
 
 import javax.annotation.Nullable;
 import java.io.File;

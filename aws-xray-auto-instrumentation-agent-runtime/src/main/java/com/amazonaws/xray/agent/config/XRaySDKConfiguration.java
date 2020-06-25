@@ -1,27 +1,27 @@
 package com.amazonaws.xray.agent.config;
 
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.agent.models.XRayTransactionContextResolver;
 import com.amazonaws.xray.agent.models.XRayTransactionState;
 import com.amazonaws.xray.config.DaemonConfiguration;
 import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
+import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.emitters.UDPEmitter;
 import com.amazonaws.xray.entities.StringValidator;
 import com.amazonaws.xray.strategy.DefaultStreamingStrategy;
+import com.amazonaws.xray.strategy.DefaultThrowableSerializationStrategy;
 import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.SegmentNamingStrategy;
 import com.amazonaws.xray.strategy.sampling.AllSamplingStrategy;
+import com.amazonaws.xray.strategy.sampling.CentralizedSamplingStrategy;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import com.amazonaws.xray.strategy.sampling.NoSamplingStrategy;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.amazonaws.xray.AWSXRayRecorderBuilder;
-import com.amazonaws.xray.contexts.SegmentContextResolverChain;
-import com.amazonaws.xray.strategy.DefaultThrowableSerializationStrategy;
-import com.amazonaws.xray.strategy.sampling.CentralizedSamplingStrategy;
 
 import javax.annotation.Nullable;
 import java.io.File;

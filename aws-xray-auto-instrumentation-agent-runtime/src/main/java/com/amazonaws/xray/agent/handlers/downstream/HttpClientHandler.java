@@ -1,17 +1,16 @@
 package com.amazonaws.xray.agent.handlers.downstream;
 
 import com.amazonaws.xray.AWSXRay;
-import software.amazon.disco.agent.event.Event;
-import software.amazon.disco.agent.event.HttpServiceDownstreamRequestEvent;
-import software.amazon.disco.agent.event.HttpServiceDownstreamResponseEvent;
 import com.amazonaws.xray.agent.handlers.XRayHandler;
 import com.amazonaws.xray.entities.Namespace;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import software.amazon.disco.agent.event.Event;
+import software.amazon.disco.agent.event.HttpServiceDownstreamRequestEvent;
+import software.amazon.disco.agent.event.HttpServiceDownstreamResponseEvent;
 
 import java.net.URI;
 import java.net.URISyntaxException;

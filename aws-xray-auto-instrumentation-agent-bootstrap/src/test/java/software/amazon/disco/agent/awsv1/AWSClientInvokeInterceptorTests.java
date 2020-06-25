@@ -1,10 +1,5 @@
 package software.amazon.disco.agent.awsv1;
 
-import software.amazon.disco.agent.event.Event;
-import software.amazon.disco.agent.event.EventBus;
-import software.amazon.disco.agent.event.Listener;
-import software.amazon.disco.agent.event.ServiceDownstreamRequestEvent;
-import software.amazon.disco.agent.event.ServiceDownstreamResponseEvent;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.DefaultRequest;
@@ -23,6 +18,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import software.amazon.disco.agent.event.Event;
+import software.amazon.disco.agent.event.EventBus;
+import software.amazon.disco.agent.event.Listener;
+import software.amazon.disco.agent.event.ServiceDownstreamRequestEvent;
+import software.amazon.disco.agent.event.ServiceDownstreamResponseEvent;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;

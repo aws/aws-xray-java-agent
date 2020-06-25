@@ -1,14 +1,14 @@
 package com.amazonaws.xray.agent.dispatcher;
 
-import software.amazon.disco.agent.event.ServiceActivityRequestEvent;
-import software.amazon.disco.agent.event.ServiceActivityResponseEvent;
-import software.amazon.disco.agent.event.ServiceRequestEvent;
 import com.amazonaws.xray.agent.handlers.XRayHandlerInterface;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
+import software.amazon.disco.agent.event.ServiceActivityRequestEvent;
+import software.amazon.disco.agent.event.ServiceActivityResponseEvent;
+import software.amazon.disco.agent.event.ServiceRequestEvent;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;

@@ -1,10 +1,9 @@
 package com.amazonaws.xray.agent.dispatcher;
 
-import software.amazon.disco.agent.event.Event;
 import com.amazonaws.xray.agent.handlers.XRayHandlerInterface;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import software.amazon.disco.agent.event.Event;
 
 import java.util.HashMap;
 import java.util.Map;

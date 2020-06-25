@@ -1,6 +1,5 @@
 package com.amazonaws.xray.agent.models;
 
-import software.amazon.disco.agent.concurrent.TransactionContext;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.contexts.SegmentContext;
 import com.amazonaws.xray.entities.Entity;
@@ -9,9 +8,9 @@ import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import software.amazon.disco.agent.concurrent.TransactionContext;
 
 /**
  * X-Ray-friendly context that utilizes the TransactionContext object to propagate across thread boundaries. This context

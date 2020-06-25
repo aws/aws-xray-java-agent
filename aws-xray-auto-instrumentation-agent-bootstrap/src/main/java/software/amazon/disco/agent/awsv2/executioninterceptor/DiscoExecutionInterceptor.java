@@ -5,8 +5,8 @@ import software.amazon.disco.agent.awsv2.executioninterceptor.accessors.FailedEx
 import software.amazon.disco.agent.awsv2.executioninterceptor.accessors.InterceptorContextAccessor;
 import software.amazon.disco.agent.awsv2.executioninterceptor.accessors.sdkrequest.SdkHttpRequestAccessor;
 import software.amazon.disco.agent.awsv2.executioninterceptor.accessors.sdkrequest.SdkRequestAccessor;
-import software.amazon.disco.agent.awsv2.executioninterceptor.accessors.sdkresponse.SdkResponseAccessor;
 import software.amazon.disco.agent.awsv2.executioninterceptor.accessors.sdkresponse.SdkHttpResponseAccessor;
+import software.amazon.disco.agent.awsv2.executioninterceptor.accessors.sdkresponse.SdkResponseAccessor;
 import software.amazon.disco.agent.event.AwsServiceDownstreamRequestEvent;
 import software.amazon.disco.agent.event.AwsServiceDownstreamRequestEventImpl;
 import software.amazon.disco.agent.event.AwsServiceDownstreamResponseEvent;

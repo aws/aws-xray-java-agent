@@ -1,5 +1,12 @@
 package com.amazonaws.xray.agent.listeners;
 
+import com.amazonaws.xray.agent.dispatcher.EventDispatcher;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.powermock.modules.junit4.PowerMockRunner;
 import software.amazon.disco.agent.event.HttpServletNetworkRequestEvent;
 import software.amazon.disco.agent.event.HttpServletNetworkResponseEvent;
 import software.amazon.disco.agent.event.ServiceActivityRequestEvent;
@@ -8,16 +15,8 @@ import software.amazon.disco.agent.event.ServiceDownstreamRequestEvent;
 import software.amazon.disco.agent.event.ServiceDownstreamResponseEvent;
 import software.amazon.disco.agent.event.TransactionBeginEvent;
 import software.amazon.disco.agent.event.TransactionEvent;
-import com.amazonaws.xray.agent.dispatcher.EventDispatcher;
-import com.amazonaws.xray.agent.listeners.XRayListener;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

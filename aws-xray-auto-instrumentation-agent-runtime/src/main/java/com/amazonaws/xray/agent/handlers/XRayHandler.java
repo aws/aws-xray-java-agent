@@ -1,8 +1,7 @@
 package com.amazonaws.xray.agent.handlers;
 
-import software.amazon.disco.agent.concurrent.TransactionContext;
-import com.amazonaws.xray.agent.models.XRayTransactionState;
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.agent.models.XRayTransactionState;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
@@ -10,9 +9,9 @@ import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import com.amazonaws.xray.strategy.sampling.SamplingResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import software.amazon.disco.agent.concurrent.TransactionContext;
 
 import java.util.Map;
 import java.util.Optional;

@@ -1,7 +1,5 @@
 package com.amazonaws.xray.agent.handlers.downstream;
 
-import software.amazon.disco.agent.event.ServiceDownstreamRequestEvent;
-import software.amazon.disco.agent.event.ServiceDownstreamResponseEvent;
 import com.amazonaws.Request;
 import com.amazonaws.Response;
 import com.amazonaws.ResponseMetadata;
@@ -23,6 +21,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
+import software.amazon.disco.agent.event.ServiceDownstreamRequestEvent;
+import software.amazon.disco.agent.event.ServiceDownstreamResponseEvent;
 
 import java.util.HashMap;
 import java.util.Map;

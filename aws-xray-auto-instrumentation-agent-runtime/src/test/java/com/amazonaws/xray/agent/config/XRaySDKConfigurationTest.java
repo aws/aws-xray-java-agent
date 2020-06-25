@@ -22,15 +22,15 @@ import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.mockito.ArgumentCaptor;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class XRaySDKConfigurationTest {
     private static final String JVM_NAME = "jvm_name";
@@ -238,7 +238,7 @@ public class XRaySDKConfigurationTest {
     @Test
     public void testInvalidSamplingRuleManifest() {
         AWSXRayRecorderBuilder builderMock = mock(AWSXRayRecorderBuilder.class);
-        configMap.put("sampingRulesManifest", "notAFile");
+        configMap.put("samplingRulesManifest", "notAFile");
         config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init(builderMock);
@@ -251,7 +251,7 @@ public class XRaySDKConfigurationTest {
     @Test
     public void testValidSamplingRuleManifest() {
         AWSXRayRecorderBuilder builderMock = mock(AWSXRayRecorderBuilder.class);
-        configMap.put("sampingRulesManifest", "/path/to/file");
+        configMap.put("samplingRulesManifest", "/path/to/file");
         config.setAgentConfiguration(new AgentConfiguration(configMap));
 
         config.init(builderMock);
