@@ -6,7 +6,7 @@
             The version of the agent should always correlate with a version of the X-Ray SDK. Each new
             release of either one should constitute a release for both.
         -->
-        <xray.version>2.5.0</xray.version>
+        <xray.version>2.6.1</xray.version>
         <disco.version>0.9.1</disco.version>
     </properties>
     <parent>
