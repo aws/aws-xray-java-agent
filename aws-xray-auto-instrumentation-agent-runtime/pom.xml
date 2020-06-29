@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <properties>
         <aws-sdk-v1.test-version>1.11.398</aws-sdk-v1.test-version>
-        <aws-sdk-v2.test-version>2.10.19</aws-sdk-v2.test-version>
+        <aws-sdk-v2.test-version>2.13.46</aws-sdk-v2.test-version>
     </properties>
     <parent>
         <groupId>com.amazonaws</groupId>
