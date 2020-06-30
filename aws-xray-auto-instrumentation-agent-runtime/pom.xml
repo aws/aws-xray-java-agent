@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
     <properties>
-        <aws-sdk-v1.test-version>1.11.398</aws-sdk-v1.test-version>
+        <aws-sdk-v1.test-version>1.11.813</aws-sdk-v1.test-version>
         <aws-sdk-v2.test-version>2.10.19</aws-sdk-v2.test-version>
     </properties>
     <parent>
