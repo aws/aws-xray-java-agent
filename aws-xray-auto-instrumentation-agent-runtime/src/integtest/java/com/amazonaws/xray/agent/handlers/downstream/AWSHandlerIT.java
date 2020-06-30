@@ -8,7 +8,6 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.http.AmazonHttpClient;
-import com.amazonaws.http.apache.client.impl.ConnectionManagerAwareHttpClient;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -16,7 +15,6 @@ import com.amazonaws.services.dynamodbv2.model.AmazonDynamoDBException;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.lambda.model.InvokeRequest;
-import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -35,24 +33,12 @@ import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.impl.io.EmptyInputStream;
-import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.message.BasicStatusLine;
-import org.apache.http.protocol.HttpContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.powermock.reflect.Whitebox;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -62,9 +48,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class AWSHandlerIT {
@@ -73,26 +57,14 @@ public class AWSHandlerIT {
 
     // Adopted from the AWS X-Ray SDK for Java - AWS package unit test.
     // https://github.com/aws/aws-xray-sdk-java/blob/master/aws-xray-recorder-sdk-aws-sdk/src/test/java/com/amazonaws/xray/handlers/TracingHandlerTest.java#L61
-    private void mockHttpClient(Object client, String responseContent) {
+    private MockHttpClient mockHttpClient(Object client, String responseContent) {
         AmazonHttpClient amazonHttpClient = new AmazonHttpClient(new ClientConfiguration());
-        ConnectionManagerAwareHttpClient apacheHttpClient = mock(ConnectionManagerAwareHttpClient.class);
-        HttpResponse httpResponse = new BasicHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
-        BasicHttpEntity responseBody = new BasicHttpEntity();
-        InputStream in = EmptyInputStream.INSTANCE;
-        if(null != responseContent && !responseContent.isEmpty()) {
-            in = new ByteArrayInputStream(responseContent.getBytes(StandardCharsets.UTF_8));
-        }
-        responseBody.setContent(in);
-        httpResponse.setEntity(responseBody);
-
-        try {
-            doReturn(httpResponse).when(apacheHttpClient).execute(any(HttpUriRequest.class), any(HttpContext.class));
-        } catch (IOException e) {
-            System.err.println("Exception during mock: " + e);
-        }
+        MockHttpClient apacheHttpClient = new MockHttpClient();
+        apacheHttpClient.setResponseContent(responseContent);
 
         Whitebox.setInternalState(amazonHttpClient, "httpClient", apacheHttpClient);
         Whitebox.setInternalState(client, "client", amazonHttpClient);
+        return apacheHttpClient;
     }
 
     /**
@@ -244,7 +216,7 @@ public class AWSHandlerIT {
 
         InvokeRequest request = new InvokeRequest();
         request.setFunctionName("testFunctionName");
-        InvokeResult r = lambda.invoke(request);
+        lambda.invoke(request);
 
         assertEquals(1, currentSegment.getSubsegments().size());
         Subsegment currentSubsegment = currentSegment.getSubsegments().get(0);
@@ -270,21 +242,15 @@ public class AWSHandlerIT {
     public void testTraceHeaderPropagation() throws Exception {
         AmazonDynamoDB client = (AmazonDynamoDB) createTestableClient(AmazonDynamoDBClientBuilder.standard()).build();
         String result = "{\"TableNames\":[\"ATestTable\",\"dynamodb-user\",\"some_random_table\",\"scorekeep-game\",\"scorekeep-move\",\"scorekeep-session\",\"scorekeep-state\",\"scorekeep-user\"]}";
-        mockHttpClient(client, result);
-        AmazonHttpClient amazonHttpClient = Whitebox.getInternalState(client, "client");
-        HttpClient apacheHttpClient = Whitebox.getInternalState(amazonHttpClient, "httpClient");
+        MockHttpClient httpClient = mockHttpClient(client, result);
 
         client.listTables();
 
         assertEquals(1, currentSegment.getSubsegments().size());
         Subsegment currentSubsegment = currentSegment.getSubsegments().get(0);
 
-        // Capture the argument passed into the internal http request object
-        ArgumentCaptor<HttpPost> requestAccessor = ArgumentCaptor.forClass(HttpPost.class);
-        verify(apacheHttpClient).execute(requestAccessor.capture(), any(HttpContext.class));
-
         // Find the trace header if it was injected.
-        HttpRequest request = requestAccessor.getValue();
+        HttpRequest request = httpClient.getLastRequest();
         String traceHeader = null;
         for (Header h : request.getAllHeaders()) {
             if (h.getName().equals(TRACE_HEADER_KEY)) {
@@ -332,7 +298,7 @@ public class AWSHandlerIT {
             client.listTables();
             assertFalse(true);  // Fail if we get here
         } catch(SdkClientException e) {
-            ; // We expect to catch this.
+            // We expect to catch this.
         }
 
         // Make sure the subsegment has the exception stored.
@@ -367,7 +333,7 @@ public class AWSHandlerIT {
             client.listTables();
             assertFalse(true);  // Fail if we get here
         } catch(AmazonServiceException e) {
-            ; // We expect to catch this.
+            // We expect to catch this.
         }
 
         // Make sure the subsegment has the exception stored.

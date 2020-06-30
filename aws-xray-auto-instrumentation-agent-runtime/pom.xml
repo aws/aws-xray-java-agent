@@ -90,10 +90,11 @@
                 </executions>
                 <configuration>
                     <!-- Add our Bootstrap Agent for the integration tests -->
-                    <argLine>-javaagent:${com.amazonaws:aws-xray-auto-instrumentation-agent-bootstrap:jar}=servicename=IntegTest</argLine>
+                    <argLine>-javaagent:${com.amazonaws:aws-xray-auto-instrumentation-agent-bootstrap:jar}
+                             -Dcom.amazonaws.xray.strategy.tracingName=IntegTest
+                    </argLine>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
