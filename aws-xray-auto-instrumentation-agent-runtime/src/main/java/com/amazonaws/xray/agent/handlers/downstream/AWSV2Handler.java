@@ -16,13 +16,12 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import software.amazon.awssdk.core.exception.SdkServiceException;
 import software.amazon.disco.agent.event.AwsServiceDownstreamRequestEvent;
 import software.amazon.disco.agent.event.AwsServiceDownstreamResponseEvent;
 import software.amazon.disco.agent.event.Event;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.net.URL;

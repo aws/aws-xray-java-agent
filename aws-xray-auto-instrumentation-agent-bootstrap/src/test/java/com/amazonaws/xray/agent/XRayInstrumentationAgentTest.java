@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import software.amazon.disco.agent.DiscoAgentTemplate;
@@ -18,13 +19,12 @@ import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.verifyNew;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 
-
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.net.ssl.*")
 @PrepareForTest({XRayInstrumentationAgent.class, AgentRuntimeLoaderInterface.class, DiscoAgentTemplate.class})
 public class XRayInstrumentationAgentTest {
     private static final String GET_AGENT_RUNTIME_METHOD = "getAgentRuntimeLoader";
     private final String serviceName = "ControlPlane";
-    public static final String TRACE_HEADER_KEY = "X-Amzn-Trace-Id";
 
     @Mock
     private Instrumentation instrumentation;

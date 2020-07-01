@@ -1,12 +1,12 @@
 package com.amazonaws.xray.agent.handlers.downstream;
 
-import software.amazon.disco.agent.event.Event;
-import software.amazon.disco.agent.event.ServiceRequestEvent;
-import software.amazon.disco.agent.event.ServiceResponseEvent;
 import com.amazonaws.Request;
 import com.amazonaws.Response;
 import com.amazonaws.xray.agent.handlers.XRayHandler;
 import com.amazonaws.xray.handlers.TracingHandler;
+import software.amazon.disco.agent.event.Event;
+import software.amazon.disco.agent.event.ServiceRequestEvent;
+import software.amazon.disco.agent.event.ServiceResponseEvent;
 
 import java.net.URL;
 

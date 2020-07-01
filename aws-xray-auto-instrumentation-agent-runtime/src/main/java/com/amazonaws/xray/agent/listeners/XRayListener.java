@@ -1,5 +1,8 @@
 package com.amazonaws.xray.agent.listeners;
 
+import com.amazonaws.xray.agent.dispatcher.EventDispatcher;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import software.amazon.disco.agent.event.Event;
 import software.amazon.disco.agent.event.HttpServletNetworkRequestEvent;
 import software.amazon.disco.agent.event.HttpServletNetworkResponseEvent;
@@ -7,10 +10,6 @@ import software.amazon.disco.agent.event.Listener;
 import software.amazon.disco.agent.event.ServiceEvent;
 import software.amazon.disco.agent.event.ServiceRequestEvent;
 import software.amazon.disco.agent.event.ServiceResponseEvent;
-import com.amazonaws.xray.agent.dispatcher.EventDispatcher;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class XRayListener implements Listener {
     private static final Log log = LogFactory.getLog(XRayListener.class);

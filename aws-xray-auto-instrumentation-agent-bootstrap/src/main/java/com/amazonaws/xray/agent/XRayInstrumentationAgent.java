@@ -1,8 +1,8 @@
 package com.amazonaws.xray.agent;
 
+import software.amazon.disco.agent.DiscoAgentTemplate;
 import software.amazon.disco.agent.awsv1.AWSClientInvokeInterceptor;
 import software.amazon.disco.agent.awsv2.AWSClientBuilderInterceptor;
-import software.amazon.disco.agent.DiscoAgentTemplate;
 import software.amazon.disco.agent.concurrent.ConcurrencySupport;
 import software.amazon.disco.agent.event.EventBus;
 import software.amazon.disco.agent.interception.Installable;
@@ -37,6 +37,7 @@ public class XRayInstrumentationAgent {
      * DiSCo logger is used to avoid loading Apache logger before it's configured
      */
     private static final Logger log = LogManager.getLogger(XRayInstrumentationAgent.class);
+    private static Class<?> agentRuntimeLoaderClass;
 
     /**
      * The agent is loaded by a -javaagent command line parameter, which will treat 'premain' as its
@@ -92,8 +93,6 @@ public class XRayInstrumentationAgent {
 
     private static AgentRuntimeLoaderInterface getAgentRuntimeLoader(ClassLoader classLoader) throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
         // Iterate through its parents until we find it. If we reach the bootstrap, then we know it doesn't exist.
-
-        Class<?> agentRuntimeLoaderClass = null;
         ClassLoader currentClassloader = classLoader;
 
         // Use the application classloader if the classloader passed in is null (within the bootstrap)

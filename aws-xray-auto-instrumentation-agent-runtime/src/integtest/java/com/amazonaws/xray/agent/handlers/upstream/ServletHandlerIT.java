@@ -13,11 +13,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +33,7 @@ public class ServletHandlerIT {
     private final static String SERVICE_NAME = "IntegTest";  // This is hardcoded in the Pom.xml file
     private HttpServlet theServlet;
 
-    private HttpServletRequest request;
+    private MockHttpServletRequest request;
     private HttpServletResponse response;
 
     private AWSXRayRecorder recorder;
@@ -47,15 +43,16 @@ public class ServletHandlerIT {
     public void setup() throws Exception {
         theServlet = new SimpleHttpServlet();
 
-        request = mock(HttpServletRequest.class);
+        request = new MockHttpServletRequest();
+        request.setMethod("GET");
+        request.setHeader(TRACE_HEADER_KEY, null);
         response = mock(HttpServletResponse.class);
+        when(response.getStatus()).thenReturn(200);
         mockEmitter = mock(UDPEmitter.class);
 
         recorder = AWSXRay.getGlobalRecorder();
         recorder.setSamplingStrategy(new AllSamplingStrategy());
         recorder.setEmitter(mockEmitter); // Even though we're sampling them all, none are sent. This is to test.
-
-        mockHttpObjects();
     }
 
     @After
@@ -75,7 +72,7 @@ public class ServletHandlerIT {
 
     @Test
     public void testReceivePostRequest() throws Exception {
-        when(request.getMethod()).thenReturn("POST");
+        request.setMethod("POST");
         theServlet.service(request, response);
 
         Segment currentSegment = interceptSegment();
@@ -140,8 +137,7 @@ public class ServletHandlerIT {
     @Test
     public void testReceiveTraceHeaderSampled() throws Exception {
         // Add trace header to X-Ray through the request object.
-        when(request.getHeader(TRACE_HEADER_KEY)).thenReturn(PREDEFINED_TRACE_HEADER_SAMPLED);
-        mockHttpObjects(); // We need to remock now that we added a new header
+        request.setHeader(TRACE_HEADER_KEY, PREDEFINED_TRACE_HEADER_SAMPLED);
         theServlet.service(request, response);
 
         Segment currentSegment = interceptSegment();
@@ -155,49 +151,19 @@ public class ServletHandlerIT {
     @Test
     public void testReceiveTraceHeaderUnsampled() throws Exception {
         // Add trace header to X-Ray through the request object.
-        when(request.getHeader(TRACE_HEADER_KEY)).thenReturn(PREDEFINED_TRACE_HEADER_NOT_SAMPLED);
-        mockHttpObjects();
+        request.setHeader(TRACE_HEADER_KEY, PREDEFINED_TRACE_HEADER_NOT_SAMPLED);
         theServlet.service(request, response);
 
         verify(mockEmitter, times(0)).sendSegment(any());
-    }
-
-    private void mockHttpObjects() {
-        // Mock HttpServletRequest object.
-        when(request.getMethod()).thenReturn("GET");
-        when(request.getProtocol()).thenReturn("http");
-
-        // Add common http header
-        Map<String, String> reqHeaderMap = new HashMap<>();
-        reqHeaderMap.put("host", "amazon.com");
-        reqHeaderMap.put("referer", "http://amazon.com/explore/something");
-        reqHeaderMap.put("user-agent", "Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0");
-        if (request.getHeader(TRACE_HEADER_KEY) != null) {
-            // Add trace header through mockito
-            reqHeaderMap.put(TRACE_HEADER_KEY, request.getHeader(TRACE_HEADER_KEY));
-        }
-        for (Map.Entry<String, String> entry : reqHeaderMap.entrySet()) {
-            when(request.getHeader(entry.getKey())).thenReturn(entry.getValue());
-        }
-        // Adding the header names is necessary for
-        when(request.getHeaderNames()).thenReturn(Collections.enumeration(reqHeaderMap.keySet()));
-
-        // Used for request event population.
-        when(request.getLocalAddr()).thenReturn("0.0.0.0");
-        when(request.getRemoteAddr()).thenReturn("1.1.1.1");
-        when(request.getRequestURL()).thenReturn(new StringBuffer("http://request.amazon.com"));
-
-        // Mock HttpServletResponse object
-        when(response.getStatus()).thenReturn(200);
     }
 
     private void verifyHttpSegment(Segment segment) {
         assertEquals(SERVICE_NAME, segment.getName());
 
         Map<String, String> httpRequestMap = (Map<String, String>) segment.getHttp().get("request");
-        assertEquals(httpRequestMap.get("method"), request.getMethod());
-        assertEquals(httpRequestMap.get("client_ip"), request.getLocalAddr());
-        assertEquals(httpRequestMap.get("url"), request.getRequestURL().toString());
+        assertEquals(request.getMethod(), httpRequestMap.get("method"));
+        assertEquals(request.getLocalAddr(), httpRequestMap.get("client_ip"));
+        assertEquals(request.getRequestURL().toString(), httpRequestMap.get("url"));
 
         Map<String, String> httpResponseMap = (Map<String, String>) segment.getHttp().get("response");
         assertEquals(response.getStatus(), httpResponseMap.get("status"));

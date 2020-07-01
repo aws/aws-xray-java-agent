@@ -1,13 +1,13 @@
 package com.amazonaws.xray.agent.handlers.upstream;
 
-import software.amazon.disco.agent.event.Event;
-import software.amazon.disco.agent.event.HttpNetworkProtocolRequestEvent;
-import software.amazon.disco.agent.event.HttpServletNetworkRequestEvent;
-import software.amazon.disco.agent.event.HttpServletNetworkResponseEvent;
 import com.amazonaws.xray.agent.handlers.XRayHandler;
 import com.amazonaws.xray.agent.models.XRayTransactionState;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.TraceHeader;
+import software.amazon.disco.agent.event.Event;
+import software.amazon.disco.agent.event.HttpNetworkProtocolRequestEvent;
+import software.amazon.disco.agent.event.HttpServletNetworkRequestEvent;
+import software.amazon.disco.agent.event.HttpServletNetworkResponseEvent;
 
 import java.util.HashMap;
 import java.util.Map;

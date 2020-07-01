@@ -37,7 +37,7 @@
                                 </relocation>
                                 <relocation>
                                     <pattern>com.fasterxml</pattern>
-                                    <shadedPattern>software.amazon.disco.agent.jar.fasterxmll</shadedPattern>
+                                    <shadedPattern>software.amazon.disco.agent.jar.fasterxml</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>net.bytebuddy</pattern>

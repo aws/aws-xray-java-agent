@@ -1,7 +1,5 @@
 package com.amazonaws.xray.agent.handlers.upstream;
 
-import software.amazon.disco.agent.event.HttpServletNetworkRequestEvent;
-import software.amazon.disco.agent.event.HttpServletNetworkResponseEvent;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.agent.models.XRayTransactionState;
 import com.amazonaws.xray.entities.Segment;
@@ -15,6 +13,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
+import software.amazon.disco.agent.event.HttpServletNetworkRequestEvent;
+import software.amazon.disco.agent.event.HttpServletNetworkResponseEvent;
 
 import java.util.HashMap;
 import java.util.Map;
