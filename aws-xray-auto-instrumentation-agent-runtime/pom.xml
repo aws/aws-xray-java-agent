@@ -78,7 +78,7 @@
             <!-- Execute the integration test -->
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M3</version>
+                <version>3.0.0-M5</version>
                 <executions>
                     <execution>
                         <id>integration-test</id>
