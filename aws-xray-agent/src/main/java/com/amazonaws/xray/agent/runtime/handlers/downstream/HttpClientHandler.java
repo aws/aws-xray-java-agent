@@ -35,7 +35,7 @@ public class HttpClientHandler extends XRayHandler {
         HttpServiceDownstreamRequestEvent requestEvent = (HttpServiceDownstreamRequestEvent) event;
         URI uri = getUriFromEvent(requestEvent);
 
-        if (isWithinAWSCall() || isXRaySamplingCall(uri)) {
+        if (isWithinAWSCall() || isXRaySamplingCall(uri) || isXRayPluginCall(uri)) {
             return;
         }
 
@@ -97,7 +97,7 @@ public class HttpClientHandler extends XRayHandler {
         // By this time, the request handler would've executed the same logic and didn't generate a subsegment.
         HttpServiceDownstreamRequestEvent requestEvent = (HttpServiceDownstreamRequestEvent) responseEvent.getRequest();
         URI uri = getUriFromEvent(requestEvent);
-        if (isWithinAWSCall() || isXRaySamplingCall(uri)) {
+        if (isWithinAWSCall() || isXRaySamplingCall(uri) || isXRayPluginCall(uri)) {
             return;
         }
 
@@ -144,8 +144,11 @@ public class HttpClientHandler extends XRayHandler {
         }
     }
 
-    // Check if the current call is within an AWS SDK call.
-    // We can validate this by seeing if the parent subsegment is an AWS one and is valid.
+    /** Check if the current call is within an AWS SDK call.
+     * We can validate this by seeing if the parent subsegment is an AWS one and is valid.
+     *
+     * @return true if we are currently processing an AWS SDK request
+     */
     private boolean isWithinAWSCall() {
         Optional<Subsegment> subsegmentOptional = getSubsegmentOptional();
         if (!subsegmentOptional.isPresent()) {
@@ -159,9 +162,25 @@ public class HttpClientHandler extends XRayHandler {
         return namespace.equals(Namespace.AWS.toString()) && currentSubsegment.isInProgress();
     }
 
-    // Is the current call an X-Ray sampling call?
+    /**
+     * Checks if the current call is an X-Ray sampling call
+     *
+     * @param uri URI of intercepted call
+     * @return true if this is a request made by X-Ray sampling
+     */
     private boolean isXRaySamplingCall(URI uri) {
         String uriPath = uri.getPath();
         return uriPath != null && (uriPath.equals("/GetSamplingRules") || uriPath.equals("/SamplingTargets"));
+    }
+
+    /**
+     * Checks if the current request is the one made by EKS plugin to Kubernetes endpoint
+     *
+     * @param uri URI of intercepted call
+     * @return true if this is a request made by EKS plugin
+     */
+    private boolean isXRayPluginCall(URI uri) {
+        String uriPath = uri.getPath();
+        return uriPath != null && uriPath.equals("/api/v1/namespaces/amazon-cloudwatch/configmaps/cluster-info");
     }
 }

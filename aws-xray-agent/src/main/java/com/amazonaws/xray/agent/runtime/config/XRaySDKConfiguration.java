@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,8 +32,10 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
- * Singleton class that represents the X-Ray Agent's configuration programatically. This class is responsible for
+ * Singleton class that represents the X-Ray Agent's configuration programmatically. This class is responsible for
  * parsing and validating the contents of the agent's configuration file. It also reads the environment variables
  * and system properties for relevant configurations. Priority for settings is as follows:
  *
@@ -44,10 +45,12 @@ import java.util.Map;
  * 4. Default value
  *
  * For now, environment variable and system property overrides are handled in various locations of the SDK.
- * Note that configuring these values programatically is still possible, and will override the configuration file and
+ * Note that configuring these values programmatically is still possible, and will override the configuration file and
  * default value set here, but that is not recommended.
  */
 public class XRaySDKConfiguration {
+    // Visible for testing
+    static final String LAMBDA_TASK_ROOT_KEY = "LAMBDA_TASK_ROOT";
     static final String ENABLED_ENVIRONMENT_VARIABLE_KEY = "AWS_XRAY_TRACING_ENABLED";
     static final String ENABLED_SYSTEM_PROPERTY_KEY = "com.amazonaws.xray.tracingEnabled";
 
@@ -79,13 +82,6 @@ public class XRaySDKConfiguration {
         CENTRAL,
         NONE,
         ALL,
-    }
-
-    /* Trace ID injection into logs enums */
-    enum TraceIdInjection {
-        NONE,
-        LOG4J,
-        SLF4J,
     }
 
     public int getAwsSdkVersion() {
@@ -171,8 +167,8 @@ public class XRaySDKConfiguration {
 
         // X-Ray Enabled
         if ("false".equalsIgnoreCase(System.getenv(ENABLED_ENVIRONMENT_VARIABLE_KEY)) ||
-            "false".equalsIgnoreCase(System.getProperty(ENABLED_SYSTEM_PROPERTY_KEY)) ||
-            !agentConfiguration.isTracingEnabled())
+                "false".equalsIgnoreCase(System.getProperty(ENABLED_SYSTEM_PROPERTY_KEY)) ||
+                !agentConfiguration.isTracingEnabled())
         {
             log.info("Instrumentation via the X-Ray Agent has been disabled by user configuration.");
             return;
@@ -196,7 +192,10 @@ public class XRaySDKConfiguration {
         }
 
         // Plugins
-        if (agentConfiguration.arePluginsEnabled()) {
+        // Do not add plugins in Lambda environment to improve performance & avoid irrelevant metadata
+        if (StringValidator.isNullOrBlank(System.getenv(LAMBDA_TASK_ROOT_KEY)) &&
+                agentConfiguration.arePluginsEnabled())
+        {
             builder.withDefaultPlugins();
         }
 
