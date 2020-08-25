@@ -8,11 +8,8 @@ plugins {
 val discoVersion by extra("0.10.0")
 
 subprojects {
-    version = "2.6.1-beta.1"
+    version = "2.7.0"
     group = "com.amazonaws"
-
-    // Get X-Ray SDK version by removing beta suffix
-    val sdkVersion = version.toString().split("-")[0]
 
     repositories {
         mavenLocal()
@@ -61,16 +58,6 @@ subprojects {
         }
     }
 
-//    plugins.withId("java-library") {
-//        configure<JavaPluginExtension> {
-//            sourceCompatibility = JavaVersion.VERSION_1_8
-//            targetCompatibility = JavaVersion.VERSION_1_8
-//
-//            withJavadocJar()
-//            withSourcesJar()
-//        }
-//    }
-
     plugins.withId("maven-publish") {
         plugins.apply("signing")
 
@@ -90,7 +77,7 @@ subprojects {
 
                     // If the shadow plugin is present, we should publish the shaded artifact
                     // Otherwise, just publish the standard JAR
-                    plugins.withId("java-library") {
+                    plugins.withId("java") {
                         if (plugins.hasPlugin("com.github.johnrengelman.shadow")) {
                             artifact(tasks.named<Jar>("jar").get())
                         } else {

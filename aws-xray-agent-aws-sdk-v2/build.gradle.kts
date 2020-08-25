@@ -1,5 +1,6 @@
 plugins {
     `java`
+    `maven-publish`
 }
 
 dependencies {
