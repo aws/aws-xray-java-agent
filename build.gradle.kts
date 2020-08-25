@@ -1,0 +1,156 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+plugins {
+    id("com.github.johnrengelman.shadow") version "5.2.0" apply false
+}
+
+// Expose DiSCo version to subprojects
+val discoVersion by extra("0.10.0")
+
+subprojects {
+    version = "2.6.1-beta.1"
+    group = "com.amazonaws"
+
+    // Get X-Ray SDK version by removing beta suffix
+    val sdkVersion = version.toString().split("-")[0]
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    // Configure the shadow jar task, which does shading, to run after Gradle runs the jar task
+    pluginManager.withPlugin("com.github.johnrengelman.shadow") {
+        tasks {
+            named<DefaultTask>("assemble") {
+                dependsOn(named<ShadowJar>("shadowJar"))
+            }
+            named<ShadowJar>("shadowJar") {
+                // Suppress the "-all" suffix on the jar name, simply replace the default built jar instead
+                archiveClassifier.set(null as String?)
+
+                dependsOn(named<Jar>("jar"))
+            }
+        }
+    }
+
+    plugins.withId("java") {
+        configure<JavaPluginExtension> {
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
+
+            withJavadocJar()
+            withSourcesJar()
+        }
+
+        dependencies {
+            // BOMs for common projects
+            add("implementation", platform("com.amazonaws:aws-xray-recorder-sdk-bom:2.7.0-SNAPSHOT"))
+            add("implementation", platform("software.amazon.disco:disco-toolkit-bom:${discoVersion}"))
+            add("implementation", platform("com.fasterxml.jackson:jackson-bom:2.11.0"))
+            add("implementation", platform("com.amazonaws:aws-java-sdk-bom:1.11.837"))
+            add("implementation", platform("software.amazon.awssdk:bom:2.13.70"))
+
+            // TODO: Add build step for running Null checker
+            add("compileOnly", "org.checkerframework:checker-qual:3.4.1")
+
+            // Common test dependencies
+            add("testImplementation", "junit:junit:4.12")
+            add("testImplementation", "org.assertj:assertj-core:3.16.1")
+            add("testImplementation", "org.mockito:mockito-core:2.28.2")
+        }
+    }
+
+//    plugins.withId("java-library") {
+//        configure<JavaPluginExtension> {
+//            sourceCompatibility = JavaVersion.VERSION_1_8
+//            targetCompatibility = JavaVersion.VERSION_1_8
+//
+//            withJavadocJar()
+//            withSourcesJar()
+//        }
+//    }
+
+    plugins.withId("maven-publish") {
+        plugins.apply("signing")
+
+        // Disable publishing a bunch of unnecessary Gradle metadata files
+        tasks.withType<GenerateModuleMetadata> {
+            enabled = false
+        }
+
+        // Defer maven publish until the assemble task has finished, giving time for shadowJar to complete if present
+        tasks.withType<AbstractPublishToMaven> {
+            dependsOn(tasks.named<DefaultTask>("assemble"))
+        }
+
+        configure<PublishingExtension> {
+            publications {
+                register<MavenPublication>("maven") {
+
+                    // If the shadow plugin is present, we should publish the shaded artifact
+                    // Otherwise, just publish the standard JAR
+                    plugins.withId("java-library") {
+                        if (plugins.hasPlugin("com.github.johnrengelman.shadow")) {
+                            artifact(tasks.named<Jar>("jar").get())
+                        } else {
+                            from(components["java"])
+                        }
+                    }
+
+                    versionMapping {
+                        allVariants {
+                            fromResolutionResult()
+                        }
+                    }
+
+                    pom {
+                        afterEvaluate {
+                            pom.name.set(project.description)
+                        }
+                        description.set("The AWS X-Ray Auto-Instrumentation Agent for Java is a Java agent that " +
+                                        "automatically instruments your code to use X-Ray tracing.")
+                        url.set("https://aws.amazon.com/documentation/xray/")
+
+
+                        licenses {
+                            license {
+                                name.set("Apache License, Version 2.0")
+                                url.set("https://aws.amazon.com/apache2.0")
+                                distribution.set("repo")
+                            }
+                        }
+
+                        developers {
+                            developer {
+                                id.set("amazonwebservices")
+                                organization.set("Amazon Web Services")
+                                organizationUrl.set("https://aws.amazon.com")
+                                roles.add("developer")
+                            }
+                        }
+
+                        scm {
+                            url.set("https://github.com/aws/aws-xray-java-agent.git")
+                        }
+                    }
+                }
+            }
+
+            repositories {
+                maven {
+                    url = uri("https://aws.oss.sonatype.org/service/local/staging/deploy/maven2/")
+                    credentials {
+                        username = "${findProperty("aws.sonatype.username")}"
+                        password = "${findProperty("aws.sonatype.password")}"
+                    }
+                }
+            }
+        }
+
+        configure<SigningExtension> {
+            useGpgCmd()
+            sign(the<PublishingExtension>().publications["maven"])
+        }
+    }
+}

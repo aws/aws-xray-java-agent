@@ -1,4 +1,4 @@
-fpackage com.amazonaws.xray.agent.runtime.handlers.downstream;
+package com.amazonaws.xray.agent.runtime.handlers.downstream;
 
 import com.amazonaws.Request;
 import com.amazonaws.Response;

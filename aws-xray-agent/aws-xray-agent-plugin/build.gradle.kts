@@ -1,0 +1,86 @@
+plugins {
+    `java`
+    `maven-publish`
+    id("com.github.johnrengelman.shadow")
+}
+
+dependencies {
+    // Runtime dependencies are those that we will pull in to create the X-Ray Agent Plugin jar
+    // Setting isTransitive to false ensures we do not pull in any transitive dependencies of these modules
+    // and pollute our JAR with them
+    runtimeOnly("com.amazonaws:aws-xray-recorder-sdk-sql") {
+        isTransitive = false
+    }
+    runtimeOnly(project(":aws-xray-agent")) {
+        isTransitive = false
+    }
+
+    testImplementation("org.powermock:powermock-api-mockito2:2.0.7")
+    testImplementation("org.powermock:powermock-module-junit4:2.0.7")
+
+    testImplementation("com.amazonaws:aws-xray-recorder-sdk-core")
+    testImplementation("com.amazonaws:aws-xray-recorder-sdk-sql")
+    testImplementation(project(":aws-xray-agent-aws-sdk-v1"))
+    testImplementation(project(":aws-xray-agent-aws-sdk-v2"))
+
+    testImplementation("software.amazon.disco:disco-java-agent")
+    testImplementation("software.amazon.disco:disco-java-agent-aws-plugin")
+    testImplementation("software.amazon.disco:disco-java-agent-web-plugin")
+    testImplementation("software.amazon.disco:disco-java-agent-sql-plugin")
+    testImplementation("software.amazon.disco:disco-java-agent-api")
+
+    testImplementation("com.amazonaws:aws-java-sdk-dynamodb")
+    testImplementation("com.amazonaws:aws-java-sdk-lambda")
+    testImplementation("com.amazonaws:aws-java-sdk-s3")
+    testImplementation("com.amazonaws:aws-java-sdk-sqs")
+    testImplementation("com.amazonaws:aws-java-sdk-sns")
+    testImplementation("software.amazon.awssdk:dynamodb")
+    testImplementation("software.amazon.awssdk:lambda")
+    testImplementation("software.amazon.awssdk:s3")
+    testImplementation("javax.servlet:javax.servlet-api:3.1.0")
+}
+
+tasks {
+    shadowJar {
+        // Decorate this artifact to indicate it is a Disco plugin
+        manifest {
+            attributes(mapOf(
+                    "Disco-Init-Class" to "com.amazonaws.xray.agent.runtime.AgentRuntimeLoader"
+            ))
+        }
+
+        // Shade in our dependency on the X-Ray SDK SQL lib, so customers don't have to pull it in
+        relocate("com.amazonaws.xray.sql", "com.amazonaws.xray.agent.runtime.jar.sql")
+    }
+
+    // Copies Disco agent and plugin JARs into our lib for convenience
+    register<Copy>("copyPlugins") {
+        dependsOn(configurations.testRuntimeClasspath)
+        from(configurations.testRuntimeClasspath.get())
+        include("disco-java-agent*.jar")
+        into("$buildDir/libs")
+        dependsOn(":aws-xray-agent:build")
+        mustRunAfter(":aws-xray-agent:aws-xray-agent-plugin:shadowJar")
+    }
+
+    // The only tests that run in this module are integration tests, so configure them as the standard test task
+    test {
+        // Explicitly remove all runtime dependencies and disco plugins from the classpath since a customer's
+        // application (which the integ tests simulate) should not be aware of any of those JARs
+        classpath = classpath
+                .minus(configurations.runtimeClasspath.get())
+                .filter {
+                    file -> !file.absolutePath.contains("disco-java-agent")
+                }
+
+        val ver = rootProject.extra["discoVersion"]
+        jvmArgs("-javaagent:$buildDir/libs/disco-java-agent-$ver.jar=pluginPath=$buildDir/libs",
+                "-Dcom.amazonaws.xray.strategy.tracingName=IntegTest")
+
+        // Cannot run tests until all plugins are available
+        dependsOn(":aws-xray-agent:assemble")
+        dependsOn(named("copyPlugins"))
+    }
+}
+
+description = "AWS X-Ray Java Agent as a DiSCo Plugin"

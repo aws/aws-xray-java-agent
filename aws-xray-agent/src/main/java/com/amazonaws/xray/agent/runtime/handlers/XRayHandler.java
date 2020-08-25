@@ -13,6 +13,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import software.amazon.disco.agent.concurrent.TransactionContext;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -83,9 +86,11 @@ public abstract class XRayHandler implements XRayHandlerInterface {
 
         Map<String, Object> xrayMap = (Map<String, Object>) awsMap.get(XRAY_AWS_KEY);
         if (xrayMap != null) {
-            xrayMap.put(AUTO_INSTRUMENTATION_KEY, true);
+            Map<String, Object> agentMap = new HashMap<>(xrayMap);
+            agentMap.put(AUTO_INSTRUMENTATION_KEY, true);
+            segment.putAws(XRAY_AWS_KEY, Collections.unmodifiableMap(agentMap));
         } else {
-            log.error("Unable to retrieve X-Ray map from AWS map of segment.");
+            log.debug("Unable to retrieve X-Ray attribute map from segment.");
         }
 
         return segment;
