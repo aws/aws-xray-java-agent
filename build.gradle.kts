@@ -5,16 +5,15 @@ plugins {
 }
 
 // Expose DiSCo version to subprojects
-val discoVersion by extra("0.10.1")
+val discoVersion by extra("0.10.0")
 
 subprojects {
     version = "2.7.1"
     group = "com.amazonaws"
 
     repositories {
-        mavenLocal()
         mavenCentral()
-//        mavenLocal()
+        mavenLocal()
     }
 
     // Configure the shadow jar task, which does shading, to run after Gradle runs the jar task
@@ -86,10 +85,8 @@ subprojects {
                     plugins.withId("java") {
                         afterEvaluate {
                             if (plugins.hasPlugin("com.github.johnrengelman.shadow")) {
-                                println("Shadow " + project)
                                 artifact(tasks.named<Jar>("shadowJar").get())
                             } else {
-                                println("Java " + project)
                                 from(components["java"])
                             }
                         }
