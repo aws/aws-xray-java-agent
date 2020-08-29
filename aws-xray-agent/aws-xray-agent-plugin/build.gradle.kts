@@ -4,6 +4,8 @@ plugins {
     id("com.github.johnrengelman.shadow")
 }
 
+description = "AWS X-Ray Java Agent as a DiSCo Plugin"
+
 dependencies {
     // Runtime dependencies are those that we will pull in to create the X-Ray Agent Plugin jar
     // Setting isTransitive to false ensures we do not pull in any transitive dependencies of these modules
@@ -15,14 +17,16 @@ dependencies {
         isTransitive = false
     }
 
+    testImplementation(project(":aws-xray-agent-aws-sdk-v1"))
+    testImplementation(project(":aws-xray-agent-aws-sdk-v2"))
+
     testImplementation("org.powermock:powermock-api-mockito2:2.0.7")
     testImplementation("org.powermock:powermock-module-junit4:2.0.7")
 
     testImplementation("com.amazonaws:aws-xray-recorder-sdk-core")
     testImplementation("com.amazonaws:aws-xray-recorder-sdk-sql")
-    testImplementation(project(":aws-xray-agent-aws-sdk-v1"))
-    testImplementation(project(":aws-xray-agent-aws-sdk-v2"))
 
+    // These Disco artifacts will be packaged into the final X-Ray Agent distribution
     testImplementation("software.amazon.disco:disco-java-agent")
     testImplementation("software.amazon.disco:disco-java-agent-aws-plugin")
     testImplementation("software.amazon.disco:disco-java-agent-web-plugin")
@@ -111,5 +115,3 @@ tasks {
         mustRunAfter(test)
     }
 }
-
-description = "AWS X-Ray Java Agent as a DiSCo Plugin"

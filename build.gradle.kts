@@ -21,13 +21,18 @@ subprojects {
     pluginManager.withPlugin("com.github.johnrengelman.shadow") {
         tasks {
             named<DefaultTask>("assemble") {
-                dependsOn(named<ShadowJar>("shadowJar"))
+                dependsOn(named("shadowJar"))
             }
+
             named<ShadowJar>("shadowJar") {
                 // Suppress the "-all" suffix on the jar name, simply replace the default built jar instead
-                archiveClassifier.set(null as String?)
+                archiveClassifier.set("")
+            }
 
-                dependsOn(named<Jar>("jar"))
+            // Disable the conventional JAR task, and only run shadowJar instead
+            named<Jar>("jar") {
+                enabled = false
+                dependsOn(named("shadowJar"))
             }
         }
     }
@@ -79,10 +84,14 @@ subprojects {
                     // If the shadow plugin is present, we should publish the shaded artifact
                     // Otherwise, just publish the standard JAR
                     plugins.withId("java") {
-                        if (plugins.hasPlugin("com.github.johnrengelman.shadow")) {
-                            artifact(tasks.named<Jar>("jar").get())
-                        } else {
-                            from(components["java"])
+                        afterEvaluate {
+                            if (plugins.hasPlugin("com.github.johnrengelman.shadow")) {
+                                println("Shadow " + project)
+                                artifact(tasks.named<Jar>("shadowJar").get())
+                            } else {
+                                println("Java " + project)
+                                from(components["java"])
+                            }
                         }
                     }
 
@@ -115,6 +124,12 @@ subprojects {
                                 organization.set("Amazon Web Services")
                                 organizationUrl.set("https://aws.amazon.com")
                                 roles.add("developer")
+                            }
+
+                            developer {
+                                id.set("armiros")
+                                name.set("William Armiros")
+                                email.set("armiros@amazon.com")
                             }
                         }
 

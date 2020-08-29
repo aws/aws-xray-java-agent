@@ -2,6 +2,8 @@ plugins {
     `java`
 }
 
+description = "AWS X-Ray Runtime Java Agent"
+
 dependencies {
     implementation("com.amazonaws:aws-xray-recorder-sdk-core")
     implementation("com.amazonaws:aws-xray-recorder-sdk-sql")
@@ -21,5 +23,3 @@ dependencies {
     testImplementation("com.amazonaws:aws-xray-recorder-sdk-log4j")
     testImplementation("com.amazonaws:aws-xray-recorder-sdk-slf4j")
 }
-
-description = "AWS X-Ray Runtime Java Agent"
