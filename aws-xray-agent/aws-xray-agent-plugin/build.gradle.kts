@@ -102,10 +102,14 @@ tasks {
         dependsOn(withType<Copy>())
     }
 
-//    register("createAgentZip") {
-//        dependsOn(test)
-//
-//    }
+    register<Zip>("createAgentZip") {
+        archiveFileName.set("xray-agent.zip")
+        destinationDirectory.set(file("$buildDir/dist"))
+        from("$buildDir/libs")
+        include("disco/**")
+
+        mustRunAfter(test)
+    }
 }
 
 description = "AWS X-Ray Java Agent as a DiSCo Plugin"
