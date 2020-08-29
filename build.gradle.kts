@@ -5,15 +5,16 @@ plugins {
 }
 
 // Expose DiSCo version to subprojects
-val discoVersion by extra("0.10.0")
+val discoVersion by extra("0.10.1")
 
 subprojects {
-    version = "2.7.0"
+    version = "2.7.1"
     group = "com.amazonaws"
 
     repositories {
-        mavenCentral()
         mavenLocal()
+        mavenCentral()
+//        mavenLocal()
     }
 
     // Configure the shadow jar task, which does shading, to run after Gradle runs the jar task
@@ -42,7 +43,7 @@ subprojects {
 
         dependencies {
             // BOMs for common projects
-            add("implementation", platform("com.amazonaws:aws-xray-recorder-sdk-bom:2.7.0"))
+            add("implementation", platform("com.amazonaws:aws-xray-recorder-sdk-bom:2.7.1"))
             add("implementation", platform("software.amazon.disco:disco-toolkit-bom:${discoVersion}"))
             add("implementation", platform("com.fasterxml.jackson:jackson-bom:2.11.0"))
             add("implementation", platform("com.amazonaws:aws-java-sdk-bom:1.11.837"))

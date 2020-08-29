@@ -1,7 +1,9 @@
 package com.amazonaws.xray.agent.runtime.handlers.upstream;
 
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.agent.runtime.models.XRayTransactionState;
+import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.entities.TraceID;
@@ -11,6 +13,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 import software.amazon.disco.agent.event.HttpServletNetworkRequestEvent;
@@ -40,9 +44,17 @@ public class ServletHandlerTest {
 
     private ServletHandler servletHandler;
 
+    @Mock
+    private Emitter blankEmitter;
+
     @Before
     public void setup() {
-        AWSXRay.getGlobalRecorder().setSamplingStrategy(new NoSamplingStrategy());
+        MockitoAnnotations.initMocks(this);
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder
+                .standard()
+                .withSamplingStrategy(new NoSamplingStrategy())
+                .withEmitter(blankEmitter)
+                .build());
         servletHandler = new ServletHandler();
         XRayTransactionState.setServiceName(SERVICE_NAME);
     }

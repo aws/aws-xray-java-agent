@@ -54,13 +54,35 @@ tasks {
     }
 
     // Copies Disco agent and plugin JARs into our lib for convenience
-    register<Copy>("copyPlugins") {
+    register<Copy>("copyAgent") {
+        val discoVer = rootProject.extra["discoVersion"]
+
         dependsOn(configurations.testRuntimeClasspath)
         from(configurations.testRuntimeClasspath.get())
-        include("disco-java-agent*.jar")
-        into("$buildDir/libs")
-        dependsOn(":aws-xray-agent:build")
-        mustRunAfter(":aws-xray-agent:aws-xray-agent-plugin:shadowJar")
+        include("disco-java-agent-$discoVer.jar")
+
+        into("$buildDir/libs/disco")
+        rename("disco-java-agent-$discoVer.jar", "disco-java-agent.jar")
+    }
+
+    register<Copy>("copyPlugins") {
+        val discoVer = rootProject.extra["discoVersion"]
+
+        dependsOn(configurations.testRuntimeClasspath)
+        from(configurations.testRuntimeClasspath.get())
+        include("disco-java-agent-*-plugin-$discoVer.jar")
+
+        rename("(.+)-$discoVer(.+)", "$1$2")
+        into("$buildDir/libs/disco/disco-plugins")
+    }
+
+    register<Copy>("copyXRay") {
+        from("$buildDir/libs")
+
+        include("aws-xray-agent-plugin-$version.jar")
+        rename("(.+)-$version(.+)", "$1$2")
+
+        into("$buildDir/libs/disco/disco-plugins")
     }
 
     // The only tests that run in this module are integration tests, so configure them as the standard test task
@@ -73,14 +95,17 @@ tasks {
                     file -> !file.absolutePath.contains("disco-java-agent")
                 }
 
-        val ver = rootProject.extra["discoVersion"]
-        jvmArgs("-javaagent:$buildDir/libs/disco-java-agent-$ver.jar=pluginPath=$buildDir/libs",
+        jvmArgs("-javaagent:$buildDir/libs/disco/disco-java-agent.jar=pluginPath=$buildDir/libs/disco/disco-plugins",
                 "-Dcom.amazonaws.xray.strategy.tracingName=IntegTest")
 
-        // Cannot run tests until all plugins are available
-        dependsOn(":aws-xray-agent:assemble")
-        dependsOn(named("copyPlugins"))
+        // Cannot run tests until agent and all plugins are available
+        dependsOn(withType<Copy>())
     }
+
+//    register("createAgentZip") {
+//        dependsOn(test)
+//
+//    }
 }
 
 description = "AWS X-Ray Java Agent as a DiSCo Plugin"
