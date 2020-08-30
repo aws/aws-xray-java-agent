@@ -8,8 +8,10 @@ import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
+import com.amazonaws.xray.listeners.SegmentListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import software.amazon.disco.agent.concurrent.TransactionContext;
 
 /**
@@ -21,15 +23,33 @@ public class XRayTransactionContext implements SegmentContext {
     private static final Log log = LogFactory.getLog(XRayTransactionContext.class);
 
     // Transaction Context approach.
+    @Nullable
     public Entity getTraceEntity() {
         return (Entity) TransactionContext.getMetadata(XRAY_ENTITY_KEY);
     }
 
-    public void setTraceEntity(Entity entity) {
+    public void setTraceEntity(@Nullable Entity entity) {
+        if (entity != null && entity.getCreator() != null) {
+            for (SegmentListener l : entity.getCreator().getSegmentListeners()) {
+                if (l != null) {
+                    l.onSetEntity((Entity) TransactionContext.getMetadata(XRAY_ENTITY_KEY), entity);
+                }
+            }
+        }
+
         TransactionContext.putMetadata(XRAY_ENTITY_KEY, entity);
     }
 
     public void clearTraceEntity() {
+        Entity oldEntity = (Entity) TransactionContext.getMetadata(XRAY_ENTITY_KEY);
+        if (oldEntity != null && oldEntity.getCreator() != null) {
+            for (SegmentListener l : oldEntity.getCreator().getSegmentListeners()) {
+                if (l != null) {
+                    l.onClearEntity(oldEntity);
+                }
+            }
+        }
+
         TransactionContext.putMetadata(XRAY_ENTITY_KEY, null);
     }
 
@@ -38,7 +58,7 @@ public class XRayTransactionContext implements SegmentContext {
         Entity current = getTraceEntity();
         if (null == current) {
             recorder.getContextMissingStrategy().contextMissing("Failed to begin subsegment named '" + name + "': segment cannot be found.", SegmentNotFoundException.class);
-            return null;
+            return Subsegment.noOp(recorder);
         }
         if (log.isDebugEnabled()) {
             log.debug("Beginning subsegment named: " + name);
