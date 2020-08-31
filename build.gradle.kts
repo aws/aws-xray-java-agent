@@ -5,7 +5,7 @@ plugins {
 }
 
 // Expose DiSCo version to subprojects
-val discoVersion by extra("0.10.0")
+val discoVersion by extra("0.10.1")
 
 subprojects {
     version = "2.7.1"
@@ -83,7 +83,13 @@ subprojects {
                     // If the shadow plugin is present, we should publish the shaded artifact
                     // Otherwise, just publish the standard JAR
                     plugins.withId("java") {
-                        from(components["java"])
+                        afterEvaluate {
+                            if (plugins.hasPlugin("com.github.johnrengelman.shadow")) {
+                                artifact(tasks.named<Jar>("shadowJar").get())
+                            } else {
+                                from(components["java"])
+                            }
+                        }
                     }
 
                     versionMapping {
