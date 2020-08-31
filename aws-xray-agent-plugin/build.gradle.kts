@@ -112,6 +112,7 @@ tasks {
         from("$buildDir/libs")
         include("disco/**")
 
-        mustRunAfter(test)
+        dependsOn(withType<Copy>())
+        mustRunAfter(":aws-xray-agent-plugin:test")
     }
 }

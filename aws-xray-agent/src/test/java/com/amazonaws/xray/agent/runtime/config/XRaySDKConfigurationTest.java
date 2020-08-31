@@ -3,7 +3,9 @@ package com.amazonaws.xray.agent.runtime.config;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
+import com.amazonaws.xray.agent.runtime.models.XRayTransactionContext;
 import com.amazonaws.xray.agent.runtime.models.XRayTransactionState;
+import com.amazonaws.xray.contexts.ThreadLocalSegmentContext;
 import com.amazonaws.xray.emitters.UDPEmitter;
 import com.amazonaws.xray.log4j.Log4JSegmentListener;
 import com.amazonaws.xray.strategy.DefaultStreamingStrategy;
@@ -88,6 +90,7 @@ public class XRaySDKConfigurationTest {
         configMap.put("pluginsEnabled", "false");
         configMap.put("tracingEnabled", "false");
         configMap.put("collectSqlQueries", "true");
+        configMap.put("contextPropagation", "false");
         AgentConfiguration agentConfig = new AgentConfiguration(configMap);
         config.init(XRaySDKConfigurationTest.class.getResource("/com/amazonaws/xray/agent/validAgentConfig.json"));
 
@@ -432,5 +435,22 @@ public class XRaySDKConfigurationTest {
         config.init(AWSXRayRecorderBuilder.standard());
 
         Assert.assertTrue(config.shouldCollectSqlQueries());
+    }
+
+    @Test
+    public void testDefaultContextPropagation() {
+        config.init();
+
+        Assert.assertTrue(AWSXRay.getGlobalRecorder().getSegmentContextResolverChain().resolve() instanceof XRayTransactionContext);
+    }
+
+    @Test
+    public void testContextPropagation() {
+        configMap.put("contextPropagation", "false");
+        config.setAgentConfiguration(new AgentConfiguration(configMap));
+
+        config.init(AWSXRayRecorderBuilder.standard());
+
+        Assert.assertTrue(AWSXRay.getGlobalRecorder().getSegmentContextResolverChain().resolve() instanceof ThreadLocalSegmentContext);
     }
 }

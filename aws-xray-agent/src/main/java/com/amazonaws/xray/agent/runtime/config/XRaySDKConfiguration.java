@@ -7,6 +7,7 @@ import com.amazonaws.xray.agent.runtime.models.XRayTransactionState;
 import com.amazonaws.xray.config.DaemonConfiguration;
 import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
 import com.amazonaws.xray.contexts.SegmentContextResolverChain;
+import com.amazonaws.xray.contexts.ThreadLocalSegmentContextResolver;
 import com.amazonaws.xray.emitters.UDPEmitter;
 import com.amazonaws.xray.entities.StringValidator;
 import com.amazonaws.xray.listeners.SegmentListener;
@@ -268,7 +269,7 @@ public class XRaySDKConfiguration {
         }
 
         // Trace ID Injection
-        if (agentConfiguration.getTraceIdInjection()) {
+        if (agentConfiguration.isTraceIdInjection()) {
             final String prefix = agentConfiguration.getTraceIdInjectionPrefix();
             tryAddTraceIdInjection(builder, "com.amazonaws.xray.log4j.Log4JSegmentListener", prefix);
             tryAddTraceIdInjection(builder, "com.amazonaws.xray.slf4j.SLF4JSegmentListener", prefix);
@@ -307,10 +308,16 @@ public class XRaySDKConfiguration {
             }
         }
 
-        // Non-configurable properties
         SegmentContextResolverChain segmentContextResolverChain = new SegmentContextResolverChain();
         segmentContextResolverChain.addResolver(new LambdaSegmentContextResolver());
-        segmentContextResolverChain.addResolver(new XRayTransactionContextResolver());
+
+        // Context resolution - use TransactionContext by default, or ThreadLocal if contextPropagation is disabled
+        if (agentConfiguration.isContextPropagation()) {
+            segmentContextResolverChain.addResolver(new XRayTransactionContextResolver());
+        } else {
+            segmentContextResolverChain.addResolver(new ThreadLocalSegmentContextResolver());
+        }
+
         builder.withSegmentContextResolverChain(segmentContextResolverChain);
 
         log.debug("Successfully configured the X-Ray Agent's recorder.");

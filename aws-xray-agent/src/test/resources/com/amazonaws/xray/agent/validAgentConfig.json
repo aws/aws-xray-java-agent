@@ -12,5 +12,6 @@
   "awsServiceHandlerManifest": "myTestHandler",
   "pluginsEnabled": false,
   "tracingEnabled": false,
-  "collectSqlQueries": true
+  "collectSqlQueries": true,
+  "contextPropagation": false
 }
