@@ -83,13 +83,7 @@ subprojects {
                     // If the shadow plugin is present, we should publish the shaded artifact
                     // Otherwise, just publish the standard JAR
                     plugins.withId("java") {
-                        afterEvaluate {
-                            if (plugins.hasPlugin("com.github.johnrengelman.shadow")) {
-                                artifact(tasks.named<Jar>("shadowJar").get())
-                            } else {
-                                from(components["java"])
-                            }
-                        }
+                        from(components["java"])
                     }
 
                     versionMapping {
