@@ -7,6 +7,7 @@
 
 # Ignore Gradle build output directory
 build
+target
 
 # Dependency reduced POMs for building local dependencies
 dependency-reduced-pom.xml
@@ -14,17 +15,10 @@ dependency-reduced-pom.xml
 # IDEA stuffs
 *.iml
 .idea
-
-target/*
-**/target/*
-
-.gradle/*
-**/.gradle/*
-
 .settings/
 .project
 .classpath
-build
 
 # Don't include personal scripts
 sample/*.sh
+lib

@@ -1,0 +1,17 @@
+{
+  "serviceName": "myServiceName",
+  "contextMissingStrategy": "myTestContext",
+  "daemonAddress": "myTestAddress",
+  "samplingStrategy": "myTestSampling",
+  "samplingRulesManifest": "myTestManifest",
+  "traceIdInjection": "Log4J",
+  "traceIdInjectionPrefix": "prefix",
+  "maxStackTraceLength": 20,
+  "streamingThreshold": 10,
+  "awsSdkVersion": 1,
+  "awsServiceHandlerManifest": "myTestHandler",
+  "pluginsEnabled": false,
+  "tracingEnabled": false,
+  "collectSqlQueries": true,
+  "contextPropagation": false
+}
