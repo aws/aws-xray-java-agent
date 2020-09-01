@@ -135,9 +135,22 @@ tasks {
 
     // The only tests that run in this module are integration tests, so configure them as the standard test task
     test {
-        // Explicitly remove all runtime dependencies and disco plugins from the classpath since a customer's
+        // Explicitly remove all disco plugins from the classpath since a customer's
         // application (which the integ tests simulate) should not be aware of any of those JARs
-        classpath = classpath.minus(configurations.runtimeClasspath.get())
+        classpath.forEach {
+            println("before classpath: " + it)
+        }
+
+        classpath = classpath
+                .filter {
+                    !(it.name.contains("disco-java-agent")
+                            || it.name.contains("aws-xray-recorder-sdk-aws-sdk")
+                            || it.name.contains("aws-xray-agent"))
+                }
+
+        classpath.forEach {
+            println("test classpath: " + it)
+        }
 
         jvmArgs("-javaagent:$buildDir/libs/disco/disco-java-agent.jar=pluginPath=$buildDir/libs/disco/disco-plugins",
                 "-Dcom.amazonaws.xray.strategy.tracingName=IntegTest")
