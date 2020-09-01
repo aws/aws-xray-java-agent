@@ -33,6 +33,7 @@ dependencies {
 
     testImplementation("org.powermock:powermock-api-mockito2:2.0.7")
     testImplementation("org.powermock:powermock-module-junit4:2.0.7")
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.27.0")
 
     testImplementation("com.amazonaws:aws-xray-recorder-sdk-core")
     testImplementation("com.amazonaws:aws-xray-recorder-sdk-sql")
@@ -137,20 +138,11 @@ tasks {
     test {
         // Explicitly remove all disco plugins from the classpath since a customer's
         // application (which the integ tests simulate) should not be aware of any of those JARs
-        classpath.forEach {
-            println("before classpath: " + it)
-        }
-
-        classpath = classpath
-                .filter {
+        classpath = classpath.filter {
                     !(it.name.contains("disco-java-agent")
                             || it.name.contains("aws-xray-recorder-sdk-aws-sdk")
                             || it.name.contains("aws-xray-agent"))
                 }
-
-        classpath.forEach {
-            println("test classpath: " + it)
-        }
 
         jvmArgs("-javaagent:$buildDir/libs/disco/disco-java-agent.jar=pluginPath=$buildDir/libs/disco/disco-plugins",
                 "-Dcom.amazonaws.xray.strategy.tracingName=IntegTest")
