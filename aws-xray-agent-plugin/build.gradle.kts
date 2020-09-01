@@ -147,13 +147,8 @@ tasks {
                 }
 
         // Integration tests run on Windows and Unix in GitHub actions
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            jvmArgs("-javaagent:$buildDir\\libs\\disco\\disco-java-agent.jar=pluginPath=$buildDir\\libs\\disco\\disco-plugins",
-                    "-Dcom.amazonaws.xray.strategy.tracingName=IntegTest")
-        } else {
-            jvmArgs("-javaagent:$buildDir/libs/disco/disco-java-agent.jar=pluginPath=$buildDir/libs/disco/disco-plugins",
-                    "-Dcom.amazonaws.xray.strategy.tracingName=IntegTest")
-        }
+        jvmArgs("-javaagent:$buildDir/libs/disco/disco-java-agent.jar=pluginPath=$buildDir/libs/disco/disco-plugins",
+                "-Dcom.amazonaws.xray.strategy.tracingName=IntegTest")
 
         // Cannot run tests until agent and all plugins are available
         dependsOn(withType<Copy>())

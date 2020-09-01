@@ -10,7 +10,6 @@ jobs:
         os:
           - macos-latest
           - ubuntu-latest
-          - windows-latest
         java:
           - 8
           - 11
