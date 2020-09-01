@@ -8,10 +8,8 @@ import com.amazonaws.xray.entities.Subsegment;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -40,7 +38,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-@FixMethodOrder(MethodSorters.JVM)
+import static org.mockito.ArgumentMatchers.any;
+
 @RunWith(MockitoJUnitRunner.class)
 public class AWSV2HandlerIntegTest {
 
@@ -48,14 +47,7 @@ public class AWSV2HandlerIntegTest {
     public void setup() {
         TransactionContext.create();
         Emitter blankEmitter = Mockito.mock(Emitter.class);
-        Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
-//        Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
-
-//        AWSXRay.setGlobalRecorder(
-//                AWSXRayRecorderBuilder.standard()
-//                        .withEmitter(blankEmitter)
-//                        .build()
-//        );
+        Mockito.doReturn(true).when(blankEmitter).sendSegment(any());
         AWSXRay.getGlobalRecorder().setEmitter(blankEmitter);
         AWSXRay.clearTraceEntity();
         AWSXRay.beginSegment("test");
@@ -75,7 +67,7 @@ public class AWSV2HandlerIntegTest {
         ExecutableHttpRequest abortableCallable = Mockito.mock(ExecutableHttpRequest.class);
         SdkHttpClient mockClient = Mockito.mock(SdkHttpClient.class);
 
-        Mockito.when(mockClient.prepareRequest(Mockito.any())).thenReturn(abortableCallable);
+        Mockito.when(mockClient.prepareRequest(any())).thenReturn(abortableCallable);
         Mockito.when(abortableCallable.call()).thenReturn(HttpExecuteResponse.builder()
                 .response(response)
                 .responseBody(AbortableInputStream.create(
@@ -88,7 +80,7 @@ public class AWSV2HandlerIntegTest {
 
     private SdkAsyncHttpClient mockSdkAsyncHttpClient(SdkHttpResponse response) {
         SdkAsyncHttpClient mockClient = Mockito.mock(SdkAsyncHttpClient.class);
-        Mockito.when(mockClient.execute(Mockito.any(AsyncExecuteRequest.class))).thenAnswer((Answer<CompletableFuture<Void>>) invocationOnMock -> {
+        Mockito.when(mockClient.execute(any(AsyncExecuteRequest.class))).thenAnswer((Answer<CompletableFuture<Void>>) invocationOnMock -> {
             SdkAsyncHttpResponseHandler handler = invocationOnMock.getArgument(0, AsyncExecuteRequest.class).responseHandler();
             handler.onHeaders(response);
             handler.onStream(new EmptyPublisher<>());

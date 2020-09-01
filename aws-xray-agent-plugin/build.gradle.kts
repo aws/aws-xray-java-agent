@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 plugins {
     `java`
     `maven-publish`
@@ -33,6 +35,7 @@ dependencies {
 
     testImplementation("org.powermock:powermock-api-mockito2:2.0.7")
     testImplementation("org.powermock:powermock-module-junit4:2.0.7")
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.27.0")
 
     testImplementation("com.amazonaws:aws-xray-recorder-sdk-core")
     testImplementation("com.amazonaws:aws-xray-recorder-sdk-sql")
@@ -135,10 +138,15 @@ tasks {
 
     // The only tests that run in this module are integration tests, so configure them as the standard test task
     test {
-        // Explicitly remove all runtime dependencies and disco plugins from the classpath since a customer's
+        // Explicitly remove all disco plugins from the classpath since a customer's
         // application (which the integ tests simulate) should not be aware of any of those JARs
-        classpath = classpath.minus(configurations.runtimeClasspath.get())
+        classpath = classpath.filter {
+                    !(it.name.contains("disco-java-agent")
+                            || it.name.contains("aws-xray-recorder-sdk-aws-sdk")
+                            || it.name.contains("aws-xray-agent"))
+                }
 
+        // Integration tests run on Windows and Unix in GitHub actions
         jvmArgs("-javaagent:$buildDir/libs/disco/disco-java-agent.jar=pluginPath=$buildDir/libs/disco/disco-plugins",
                 "-Dcom.amazonaws.xray.strategy.tracingName=IntegTest")
 

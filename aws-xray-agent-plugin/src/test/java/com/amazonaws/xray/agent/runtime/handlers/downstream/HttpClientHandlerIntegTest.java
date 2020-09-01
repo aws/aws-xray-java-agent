@@ -6,6 +6,7 @@ import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -14,11 +15,16 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.net.URI;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -26,9 +32,12 @@ import static org.junit.Assert.assertTrue;
 
 public class HttpClientHandlerIntegTest {
     private static final String TRACE_HEADER_KEY = TraceHeader.HEADER_KEY;
-    private static final int PORT = 2000;
+    private static final int PORT = 8089;
     private static final String ENDPOINT = "http://127.0.0.1:" + PORT;
     private Segment currentSegment;
+
+    @Rule
+    public WireMockRule wireMockRule = new WireMockRule(PORT);
 
     @Before
     public void setup() {
@@ -164,6 +173,11 @@ public class HttpClientHandlerIntegTest {
 
     @Test
     public void testIgnoreSamplingCalls() throws Exception {
+        stubFor(get(anyUrl()).willReturn(ok()));
+
+        // Remove subsegment created by WireMock
+        AWSXRay.getCurrentSegment().removeSubsegment(AWSXRay.getCurrentSegment().getSubsegments().get(0));
+
         URI targetsUri = new URI(ENDPOINT + "/SamplingTargets");
         URI rulesUri = new URI(ENDPOINT + "/GetSamplingRules");
 
