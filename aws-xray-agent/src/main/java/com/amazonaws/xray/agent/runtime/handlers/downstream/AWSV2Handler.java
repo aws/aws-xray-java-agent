@@ -9,7 +9,6 @@ import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.handlers.config.AWSOperationHandler;
 import com.amazonaws.xray.handlers.config.AWSOperationHandlerManifest;
 import com.amazonaws.xray.handlers.config.AWSServiceHandlerManifest;
-import com.amazonaws.xray.interceptors.TracingInterceptor;
 import com.amazonaws.xray.utils.StringTransform;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -17,7 +16,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import software.amazon.awssdk.core.exception.SdkServiceException;
 import software.amazon.disco.agent.event.AwsServiceDownstreamRequestEvent;
 import software.amazon.disco.agent.event.AwsServiceDownstreamResponseEvent;
 import software.amazon.disco.agent.event.Event;
@@ -43,7 +41,7 @@ public class AWSV2Handler extends XRayHandler {
             .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-    private static final URL DEFAULT_OPERATION_PARAMETER_WHITELIST = TracingInterceptor.class.getResource("/com/amazonaws/xray/interceptors/DefaultOperationParameterWhitelist.json");
+    private static final URL DEFAULT_OPERATION_PARAMETER_WHITELIST = AWSV2Handler.class.getResource("/com/amazonaws/xray/interceptors/DefaultOperationParameterWhitelist.json");
 
     // Response Fields
     private static final String STATUS_CODE_KEY = "status";
@@ -66,6 +64,11 @@ public class AWSV2Handler extends XRayHandler {
         String serviceName = requestEvent.getService();
         String operationName = requestEvent.getOperation();
         String region = requestEvent.getRegion();
+
+        // Avoid throwing if name isn't present. HTTP interceptor will pick this up instead
+        if (serviceName == null) {
+            return;
+        }
 
         // Begin subsegment
         Subsegment subsegment = beginSubsegment(serviceName);
@@ -181,14 +184,14 @@ public class AWSV2Handler extends XRayHandler {
         });
     }
 
-
     @Override
     public void handleResponse(Event event) {
         AwsServiceDownstreamResponseEvent responseEvent = (AwsServiceDownstreamResponseEvent) event;
-        AwsServiceDownstreamRequestEvent requestEvent = (AwsServiceDownstreamRequestEvent) responseEvent.getRequest();
-        String serviceName = requestEvent.getService();
-        String operationName = requestEvent.getOperation();
-        Subsegment subsegment = getSubsegment();
+        Subsegment subsegment = getSubsegmentOptional().orElse(null);
+        if (subsegment == null) {
+            return;
+        }
+
         Map<String, Object> responseInformation = new HashMap<>();
 
         // Retrieve the response parameters such as the table name, table size, etc.
@@ -197,14 +200,9 @@ public class AWSV2Handler extends XRayHandler {
 
         // Detect throwable for the downstream call.
         Throwable exception = responseEvent.getThrown();
-        if (exception instanceof SdkServiceException) {
+        if (exception != null && exception.getMessage() != null) {
             subsegment.addException(exception);
             subsegment.getCause().setMessage(exception.getMessage());
-            if (((SdkServiceException) exception).isThrottlingException()) {
-                subsegment.setThrottle(true);
-                // throttling errors are considered client-side errors
-                subsegment.setError(true);
-            }
             setRemoteForException(subsegment, exception);
         }
 
@@ -251,11 +249,7 @@ public class AWSV2Handler extends XRayHandler {
 
         // Store extended ID
         String extendedRequestId = extractExtendedRequestIdFromHeaderMap(responseEvent.getHeaderMap());
-        // if a throwable exists and we had failed to retrieve the request Id from the header map,
-        // we'll retrieve it from the throwable object itself.
-        if (extendedRequestId == null && exception != null) {
-            extendedRequestId = ((SdkServiceException) exception).requestId();
-        }
+
         if (extendedRequestId != null) {
             subsegment.putAws(EntityDataKeys.AWS.EXTENDED_REQUEST_ID_KEY, extendedRequestId);
         }

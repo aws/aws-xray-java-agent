@@ -7,6 +7,10 @@ description = "AWS X-Ray Runtime Java Agent"
 dependencies {
     implementation("com.amazonaws:aws-xray-recorder-sdk-core")
     implementation("com.amazonaws:aws-xray-recorder-sdk-sql")
+    implementation("com.amazonaws:aws-xray-recorder-sdk-aws-sdk")
+    implementation("com.amazonaws:aws-xray-recorder-sdk-aws-sdk-core")
+    implementation("com.amazonaws:aws-xray-recorder-sdk-aws-sdk-v2")
+    implementation("software.amazon.disco:disco-java-agent-aws-api")
     implementation("com.fasterxml.jackson.core:jackson-core")
 
     implementation("software.amazon.disco:disco-java-agent-core")
@@ -16,6 +20,7 @@ dependencies {
     testImplementation("org.powermock:powermock-api-mockito2:2.0.7")
     testImplementation("org.powermock:powermock-module-junit4:2.0.7")
     testImplementation("com.github.stefanbirkner:system-rules:1.16.0")
+    testImplementation("com.amazonaws:aws-java-sdk-dynamodb")
     testImplementation("javax.servlet:javax.servlet-api:3.1.0")
     testImplementation("commons-io:commons-io:2.7")
 

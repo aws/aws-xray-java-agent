@@ -31,8 +31,14 @@ public class AWSHandler extends XRayHandler {
     @Override
     public void handleRequest(Event event) {
         ServiceRequestEvent requestEvent = (ServiceRequestEvent) event;
-
         Request awsRequest = (Request) requestEvent.getRequest();
+
+        // Avoid throwing if we can't get the service name because of an old version of AWS SDK
+        // HTTP handler should pick it up instead.
+        if (awsRequest.getServiceName() == null) {
+            return;
+        }
+
         tracingHandler.beforeRequest(awsRequest);
     }
 

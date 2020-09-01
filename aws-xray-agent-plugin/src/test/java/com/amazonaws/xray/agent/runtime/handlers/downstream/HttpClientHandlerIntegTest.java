@@ -25,7 +25,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class HttpClientHandlerIntegTest {
-    private final static String TRACE_HEADER_KEY = TraceHeader.HEADER_KEY;
+    private static final String TRACE_HEADER_KEY = TraceHeader.HEADER_KEY;
+    private static final int PORT = 2000;
+    private static final String ENDPOINT = "http://127.0.0.1:" + PORT;
     private Segment currentSegment;
 
     @Before
@@ -149,7 +151,7 @@ public class HttpClientHandlerIntegTest {
         assertFalse(currentSubsegment.isError());
         assertFalse(currentSubsegment.isInProgress());
 
-        // Even in failures, we should atleast see the requested information.
+        // Even in failures, we should at least see the requested information.
         Map<String, String> requestMap = (Map<String, String>) currentSubsegment.getHttp().get("request");
         assertEquals(2, requestMap.size());
         assertEquals("GET", request.getMethod());
@@ -162,8 +164,8 @@ public class HttpClientHandlerIntegTest {
 
     @Test
     public void testIgnoreSamplingCalls() throws Exception {
-        URI targetsUri = new URI("http://127.0.0.1:2000/SamplingTargets");
-        URI rulesUri = new URI("http://127.0.0.1:2000/GetSamplingRules");
+        URI targetsUri = new URI(ENDPOINT + "/SamplingTargets");
+        URI rulesUri = new URI(ENDPOINT + "/GetSamplingRules");
 
         HttpClient httpClient = HttpClients.createMinimal();
         HttpGet request = new HttpGet(targetsUri);
