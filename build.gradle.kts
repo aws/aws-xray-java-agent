@@ -5,7 +5,7 @@ plugins {
 }
 
 // Expose DiSCo version to subprojects
-val discoVersion by extra("0.10.1")
+val discoVersion by extra("0.10.0")
 
 subprojects {
     version = "2.7.1"
