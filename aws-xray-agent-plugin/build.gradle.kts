@@ -65,7 +65,7 @@ tasks {
         }
     }
 
-    // Copies Disco agent and plugin JARs into our lib for convenience
+    // Copies Disco agent into our lib for convenience
     register<Copy>("copyAgent") {
         val discoVer = rootProject.extra["discoVersion"]
 
@@ -75,6 +75,42 @@ tasks {
 
         into("$buildDir/libs/disco")
         rename("disco-java-agent-$discoVer.jar", "disco-java-agent.jar")
+    }
+
+    // JARs are just archives, so we can unzip it to a tmp folder
+    register<Copy>("unzipAgent") {
+        from(zipTree("$buildDir/libs/disco/disco-java-agent.jar"))
+        into("$buildDir/libs/tmp")
+
+        dependsOn("copyAgent")
+    }
+
+    // Inspect and rewrite the manifest in the tmp folder
+    register("rewriteManifest") {
+        val discoVer = rootProject.extra["discoVersion"]
+
+        // Reads the old manifest with versioned jar, then rewrites the manifest with replaced jar name
+        doFirst {
+            val oldManifest: List<String> = File("$buildDir/libs/tmp/META-INF/MANIFEST.MF").readLines()
+            File("$buildDir/libs/tmp/META-INF/MANIFEST.MF").printWriter().use { out ->
+                oldManifest.map {
+                    it.replace("disco-java-agent-$discoVer.jar", "disco-java-agent.jar")
+                }.forEach {
+                    out.println(it)
+                }
+            }
+        }
+
+        dependsOn("unzipAgent")
+    }
+
+    // Re-zip the tmp folder into the new agent JAR and overwrite the agent JAR with the old manifest
+    register<Zip>("rezipAgent") {
+        archiveFileName.set("disco-java-agent.jar")
+        destinationDirectory.set(file("$buildDir/libs/disco"))
+        from("$buildDir/libs/tmp")
+
+        dependsOn("rewriteManifest")
     }
 
     register<Copy>("copyPlugins") {
@@ -108,6 +144,7 @@ tasks {
 
         // Cannot run tests until agent and all plugins are available
         dependsOn(withType<Copy>())
+        dependsOn(named("rezipAgent"))
         finalizedBy("createAgentZip")
     }
 
@@ -118,5 +155,6 @@ tasks {
         include("disco/**")
 
         dependsOn(withType<Copy>())
+        dependsOn(named("rezipAgent"))
     }
 }
