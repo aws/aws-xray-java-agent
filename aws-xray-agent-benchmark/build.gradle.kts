@@ -25,6 +25,7 @@ dependencies {
     jmh("org.eclipse.jetty:jetty-servlet:9.4.1.v20170120")
 //    jmh("org.slf4j:slf4j-simple:1.7.25")
 
+    jmh("org.mockito:mockito-core:2.28.2")
     jmh("org.openjdk.jmh:jmh-generator-annprocess:${JMH_VERSION}")
     jmhAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:${JMH_VERSION}")
 
@@ -35,6 +36,7 @@ dependencies {
 jmh {
     benchmarkMode = listOf("thrpt", "sample")
     fork = 1
+    timeUnit = "ms"
 
     warmupIterations = 10
     warmup = "1s"

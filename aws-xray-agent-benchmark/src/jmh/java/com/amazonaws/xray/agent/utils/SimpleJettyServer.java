@@ -1,5 +1,6 @@
 package com.amazonaws.xray.agent.utils;
 
+import com.amazonaws.xray.AWSXRay;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
@@ -9,8 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Enumeration;
-
 
 /**
  * Utility class used in benchmarking tests to simulate a web server and negate unpredictable network interaction's
@@ -49,8 +48,14 @@ public class SimpleJettyServer {
         @Override
         protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
             try {
-                Thread.sleep(5);
+                Thread.sleep(2);
             } catch (Exception e) {
+            }
+
+            try {
+                System.out.println("In MyServlet: " + AWSXRay.getCurrentSegment());
+            } catch (Exception e) {
+                System.out.println("Exception instead of segment: " + e);
             }
 
             response.setContentType("application/json");
@@ -61,7 +66,7 @@ public class SimpleJettyServer {
         @Override
         protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
             try {
-                Thread.sleep(5);
+                Thread.sleep(2);
             } catch (Exception e) {
             }
 
