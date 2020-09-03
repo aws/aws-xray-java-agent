@@ -1,4 +1,4 @@
-package com.amazonaws.xray.agent.source;
+package com.amazonaws.xray.agent.benchmark.source;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -35,16 +35,16 @@ public class StatementImpl implements Statement {
 
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public int executeUpdate(String sql) throws SQLException {
         try {
             Thread.sleep(2);
         } catch (Exception e) {
         }
 
+        return null;
+    }
+
+    @Override
+    public int executeUpdate(String sql) throws SQLException {
         return 0;
     }
 

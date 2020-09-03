@@ -1,7 +1,7 @@
 package com.amazonaws.xray.agent.benchmark;
 
 import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.agent.source.StatementImpl;
+import com.amazonaws.xray.agent.benchmark.source.StatementImpl;
 import com.amazonaws.xray.agent.utils.BenchmarkUtils;
 import com.amazonaws.xray.sql.TracingStatement;
 import org.openjdk.jmh.annotations.Benchmark;
