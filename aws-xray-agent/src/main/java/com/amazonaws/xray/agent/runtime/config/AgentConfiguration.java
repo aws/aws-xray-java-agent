@@ -27,6 +27,7 @@ public final class AgentConfiguration {
     private final boolean collectSqlQueries;
     private final boolean traceIdInjection;
     private final boolean contextPropagation;
+    private final boolean traceIncomingRequests;
 
     @Nullable
     private final String samplingRulesManifest;
@@ -53,6 +54,7 @@ public final class AgentConfiguration {
         collectSqlQueries = false;
         traceIdInjection = true;
         contextPropagation = true;
+        traceIncomingRequests = true;
     }
 
     /**
@@ -76,7 +78,8 @@ public final class AgentConfiguration {
                 tracingEnabled = true,
                 collectSqlQueries = false,
                 traceIdInjection = true,
-                contextPropagation = true;
+                contextPropagation = true,
+                traceIncomingRequests = true;
 
         if (properties != null) {
             try {
@@ -127,6 +130,9 @@ public final class AgentConfiguration {
                         case "contextPropagation":
                             contextPropagation = Boolean.parseBoolean(entry.getValue());
                             break;
+                        case "traceIncomingRequests":
+                            traceIncomingRequests = Boolean.parseBoolean(entry.getValue());
+                            break;
                         default:
                             log.warn("Encountered unknown property " + entry.getKey() + " in X-Ray agent configuration. Ignoring.");
                             break;
@@ -152,6 +158,7 @@ public final class AgentConfiguration {
         this.collectSqlQueries = collectSqlQueries;
         this.traceIdInjection = traceIdInjection;
         this.contextPropagation = contextPropagation;
+        this.traceIncomingRequests = traceIncomingRequests;
     }
 
     public String getServiceName() {
@@ -206,6 +213,8 @@ public final class AgentConfiguration {
 
     public boolean isContextPropagation() { return contextPropagation; }
 
+    public boolean isTraceIncomingRequests() { return traceIncomingRequests; }
+
     @Override
     public String toString() {
         return "AgentConfiguration{" +
@@ -224,6 +233,7 @@ public final class AgentConfiguration {
                 ", collectSqlQueries=" + collectSqlQueries +
                 ", traceIdInjection=" + traceIdInjection +
                 ", contextPropagation=" + contextPropagation +
+                ", traceIncomingRequests=" + traceIncomingRequests +
                 '}';
     }
 
@@ -240,6 +250,7 @@ public final class AgentConfiguration {
                 collectSqlQueries == that.collectSqlQueries &&
                 traceIdInjection == that.traceIdInjection &&
                 contextPropagation == that.contextPropagation &&
+                traceIncomingRequests == that.traceIncomingRequests &&
                 serviceName.equals(that.serviceName) &&
                 contextMissingStrategy.equals(that.contextMissingStrategy) &&
                 daemonAddress.equals(that.daemonAddress) &&
@@ -251,6 +262,6 @@ public final class AgentConfiguration {
 
     @Override
     public int hashCode() {
-        return Objects.hash(serviceName, contextMissingStrategy, daemonAddress, samplingStrategy, traceIdInjection, traceIdInjectionPrefix, maxStackTraceLength, streamingThreshold, awsSdkVersion, pluginsEnabled, tracingEnabled, collectSqlQueries, contextPropagation, samplingRulesManifest, awsServiceHandlerManifest);
+        return Objects.hash(serviceName, contextMissingStrategy, daemonAddress, samplingStrategy, traceIdInjection, traceIdInjectionPrefix, maxStackTraceLength, streamingThreshold, awsSdkVersion, pluginsEnabled, tracingEnabled, collectSqlQueries, contextPropagation, traceIncomingRequests, samplingRulesManifest, awsServiceHandlerManifest);
     }
 }

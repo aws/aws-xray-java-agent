@@ -1,7 +1,8 @@
 ## AWS X-Ray Agent Benchmarks
 
-This package contains benchmarking tests to compare the performance of several common scenarios with instrumentation
-by the AWS X-Ray Auto-Instrumentation Agent, the AWS X-Ray SDK for Java, and no instrumentation at all as a baseline.
+This package contains benchmarking tests to compare the performance of common scenarios in a distributed application. 
+The scenarios can be run with instrumentation by the AWS X-Ray Auto-Instrumentation Agent, the AWS X-Ray SDK for Java, 
+and no instrumentation at all as a baseline. A local server is used to mitigate unpredictable network latencies.
 
 ## Running the Benchmarks
 
@@ -38,4 +39,7 @@ The results will be output into the `build/reports/jmh` directory after the test
 TODO: summary of performance of the three modes.
 
 You can  also take a look the [results directory](https://github.com/aws/aws-xray-java-agent/tree/master/aws-xray-agent-benchmark/results)
-for detailed benchmarking data from previous versions of the agent.
+for detailed benchmarking data from previous versions of the agent. Since we use an arbitrary delay to simulate the effect
+of a network, the *absolute* values of each individual benchmark are not particularly meaningful. The results are more
+useful when analyzed in context, that is comparing the times of the same scenario in all 3 modes, and noticing
+the difference between those times.

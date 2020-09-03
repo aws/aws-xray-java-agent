@@ -7,7 +7,7 @@ import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.strategy.sampling.AllSamplingStrategy;
 
-public class BenchmarkUtils {
+public final class BenchmarkUtils {
     private BenchmarkUtils() {
     }
 

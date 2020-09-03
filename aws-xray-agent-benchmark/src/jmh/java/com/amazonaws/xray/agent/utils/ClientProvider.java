@@ -40,13 +40,6 @@ public final class ClientProvider {
     private static class NormalServlet extends HttpServlet {
         @Override
         public void doGet(HttpServletRequest request, HttpServletResponse response) {
-
-            try {
-                System.out.println(AWSXRay.getCurrentSegment());
-            } catch (Exception e) {
-                System.out.println("Exception instead of segment: " + e);
-            }
-
             try {
                 Thread.sleep(2);
             } catch (Exception e) {

@@ -36,6 +36,7 @@ public class HttpClientHandlerIntegTest {
     private static final String ENDPOINT = "http://127.0.0.1:" + PORT;
     private Segment currentSegment;
 
+    // TODO: Replace all real network calls with wiremocked calls
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(PORT);
 

@@ -1,6 +1,5 @@
 package com.amazonaws.xray.agent.utils;
 
-import com.amazonaws.xray.AWSXRay;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
@@ -18,7 +17,7 @@ import java.net.InetSocketAddress;
  * Adapted from the OpenTelemetry benchmarking strategy
  * https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/master/benchmark/src/jmh/java/io/opentelemetry/benchmark/classes/HttpClass.java
  */
-public class SimpleJettyServer {
+public final class SimpleJettyServer {
     private SimpleJettyServer() {
     }
 
@@ -50,12 +49,6 @@ public class SimpleJettyServer {
             try {
                 Thread.sleep(2);
             } catch (Exception e) {
-            }
-
-            try {
-                System.out.println("In MyServlet: " + AWSXRay.getCurrentSegment());
-            } catch (Exception e) {
-                System.out.println("Exception instead of segment: " + e);
             }
 
             response.setContentType("application/json");

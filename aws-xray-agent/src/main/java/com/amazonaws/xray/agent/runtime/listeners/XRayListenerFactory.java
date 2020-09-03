@@ -38,7 +38,10 @@ public class XRayListenerFactory implements ListenerFactory {
         configVersion = XRaySDKConfiguration.getInstance().getAwsSdkVersion();
 
         EventDispatcher upstreamEventDispatcher = new EventDispatcher();
-        upstreamEventDispatcher.addHandler(HTTP_SERVLET_ORIGIN, new ServletHandler());
+
+        if (XRaySDKConfiguration.getInstance().isTraceIncomingRequests()) {
+            upstreamEventDispatcher.addHandler(HTTP_SERVLET_ORIGIN, new ServletHandler());
+        }
 
         EventDispatcher downstreamEventDispatcher = new EventDispatcher();
         downstreamEventDispatcher.addHandler(APACHE_HTTP_CLIENT_ORIGIN, new HttpClientHandler());

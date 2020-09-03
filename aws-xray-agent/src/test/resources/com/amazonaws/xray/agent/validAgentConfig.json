@@ -13,5 +13,6 @@
   "pluginsEnabled": false,
   "tracingEnabled": false,
   "collectSqlQueries": true,
-  "contextPropagation": false
+  "contextPropagation": false,
+  "traceIncomingRequests": false
 }

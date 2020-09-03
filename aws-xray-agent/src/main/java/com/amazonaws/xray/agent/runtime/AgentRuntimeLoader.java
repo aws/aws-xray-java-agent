@@ -78,7 +78,9 @@ public class AgentRuntimeLoader {
     }
 
     /**
-     * Helper method to retrieve the xray-agent config file's URL
+     * Helper method to retrieve the xray-agent config file's URL. First checks the provided path on the file system,
+     * then falls back to checking the system classpath, before giving up and returning null.
+     *
      * @return the URL of config file or null if it wasn't found
      *
      * Visible for testing
@@ -88,7 +90,12 @@ public class AgentRuntimeLoader {
         String customLocation = System.getProperty(CONFIG_FILE_SYS_PROPERTY);
         if (customLocation != null && !customLocation.isEmpty()) {
             try {
-                return new File(customLocation).toURI().toURL();
+                File file = new File(customLocation);
+                if (file.exists()) {
+                    return file.toURI().toURL();
+                } else {
+                    return AgentRuntimeLoader.class.getResource(customLocation);
+                }
             } catch (MalformedURLException e) {
                 log.error("X-Ray agent config file's custom location was malformed. " +
                         "Falling back to default configuration.");

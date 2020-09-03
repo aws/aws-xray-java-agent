@@ -44,9 +44,9 @@ public class EventDispatcher {
         String eventOrigin = event.getOrigin();
 
         XRayHandlerInterface xrayHandler = originHandlerMap.get(eventOrigin);
-        if (xrayHandler == null) {
-            String logMessage = String.format("Unable to retrieve a handler from event [%s] and origin [%s].", event.toString(), event.getOrigin());
-            log.error(logMessage);
+        if (xrayHandler == null && log.isDebugEnabled()) {
+            log.debug("Unable to retrieve a handler from event " + event.toString()
+                    + " and origin " + event.getOrigin());
         }
         return xrayHandler;
 
