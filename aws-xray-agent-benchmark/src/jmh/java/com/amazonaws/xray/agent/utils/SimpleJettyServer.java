@@ -1,5 +1,6 @@
 package com.amazonaws.xray.agent.utils;
 
+import com.amazonaws.xray.AWSXRay;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
@@ -44,6 +45,9 @@ public final class SimpleJettyServer {
     }
 
     public static class MyServlet extends HttpServlet {
+        /**
+         * Handles vanilla HTTP requests from Apache HTTP client benchmarks
+         */
         @Override
         protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
             try {
@@ -56,6 +60,9 @@ public final class SimpleJettyServer {
             response.getWriter().println("{ \"status\": \"ok\"}");
         }
 
+        /**
+         * Handles ListTables requests from AWS SDK benchmarks
+         */
         @Override
         protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
             try {
@@ -63,9 +70,16 @@ public final class SimpleJettyServer {
             } catch (Exception e) {
             }
 
+            try {
+                System.out.println("Segment in server: " + AWSXRay.getCurrentSegment());
+            } catch (Exception e) {
+                System.out.println("Got CME in server");
+            }
+
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().println("{ \"status\": \"ok\"}");
+            response.addHeader("x-amz-request-id", "12345");
+            response.getWriter().println("{\"TableNames\":[\"ATestTable\",\"dynamodb-user\",\"scorekeep-state\",\"scorekeep-user\"]}");
         }
     }
 }

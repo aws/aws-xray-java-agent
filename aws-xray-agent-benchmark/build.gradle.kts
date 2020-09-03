@@ -16,15 +16,18 @@ sourceSets {
 dependencies {
     jmh("com.amazonaws:aws-xray-recorder-sdk-core")
     jmh("com.amazonaws:aws-xray-recorder-sdk-sql")
-//    jmh("com.amazonaws:aws-xray-recorder-sdk-aws-sdk")
-//    jmh("com.amazonaws:aws-xray-recorder-sdk-aws-sdk-v2")
+    jmh("com.amazonaws:aws-xray-recorder-sdk-aws-sdk") {
+        isTransitive = false  // Don't bring in all clients
+    }
+    jmh("com.amazonaws:aws-java-sdk-dynamodb:1.11.837")
+    jmh("com.amazonaws:aws-xray-recorder-sdk-aws-sdk-v2")
+    jmh("software.amazon.awssdk:dynamodb:2.13.76")
     jmh("com.amazonaws:aws-xray-recorder-sdk-apache-http")
 
     jmh("org.apache.httpcomponents:httpclient:4.5.12")
     jmh("javax.servlet:javax.servlet-api:4.0.1")
     jmh("org.eclipse.jetty:jetty-server:9.4.1.v20170120")
     jmh("org.eclipse.jetty:jetty-servlet:9.4.1.v20170120")
-//    jmh("org.slf4j:slf4j-simple:1.7.25")
 
     jmh("org.mockito:mockito-core:2.28.2")
     jmh("org.openjdk.jmh:jmh-generator-annprocess:${JMH_VERSION}")

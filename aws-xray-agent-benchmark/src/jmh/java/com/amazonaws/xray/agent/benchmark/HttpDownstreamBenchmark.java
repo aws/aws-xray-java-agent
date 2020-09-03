@@ -35,10 +35,8 @@ public class HttpDownstreamBenchmark {
             recorder = BenchmarkUtils.configureXRayRecorder();
 
             if (System.getProperty("com.amazonaws.xray.sdk") != null) {
-                System.out.println("SDK Client is used");
                 httpClient = ClientProvider.instrumentedApacheHttpClient();
             } else {
-                System.out.println("Uninstrumented Client is used");
                 httpClient = ClientProvider.normalApacheHttpClient();
             }
             httpGet = new HttpGet("http://localhost:" + PORT + PATH);
