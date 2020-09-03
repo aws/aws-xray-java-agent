@@ -83,6 +83,10 @@ To see the Agent in action first, checkout the `xray-agent` branch of the [eb-ja
 The README has steps to set up a fully-functioning Spring Boot application instrumented with the X-Ray
 Agent and complemented with manual instrumentation by the X-Ray SDK.
 
+## Performance impacts
+
+To get an idea of how much impact the X-Ray Agent might have on your system, please see the [benchmarking package](https://github.com/aws/aws-xray-java-agent/tree/master/aws-xray-agent-benchmark).
+
 ## Customizing the Agent
 
 ### Configuration
