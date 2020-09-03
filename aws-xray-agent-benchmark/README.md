@@ -36,7 +36,19 @@ The results will be output into the `build/reports/jmh` directory after the test
 
 ## Benchmark Results
 
-TODO: summary of performance of the three modes.
+The below table summarizes the **approximate** latency added using both manual X-Ray SDK and automatic
+X-Ray agent-based instrumentation for different activities in microseconds. These numbers should not be
+considered precisely accurate in all applications, they are just to give an idea of added latency.
+Overall, you can see that in a typical application the SDK or the agent would not add more than a single-digit
+amount of milliseconds to a request.
+
+|                          | SDK Instrumentation | Auto Instrumentation |
+|--------------------------|---------------------|----------------------|
+| Service incoming request | +100 us             | +110 us              |
+| SQL Query                | +70 us              | +60 us               |
+| AWS SDK V1 Request       | +30 us              | +60 us               |
+| AWS SDK V2 Request       | +30 us              | +90 us               |
+| Apache HTTP Request      | +20 us              | +40 us               |
 
 You can  also take a look the [results directory](https://github.com/aws/aws-xray-java-agent/tree/master/aws-xray-agent-benchmark/results)
 for detailed benchmarking data from previous versions of the agent. Since we use an arbitrary delay to simulate the effect
