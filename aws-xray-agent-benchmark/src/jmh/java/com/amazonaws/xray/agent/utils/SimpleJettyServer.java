@@ -70,12 +70,6 @@ public final class SimpleJettyServer {
             } catch (Exception e) {
             }
 
-            try {
-                System.out.println("Segment in server: " + AWSXRay.getCurrentSegment());
-            } catch (Exception e) {
-                System.out.println("Got CME in server");
-            }
-
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_OK);
             response.addHeader("x-amz-request-id", "12345");
