@@ -15,6 +15,7 @@ sourceSets {
 
 dependencies {
     jmh("com.amazonaws:aws-xray-recorder-sdk-core")
+    jmh("com.amazonaws:aws-xray-recorder-sdk-sql")
 //    jmh("com.amazonaws:aws-xray-recorder-sdk-aws-sdk")
 //    jmh("com.amazonaws:aws-xray-recorder-sdk-aws-sdk-v2")
     jmh("com.amazonaws:aws-xray-recorder-sdk-apache-http")
