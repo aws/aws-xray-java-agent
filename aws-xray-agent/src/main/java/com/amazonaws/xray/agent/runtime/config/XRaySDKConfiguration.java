@@ -110,6 +110,10 @@ public class XRaySDKConfiguration {
 
     public boolean shouldCollectSqlQueries() { return agentConfiguration.shouldCollectSqlQueries(); }
 
+    public boolean isTraceIncomingRequests() {
+        return agentConfiguration.isTraceIncomingRequests();
+    }
+
     // Visible for testing
     XRaySDKConfiguration() {
     }

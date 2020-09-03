@@ -128,6 +128,7 @@ tasks {
     }
 
     register<Copy>("copyXRay") {
+        dependsOn("shadowJar")
         from("$buildDir/libs")
 
         include("aws-xray-agent-plugin-$version.jar")
@@ -150,6 +151,13 @@ tasks {
         jvmArgs("-javaagent:$buildDir/libs/disco/disco-java-agent.jar=pluginPath=$buildDir/libs/disco/disco-plugins",
                 "-Dcom.amazonaws.xray.strategy.tracingName=IntegTest")
 
+        // Cannot run tests until agent and all plugins are available
+        dependsOn(withType<Copy>())
+        dependsOn(named("rezipAgent"))
+        finalizedBy("createAgentZip")
+    }
+
+    build {
         // Cannot run tests until agent and all plugins are available
         dependsOn(withType<Copy>())
         dependsOn(named("rezipAgent"))

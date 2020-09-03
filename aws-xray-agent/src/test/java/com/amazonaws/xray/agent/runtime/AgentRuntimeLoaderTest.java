@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import software.amazon.disco.agent.event.EventBus;
 
+import java.io.File;
 import java.net.URL;
 
 import static org.mockito.Mockito.when;
@@ -71,7 +72,7 @@ public class AgentRuntimeLoaderTest {
     }
 
     @Test
-    public void testGetCustomConfigFile() {
+    public void testGetCustomConfigFileFromFileSystem() {
         String fileName = "emptyAgentConfig.json";
         System.setProperty(CONFIG_FILE_SYS_PROPERTY,
                 AgentRuntimeLoaderTest.class.getResource("/com/amazonaws/xray/agent/" + fileName).getPath());
@@ -79,5 +80,26 @@ public class AgentRuntimeLoaderTest {
         URL configFile = AgentRuntimeLoader.getConfigFile();
 
         Assert.assertEquals(fileName, FilenameUtils.getName(configFile.getPath()));
+    }
+
+    @Test
+    public void testGetCustomConfigFileFromClassPath() {
+        String fileName = "emptyAgentConfig.json";
+        System.setProperty(CONFIG_FILE_SYS_PROPERTY, "/com/amazonaws/xray/agent/" + fileName);
+
+        URL configFile = AgentRuntimeLoader.getConfigFile();
+
+        // Make sure it's not using the file system
+        Assert.assertFalse(new File("/com/amazonaws/xray/agent/" + fileName).exists());
+        Assert.assertEquals(fileName, FilenameUtils.getName(configFile.getPath()));
+    }
+
+    @Test
+    public void testNonExistentCustomConfigFile() {
+        System.setProperty(CONFIG_FILE_SYS_PROPERTY, "/some/totally/fake/file");
+
+        URL configFile = AgentRuntimeLoader.getConfigFile();
+
+        Assert.assertNull(configFile);
     }
 }

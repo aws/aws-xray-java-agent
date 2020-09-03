@@ -91,6 +91,7 @@ public class XRaySDKConfigurationTest {
         configMap.put("tracingEnabled", "false");
         configMap.put("collectSqlQueries", "true");
         configMap.put("contextPropagation", "false");
+        configMap.put("traceIncomingRequests", "false");
         AgentConfiguration agentConfig = new AgentConfiguration(configMap);
         config.init(XRaySDKConfigurationTest.class.getResource("/com/amazonaws/xray/agent/validAgentConfig.json"));
 

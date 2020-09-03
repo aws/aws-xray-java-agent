@@ -1,0 +1,51 @@
+Benchmark                                                          Mode     Cnt    Score    Error   Units
+AwsSdkBenchmark.awsV1Request                                      thrpt       5    0.426 ±  0.008  ops/ms
+AwsSdkBenchmark.awsV2Request                                      thrpt       5    0.419 ±  0.008  ops/ms
+HttpDownstreamBenchmark.makeHttpRequest                           thrpt       5    0.429 ±  0.009  ops/ms
+ServletBenchmark.serviceRequest                                   thrpt       5    0.482 ±  0.011  ops/ms
+SqlBenchmark.sqlQuery                                             thrpt       5    0.484 ±  0.001  ops/ms
+AwsSdkBenchmark.awsV1Request                                     sample    2132    2.345 ±  0.007   ms/op
+AwsSdkBenchmark.awsV1Request:awsV1Request·p0.00                  sample            2.265            ms/op
+AwsSdkBenchmark.awsV1Request:awsV1Request·p0.50                  sample            2.339            ms/op
+AwsSdkBenchmark.awsV1Request:awsV1Request·p0.90                  sample            2.380            ms/op
+AwsSdkBenchmark.awsV1Request:awsV1Request·p0.95                  sample            2.414            ms/op
+AwsSdkBenchmark.awsV1Request:awsV1Request·p0.99                  sample            2.488            ms/op
+AwsSdkBenchmark.awsV1Request:awsV1Request·p0.999                 sample            3.999            ms/op
+AwsSdkBenchmark.awsV1Request:awsV1Request·p0.9999                sample            5.964            ms/op
+AwsSdkBenchmark.awsV1Request:awsV1Request·p1.00                  sample            5.964            ms/op
+AwsSdkBenchmark.awsV2Request                                     sample    2099    2.383 ±  0.008   ms/op
+AwsSdkBenchmark.awsV2Request:awsV2Request·p0.00                  sample            2.294            ms/op
+AwsSdkBenchmark.awsV2Request:awsV2Request·p0.50                  sample            2.376            ms/op
+AwsSdkBenchmark.awsV2Request:awsV2Request·p0.90                  sample            2.421            ms/op
+AwsSdkBenchmark.awsV2Request:awsV2Request·p0.95                  sample            2.445            ms/op
+AwsSdkBenchmark.awsV2Request:awsV2Request·p0.99                  sample            2.540            ms/op
+AwsSdkBenchmark.awsV2Request:awsV2Request·p0.999                 sample            2.944            ms/op
+AwsSdkBenchmark.awsV2Request:awsV2Request·p0.9999                sample            7.135            ms/op
+AwsSdkBenchmark.awsV2Request:awsV2Request·p1.00                  sample            7.135            ms/op
+HttpDownstreamBenchmark.makeHttpRequest                          sample    2140    2.335 ±  0.024   ms/op
+HttpDownstreamBenchmark.makeHttpRequest:makeHttpRequest·p0.00    sample            2.253            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:makeHttpRequest·p0.50    sample            2.306            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:makeHttpRequest·p0.90    sample            2.339            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:makeHttpRequest·p0.95    sample            2.359            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:makeHttpRequest·p0.99    sample            2.608            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:makeHttpRequest·p0.999   sample            9.664            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:makeHttpRequest·p0.9999  sample           10.715            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:makeHttpRequest·p1.00    sample           10.715            ms/op
+ServletBenchmark.serviceRequest                                  sample    2419    2.068 ±  0.001   ms/op
+ServletBenchmark.serviceRequest:serviceRequest·p0.00             sample            2.023            ms/op
+ServletBenchmark.serviceRequest:serviceRequest·p0.50             sample            2.066            ms/op
+ServletBenchmark.serviceRequest:serviceRequest·p0.90             sample            2.073            ms/op
+ServletBenchmark.serviceRequest:serviceRequest·p0.95             sample            2.083            ms/op
+ServletBenchmark.serviceRequest:serviceRequest·p0.99             sample            2.101            ms/op
+ServletBenchmark.serviceRequest:serviceRequest·p0.999            sample            2.123            ms/op
+ServletBenchmark.serviceRequest:serviceRequest·p0.9999           sample            2.310            ms/op
+ServletBenchmark.serviceRequest:serviceRequest·p1.00             sample            2.310            ms/op
+SqlBenchmark.sqlQuery                                            sample    2424    2.063 ±  0.001   ms/op
+SqlBenchmark.sqlQuery:sqlQuery·p0.00                             sample            2.025            ms/op
+SqlBenchmark.sqlQuery:sqlQuery·p0.50                             sample            2.062            ms/op
+SqlBenchmark.sqlQuery:sqlQuery·p0.90                             sample            2.066            ms/op
+SqlBenchmark.sqlQuery:sqlQuery·p0.95                             sample            2.073            ms/op
+SqlBenchmark.sqlQuery:sqlQuery·p0.99                             sample            2.087            ms/op
+SqlBenchmark.sqlQuery:sqlQuery·p0.999                            sample            2.128            ms/op
+SqlBenchmark.sqlQuery:sqlQuery·p0.9999                           sample            2.142            ms/op
+SqlBenchmark.sqlQuery:sqlQuery·p1.00                             sample            2.142            ms/op
