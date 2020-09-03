@@ -40,9 +40,6 @@ subprojects {
         configure<JavaPluginExtension> {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
-
-            withJavadocJar()
-            withSourcesJar()
         }
 
         dependencies {
@@ -76,6 +73,20 @@ subprojects {
             dependsOn(tasks.named<DefaultTask>("assemble"))
         }
 
+        plugins.withId("java") {
+            //create a task to publish our sources
+            tasks.register<Jar>("sourcesJar") {
+                from(project.the<SourceSetContainer>()["main"].allJava)
+                archiveClassifier.set("sources")
+            }
+
+            //create a task to publish javadoc
+            tasks.register<Jar>("javadocJar") {
+                from(tasks.named<Javadoc>("javadoc"))
+                archiveClassifier.set("javadoc")
+            }
+        }
+
         configure<PublishingExtension> {
             publications {
                 register<MavenPublication>("maven") {
@@ -84,6 +95,9 @@ subprojects {
                     plugins.withId("com.github.johnrengelman.shadow") {
                         artifact(tasks.named<Jar>("shadowJar").get())
                     }
+
+                    artifact(tasks["sourcesJar"])
+                    artifact(tasks["javadocJar"])
 
                     versionMapping {
                         allVariants {
