@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/aws/aws-xray-java-agent/workflows/Continuous%20Build/badge.svg)](https://github.com/aws/aws-xray-java-agent/actions)
+[![Build Status](https://github.com/aws/aws-xray-java-agent/workflows/Continuous%20Build/badge.svg)](https://github.com/aws/aws-xray-java-agent/actions)
 
 ![Screenshot of the AWS X-Ray console](/images/xray-agent-sample.png?raw=true)
 
