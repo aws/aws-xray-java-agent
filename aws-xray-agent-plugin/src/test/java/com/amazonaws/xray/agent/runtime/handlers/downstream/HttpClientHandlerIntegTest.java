@@ -24,11 +24,10 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class HttpClientHandlerIntegTest {
     private static final String TRACE_HEADER_KEY = TraceHeader.HEADER_KEY;
@@ -36,12 +35,19 @@ public class HttpClientHandlerIntegTest {
     private static final String ENDPOINT = "http://127.0.0.1:" + PORT;
     private Segment currentSegment;
 
-    // TODO: Replace all real network calls with wiremocked calls
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(PORT);
 
     @Before
     public void setup() {
+        // Initializing WireMock tricks the agent into thinking an HTTP call is being made, which creates subsegments,
+        // so this segment is needed to avoid CMEs. It will be overridden with a fresh segment.
+        AWSXRay.beginSegment("ignore");
+
+        stubFor(get(anyUrl()).willReturn(ok()));
+        stubFor(post(anyUrl())
+                .willReturn(ok().withHeader("content-length", "42")));
+
         // Generate the segment that would be normally made by the upstream instrumentor
         currentSegment = AWSXRay.beginSegment("parentSegment");
     }
@@ -49,92 +55,95 @@ public class HttpClientHandlerIntegTest {
     @After
     public void cleanup() {
         AWSXRay.clearTraceEntity();
-        currentSegment = null;
     }
 
     @Test
     public void testBasicGetCall() throws Exception {
-        URI uri = new URI("https://www.amazon.com");
+        URI uri = new URI(ENDPOINT);
         HttpClient httpClient = HttpClients.createMinimal();
         HttpGet request = new HttpGet(uri);
 
-        assertEquals(0, request.getAllHeaders().length);
         HttpResponse httpResponse = httpClient.execute(request);
 
-        assertEquals(1, currentSegment.getSubsegments().size());
+        assertThat(currentSegment.getSubsegments()).hasSize(1);
         Subsegment currentSubsegment = currentSegment.getSubsegments().get(0);
 
         // Check Subsegment properties
-        assertEquals(uri.getHost(), currentSubsegment.getName());
-        assertEquals(Namespace.REMOTE.toString(), currentSubsegment.getNamespace());
-        assertFalse(currentSubsegment.isInProgress());
+        assertThat(currentSubsegment.getName()).isEqualTo(uri.getHost());
+        assertThat(currentSubsegment.getNamespace()).isEqualTo(Namespace.REMOTE.toString());
+        assertThat(currentSubsegment.isInProgress()).isFalse();
 
         // Check for http-specific request info
-        Map<String, String> requestMap = (Map<String, String>) currentSubsegment.getHttp().get("request");
-        assertEquals(2, requestMap.size());
-        assertEquals("GET", request.getMethod());
-        assertEquals(request.getMethod(), requestMap.get("method"));
-        assertEquals(uri.toString(), requestMap.get("url"));
+        Map<String, Object> requestMap = (Map<String, Object>) currentSubsegment.getHttp().get("request");
+        assertThat(requestMap).hasSize(2);
+        assertThat(requestMap).containsEntry("method", "GET");
+        assertThat(requestMap).containsEntry("url", uri.toString());
 
         // Check for http-specific response info
-        Map<String, String> responseMap = (Map<String, String>) currentSubsegment.getHttp().get("response");
-        assertEquals(1, responseMap.size());
-        assertEquals(httpResponse.getStatusLine().getStatusCode(), responseMap.get("status"));
+        Map<String, Object> responseMap = (Map<String, Object>) currentSubsegment.getHttp().get("response");
+        assertThat(responseMap).hasSize(1);
+        assertThat(responseMap).containsEntry("status", httpResponse.getStatusLine().getStatusCode());
+    }
 
-        // Obviously can't pass if above is asserted, but for completeness in case this test fails.
-        // the request doesn't return content_length because this is something that's populated in headers.
-        // And amazon.com just doesn't publish it.
-        assertFalse(responseMap.containsKey("content_length"));
+    @Test
+    public void testTraceHeaderPropagation() throws Exception {
+        URI uri = new URI(ENDPOINT);
+        HttpClient httpClient = HttpClients.createMinimal();
+        HttpGet request = new HttpGet(uri);
+
+        httpClient.execute(request);
+
+        assertThat(currentSegment.getSubsegments()).hasSize(1);
+        Subsegment currentSubsegment = currentSegment.getSubsegments().get(0);
 
         // Check for Trace propagation
         Header httpTraceHeader = request.getAllHeaders()[0];
-        assertEquals(TRACE_HEADER_KEY, httpTraceHeader.getName());
+        assertThat(httpTraceHeader.getName()).isEqualTo(TRACE_HEADER_KEY);
         TraceHeader injectedTH = TraceHeader.fromString(httpTraceHeader.getValue());
         SampleDecision sampleDecision = currentSegment.isSampled() ? SampleDecision.SAMPLED : SampleDecision.NOT_SAMPLED;
-        assertEquals(new TraceHeader(currentSegment.getTraceId(), currentSubsegment.getId(), sampleDecision).toString(),
-                injectedTH.toString()); // Trace header should be added
+        assertThat(injectedTH.toString())
+                .isEqualTo(new TraceHeader(currentSegment.getTraceId(), currentSubsegment.getId(), sampleDecision).toString()); // Trace header should be added
     }
 
     @Test
     public void testBasicPostCall() throws Exception {
-        URI uri = new URI("https://www.amazon.com");
+        URI uri = new URI(ENDPOINT);
         HttpClient httpClient = HttpClients.createMinimal();
         HttpPost request = new HttpPost(uri);
         HttpResponse httpResponse = httpClient.execute(request);
 
-        assertEquals(1, currentSegment.getSubsegments().size());
+        assertThat(currentSegment.getSubsegments()).hasSize(1);
         Subsegment currentSubsegment = currentSegment.getSubsegments().get(0);
 
         // Check Subsegment properties
-        assertEquals(uri.getHost(), currentSubsegment.getName());
-        assertEquals(Namespace.REMOTE.toString(), currentSubsegment.getNamespace());
-        assertFalse(currentSubsegment.isInProgress());
+        assertThat(currentSubsegment.getName()).isEqualTo(uri.getHost());
+        assertThat(currentSubsegment.getNamespace()).isEqualTo(Namespace.REMOTE.toString());
+        assertThat(currentSubsegment.isInProgress()).isFalse();
 
         // Check for http-specific request info
-        Map<String, String> requestMap = (Map<String, String>) currentSubsegment.getHttp().get("request");
-        assertEquals(2, requestMap.size());
-        assertEquals("POST", request.getMethod());
-        assertEquals(request.getMethod(), requestMap.get("method"));
-        assertEquals(uri.toString(), requestMap.get("url"));
+        Map<String, Object> requestMap = (Map<String, Object>) currentSubsegment.getHttp().get("request");
+        assertThat(requestMap).hasSize(2);
+        assertThat(requestMap).containsEntry("method", "POST");
+        assertThat(requestMap).containsEntry("url", uri.toString());
 
         // Check for http-specific response info
-        Map<String, String> responseMap = (Map<String, String>) currentSubsegment.getHttp().get("response");
-        assertEquals(2, responseMap.size());
-        assertEquals(httpResponse.getStatusLine().getStatusCode(), responseMap.get("status"));
-        assertEquals(httpResponse.getEntity().getContentLength(), responseMap.get("content_length"));
+        Map<String, Object> responseMap = (Map<String, Object>) currentSubsegment.getHttp().get("response");
+        assertThat(responseMap).hasSize(2);
+        assertThat(responseMap).containsEntry("status", httpResponse.getStatusLine().getStatusCode());
+        assertThat(responseMap).containsEntry("content_length", 42L);
     }
 
     @Test
     public void testChainedCalls() throws Exception {
-        URI uri = new URI("https://www.amazon.com");
+        URI uri = new URI(ENDPOINT);
         HttpClient httpClient = HttpClients.createMinimal();
         HttpPost request = new HttpPost(uri);
 
-        assertEquals(0, currentSegment.getSubsegments().size());
+        assertThat(currentSegment.getSubsegments()).isEmpty();
         httpClient.execute(request);
-        assertEquals(1, currentSegment.getSubsegments().size());
+        assertThat(currentSegment.getSubsegments()).hasSize(1);
         httpClient.execute(request);
-        assertEquals(2, currentSegment.getSubsegments().size());
+        assertThat(currentSegment.getSubsegments()).hasSize(2);
     }
 
     @Test
@@ -142,43 +151,33 @@ public class HttpClientHandlerIntegTest {
         URI uri = new URI("sdfkljdfs");
         HttpClient httpClient = HttpClients.createMinimal();
         HttpGet request = new HttpGet(uri);
-        Throwable theExceptionThrown = null;
-        try {
-            httpClient.execute(request);
-            assertTrue(false); // The test should not hit this case.
-        } catch (IllegalArgumentException e) {
-            theExceptionThrown = e;
-        }
 
-        assertEquals(1, currentSegment.getSubsegments().size());
+        assertThatThrownBy(() -> httpClient.execute(request)).isInstanceOf(IllegalArgumentException.class);
+
+        assertThat(currentSegment.getSubsegments()).hasSize(1);
         Subsegment currentSubsegment = currentSegment.getSubsegments().get(0);
 
-        assertEquals(uri.toString(), currentSubsegment.getName());
-        assertEquals(1, currentSubsegment.getCause().getExceptions().size());
-        assertEquals(theExceptionThrown, currentSubsegment.getCause().getExceptions().get(0).getThrowable());
-        assertEquals(Namespace.REMOTE.toString(), currentSubsegment.getNamespace());
-        assertTrue(currentSubsegment.isFault());
-        assertFalse(currentSubsegment.isError());
-        assertFalse(currentSubsegment.isInProgress());
+        assertThat(currentSubsegment.getName()).isEqualTo(uri.toString());
+        assertThat(currentSubsegment.getCause().getExceptions()).hasSize(1);
+        assertThat(currentSubsegment.getCause().getExceptions().get(0).getThrowable()).isInstanceOf(IllegalArgumentException.class);
+
+        assertThat(currentSubsegment.getNamespace()).isEqualTo(Namespace.REMOTE.toString());
+        assertThat(currentSubsegment.isFault()).isTrue();
+        assertThat(currentSubsegment.isError()).isFalse();
+        assertThat(currentSubsegment.isInProgress()).isFalse();
 
         // Even in failures, we should at least see the requested information.
         Map<String, String> requestMap = (Map<String, String>) currentSubsegment.getHttp().get("request");
-        assertEquals(2, requestMap.size());
-        assertEquals("GET", request.getMethod());
-        assertEquals(request.getMethod(), requestMap.get("method"));
-        assertEquals(uri.toString(), requestMap.get("url"));
+        assertThat(requestMap).hasSize(2);
+        assertThat(requestMap).containsEntry("method", "GET");
+        assertThat(requestMap).containsEntry("url", uri.toString());
 
         // No response because we passed in an invalid request.
-        assertNull(currentSubsegment.getHttp().get("response"));
+        assertThat(currentSubsegment.getHttp()).doesNotContainKey("response");
     }
 
     @Test
     public void testIgnoreSamplingCalls() throws Exception {
-        stubFor(get(anyUrl()).willReturn(ok()));
-
-        // Remove subsegment created by WireMock
-        AWSXRay.getCurrentSegment().removeSubsegment(AWSXRay.getCurrentSegment().getSubsegments().get(0));
-
         URI targetsUri = new URI(ENDPOINT + "/SamplingTargets");
         URI rulesUri = new URI(ENDPOINT + "/GetSamplingRules");
 
@@ -186,11 +185,11 @@ public class HttpClientHandlerIntegTest {
         HttpGet request = new HttpGet(targetsUri);
         httpClient.execute(request);
 
-        assertEquals(0, currentSegment.getSubsegments().size());
+        assertThat(currentSegment.getSubsegments()).isEmpty();
 
         request = new HttpGet(rulesUri);
         httpClient.execute(request);
 
-        assertEquals(0, currentSegment.getSubsegments().size());
+        assertThat(currentSegment.getSubsegments()).isEmpty();
     }
 }
