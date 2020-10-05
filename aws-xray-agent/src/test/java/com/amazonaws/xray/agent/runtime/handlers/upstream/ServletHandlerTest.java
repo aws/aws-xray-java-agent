@@ -7,6 +7,7 @@ import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.entities.TraceID;
+import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.sampling.NoSamplingStrategy;
 import org.junit.After;
 import org.junit.Assert;
@@ -52,6 +53,7 @@ public class ServletHandlerTest {
         MockitoAnnotations.initMocks(this);
         AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder
                 .standard()
+                .withContextMissingStrategy(new LogErrorContextMissingStrategy())
                 .withSamplingStrategy(new NoSamplingStrategy())
                 .withEmitter(blankEmitter)
                 .build());
@@ -154,5 +156,18 @@ public class ServletHandlerTest {
         Assert.assertEquals(500, ((Map<String, Integer>) servletSegment.getHttp().get("response")).get("status").intValue());
         Assert.assertFalse(servletSegment.isError());
         Assert.assertTrue(servletSegment.isFault());
+    }
+
+    @Test
+    public void testContextMissingInResponse() {
+        HttpServletNetworkRequestEvent requestEvent = new HttpServletNetworkRequestEvent(ORIGIN, 1, 1, "test", "test");
+        HttpServletNetworkResponseEvent responseEvent = new HttpServletNetworkResponseEvent(ORIGIN, requestEvent);
+
+        // Explicitly clear context
+        AWSXRay.clearTraceEntity();
+        Assert.assertNull(AWSXRay.getTraceEntity());
+
+        // Verifies no NPEs or similar are thrown
+        servletHandler.handleResponse(responseEvent);
     }
 }

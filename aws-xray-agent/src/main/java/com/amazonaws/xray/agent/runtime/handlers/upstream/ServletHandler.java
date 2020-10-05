@@ -27,7 +27,6 @@ public class ServletHandler extends XRayHandler {
     private static final String HTTP_REQUEST_KEY = "request";
     private static final String STATUS_KEY = "status";
 
-
     @Override
     public void handleRequest(Event event) {
         HttpServletNetworkRequestEvent requestEvent = (HttpServletNetworkRequestEvent) event;
@@ -69,6 +68,11 @@ public class ServletHandler extends XRayHandler {
     public void handleResponse(Event event) {
         HttpServletNetworkResponseEvent responseEvent = (HttpServletNetworkResponseEvent) event;
         Segment currentSegment = getSegment();
+
+        // No need to log since a Context Missing Error will already be recorded
+        if (currentSegment == null) {
+            return;
+        }
 
         // Add the status code
         // Obtain the status code of the underlying http response. If it failed, it's a fault.
