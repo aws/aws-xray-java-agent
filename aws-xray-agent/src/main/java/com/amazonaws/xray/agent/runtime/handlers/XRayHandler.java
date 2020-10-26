@@ -11,17 +11,17 @@ import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import com.amazonaws.xray.strategy.sampling.SamplingResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import software.amazon.disco.agent.concurrent.TransactionContext;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-
 /**
- * Base class for an X-Ray handler which contains methods that help initiate
+ * Base class for an X-Ray handler which contains wrapper methods for managing entities with the X-Ray recorder to
+ * provide a layer of protection against the X-Ray SDK Dependency
  */
 public abstract class XRayHandler implements XRayHandlerInterface {
     private static final Log log = LogFactory.getLog(XRayHandler.class);
@@ -68,7 +68,7 @@ public abstract class XRayHandler implements XRayHandlerInterface {
      * @param parentID - The parent ID of this segment.
      * @return the new segment
      */
-    protected Segment beginSegment(String segmentName, TraceID traceID, String parentID) {
+    protected Segment beginSegment(String segmentName, @Nullable TraceID traceID, @Nullable String parentID) {
         Segment segment;
         if (traceID == null || parentID == null) {
             segment = AWSXRay.beginSegment(segmentName);
@@ -96,9 +96,9 @@ public abstract class XRayHandler implements XRayHandlerInterface {
         return segment;
     }
 
-    protected Segment beginSegment(String segmentName, Optional<TraceHeader> traceHeader) {
-        TraceID traceId = traceHeader.map(TraceHeader::getRootTraceId).orElse(null);
-        String parentId = traceHeader.map(TraceHeader::getParentId).orElse(null);
+    protected Segment beginSegment(String segmentName, TraceHeader traceHeader) {
+        TraceID traceId = traceHeader.getRootTraceId();
+        String parentId = traceHeader.getParentId();
         return beginSegment(segmentName, traceId, parentId);
     }
 
@@ -129,33 +129,32 @@ public abstract class XRayHandler implements XRayHandlerInterface {
     /**
      * Calculate the sampling decision from the transaction state. The transaction state should contain
      * all the URL, method, host, origin, and service name information.
-     * @param transactionState The current state of the X-Ray transaction.
-     * @param traceHeader An optional trace header that's passed in usually as a result of an upstream call.
+     * @param transactionState The current state of the X-Ray transaction. Includes the trace header from an upstream
+     *                         call if applicable.
      * @return True if we should sample, false otherwise.
      */
-    protected boolean getSamplingDecision(XRayTransactionState transactionState, Optional<TraceHeader> traceHeader) {
-        String method = transactionState.getMethod();
-        String serviceName = XRayTransactionState.getServiceName();
-        String host = transactionState.getHost();
-        String uri = transactionState.getURL();
-
-        String traceHeaderString = Optional.ofNullable(transactionState.getTraceHeader()).map(Object::toString).orElse(null);
+    protected boolean getSamplingDecision(XRayTransactionState transactionState) {
         // If the trace header string is null, then this is the origin call.
-        if (traceHeaderString != null) {
-            traceHeader = Optional.of(TraceHeader.fromString(traceHeaderString));
-        }
+        TraceHeader traceHeader = TraceHeader.fromString(transactionState.getTraceHeader());
 
-        TraceHeader.SampleDecision sampleDecision = traceHeader.map(TraceHeader::getSampled).orElse(null);
-        if (sampleDecision != null) {
-            log.debug(String.format("Received sampling decision from trace header: %s", sampleDecision.toString()));
-            return sampleDecision.equals(TraceHeader.SampleDecision.SAMPLED);
+        TraceHeader.SampleDecision sampleDecision = traceHeader.getSampled();
+        if (TraceHeader.SampleDecision.SAMPLED.equals(sampleDecision)) {
+            log.debug("Received SAMPLED decision from upstream X-Ray trace header");
+            return true;
+        } else if (TraceHeader.SampleDecision.NOT_SAMPLED.equals(sampleDecision)) {
+            log.debug("Received NOT SAMPLED decision from upstream X-Ray trace header");
+            return false;
         }
 
         // No sampling decision made on the upstream. So use the in-house rules.
-        SamplingRequest samplingRequest = new SamplingRequest(serviceName, host, uri, method,
+        SamplingRequest samplingRequest = new SamplingRequest(
+                XRayTransactionState.getServiceName(),
+                transactionState.getHost(),
+                transactionState.getURL(),
+                transactionState.getMethod(),
                 transactionState.getServiceType());
         SamplingResponse samplingResponse = AWSXRay.getGlobalRecorder().getSamplingStrategy().shouldTrace(samplingRequest);
-        return samplingResponse.isSampled();
+        return samplingResponse != null && samplingResponse.isSampled();
     }
 
     /**

@@ -43,16 +43,11 @@ public class ServletHandler extends XRayHandler {
         }
         transactionState.withTraceheaderString(headerData);
 
-        Optional<TraceHeader> traceHeader = Optional.empty();
-        String traceHeaderString = transactionState.getTraceHeader();
-        // If the trace header string is null, then this is the origin call.
-        if (traceHeaderString != null) {
-            traceHeader = Optional.of(TraceHeader.fromString(traceHeaderString));
-        }
+        TraceHeader traceHeader = TraceHeader.fromString(transactionState.getTraceHeader());
         Segment segment = beginSegment(XRayTransactionState.getServiceName(), traceHeader);
 
         // Obtain sampling decision
-        boolean shouldSample = getSamplingDecision(transactionState, traceHeader);
+        boolean shouldSample = getSamplingDecision(transactionState);
         segment.setSampled(shouldSample);
 
         // Add HTTP Information

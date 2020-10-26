@@ -1,5 +1,7 @@
 package com.amazonaws.xray.agent.runtime.models;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * Contains state information for each logical request/response transaction event.
  *
@@ -47,14 +49,12 @@ public class XRayTransactionState {
         return this;
     }
 
-    public XRayTransactionState withTraceheaderString(String traceHeaderString) {
-        // can be null
+    public XRayTransactionState withTraceheaderString(@Nullable String traceHeaderString) {
         this.traceHeader = traceHeaderString;
         return this;
     }
 
-    public XRayTransactionState withOrigin(String origin) {
-        // can be null
+    public XRayTransactionState withOrigin(@Nullable String origin) {
         this.origin = origin;
         return this;
     }
@@ -83,13 +83,13 @@ public class XRayTransactionState {
         return this.serviceType;
     }
 
+    @Nullable
     public String getTraceHeader() {
-        // can be null
         return this.traceHeader;
     }
 
+    @Nullable
     public String getOrigin() {
-        // can be null
         return this.origin;
     }
 

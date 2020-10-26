@@ -13,11 +13,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
 import software.amazon.disco.agent.event.HttpServletNetworkRequestEvent;
 import software.amazon.disco.agent.event.HttpServletNetworkResponseEvent;
 
@@ -26,8 +23,6 @@ import java.util.Map;
 
 import static org.mockito.Mockito.mock;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.net.ssl.*")
 public class ServletHandlerTest {
     public static final String HEADER_KEY = "X-Amzn-Trace-Id";
 
