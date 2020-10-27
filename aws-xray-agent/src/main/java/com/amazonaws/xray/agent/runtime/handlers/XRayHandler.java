@@ -154,7 +154,7 @@ public abstract class XRayHandler implements XRayHandlerInterface {
                 transactionState.getMethod(),
                 transactionState.getServiceType());
         SamplingResponse samplingResponse = AWSXRay.getGlobalRecorder().getSamplingStrategy().shouldTrace(samplingRequest);
-        return samplingResponse != null && samplingResponse.isSampled();
+        return samplingResponse.isSampled();
     }
 
     /**
