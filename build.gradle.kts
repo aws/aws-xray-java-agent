@@ -8,7 +8,7 @@ plugins {
 val discoVersion by extra("0.10.0")
 
 subprojects {
-    version = "2.7.1"
+    version = "2.8.0"
     group = "com.amazonaws"
 
     repositories {
@@ -44,7 +44,7 @@ subprojects {
 
         dependencies {
             // BOMs for common projects
-            add("implementation", platform("com.amazonaws:aws-xray-recorder-sdk-bom:2.7.1"))
+            add("implementation", platform("com.amazonaws:aws-xray-recorder-sdk-bom:${version}"))
             add("implementation", platform("software.amazon.disco:disco-toolkit-bom:${discoVersion}"))
             add("implementation", platform("com.fasterxml.jackson:jackson-bom:2.11.0"))
             add("implementation", platform("com.amazonaws:aws-java-sdk-bom:1.11.837"))
@@ -57,6 +57,7 @@ subprojects {
             add("testImplementation", "junit:junit:4.12")
             add("testImplementation", "org.assertj:assertj-core:3.16.1")
             add("testImplementation", "org.mockito:mockito-core:2.28.2")
+            add("testImplementation", "org.checkerframework:checker-qual:3.4.1")
         }
     }
 
