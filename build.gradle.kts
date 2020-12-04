@@ -57,6 +57,7 @@ subprojects {
             add("testImplementation", "junit:junit:4.12")
             add("testImplementation", "org.assertj:assertj-core:3.16.1")
             add("testImplementation", "org.mockito:mockito-core:2.28.2")
+            add("testImplementation", "org.checkerframework:checker-qual:3.4.1")
         }
     }
 
