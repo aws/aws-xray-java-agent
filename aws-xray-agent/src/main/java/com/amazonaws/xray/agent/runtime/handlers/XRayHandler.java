@@ -1,6 +1,7 @@
 package com.amazonaws.xray.agent.runtime.handlers;
 
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.agent.runtime.models.XRayTransactionState;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
@@ -94,6 +95,10 @@ public abstract class XRayHandler implements XRayHandlerInterface {
         }
 
         return segment;
+    }
+
+    protected AWSXRayRecorder getGlobalRecorder() {
+        return AWSXRay.getGlobalRecorder();
     }
 
     protected Segment beginSegment(String segmentName, TraceHeader traceHeader) {
