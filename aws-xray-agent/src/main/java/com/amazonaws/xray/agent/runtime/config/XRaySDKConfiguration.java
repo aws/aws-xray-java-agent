@@ -360,7 +360,7 @@ public class XRaySDKConfiguration {
         }
         traceIdInjectionConfigured = true;
 
-        // We must use the context class loader because the whole reason we're lazy loading is the injection libraries
+        // We must use the context class loader because the whole reason we're lazy loading the injection libraries
         // is that they're only visible to the classloader used by the customer app
         recorder.addAllSegmentListeners(getTraceIdInjectorsReflectively(Thread.currentThread().getContextClassLoader()));
     }

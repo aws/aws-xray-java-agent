@@ -31,7 +31,7 @@ public class ServletHandler extends XRayHandler {
     public void handleRequest(Event event) {
         HttpServletNetworkRequestEvent requestEvent = (HttpServletNetworkRequestEvent) event;
 
-        // For Spring Boot apps, the trace ID injection libraries will not be visible on classpath til after startup,
+        // For Spring Boot apps, the trace ID injection libraries will not be visible on classpath until after startup,
         // so we must try to lazy load them as early as possible
         XRaySDKConfiguration.getInstance().lazyLoadTraceIdInjection(getGlobalRecorder());
 
