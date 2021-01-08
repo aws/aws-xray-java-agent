@@ -454,4 +454,13 @@ public class XRaySDKConfigurationTest {
 
         Assert.assertTrue(AWSXRay.getGlobalRecorder().getSegmentContextResolverChain().resolve() instanceof ThreadLocalSegmentContext);
     }
+
+    @Test
+    public void testLazyLoadTraceIdInjection() {
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.defaultRecorder();
+        config.setAgentConfiguration(new AgentConfiguration());
+        config.lazyLoadTraceIdInjection(recorder);
+
+        Assert.assertEquals(2, recorder.getSegmentListeners().size());
+    }
 }

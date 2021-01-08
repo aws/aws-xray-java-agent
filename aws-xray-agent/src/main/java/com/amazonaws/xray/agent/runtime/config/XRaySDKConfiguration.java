@@ -1,6 +1,7 @@
 package com.amazonaws.xray.agent.runtime.config;
 
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.agent.runtime.models.XRayTransactionContextResolver;
 import com.amazonaws.xray.agent.runtime.models.XRayTransactionState;
@@ -30,7 +31,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -55,6 +58,11 @@ public class XRaySDKConfiguration {
     static final String ENABLED_ENVIRONMENT_VARIABLE_KEY = "AWS_XRAY_TRACING_ENABLED";
     static final String ENABLED_SYSTEM_PROPERTY_KEY = "com.amazonaws.xray.tracingEnabled";
 
+    private static final String[] TRACE_ID_INJECTION_CLASSES = {
+            "com.amazonaws.xray.log4j.Log4JSegmentListener",
+            "com.amazonaws.xray.slf4j.SLF4JSegmentListener"
+    };
+
     private static final Log log = LogFactory.getLog(XRaySDKConfiguration.class);
 
     /* JSON factory used instead of mapper for performance */
@@ -65,6 +73,9 @@ public class XRaySDKConfiguration {
 
     /* Configuration storage */
     private AgentConfiguration agentConfiguration;
+
+    /* Indicator for whether trace ID injection has been configured */
+    private boolean traceIdInjectionConfigured;
 
     /* AWS Manifest whitelist, for runtime loader access */
     @Nullable
@@ -274,9 +285,16 @@ public class XRaySDKConfiguration {
 
         // Trace ID Injection
         if (agentConfiguration.isTraceIdInjection()) {
-            final String prefix = agentConfiguration.getTraceIdInjectionPrefix();
-            tryAddTraceIdInjection(builder, "com.amazonaws.xray.log4j.Log4JSegmentListener", prefix);
-            tryAddTraceIdInjection(builder, "com.amazonaws.xray.slf4j.SLF4JSegmentListener", prefix);
+            // TODO: Include the trace ID injection libraries in the agent JAR and use this reflective approach to
+            // only enable them if their corresponding logging libs are in the context classloader
+            List<SegmentListener> listeners = getTraceIdInjectorsReflectively(ClassLoader.getSystemClassLoader());
+
+            if (!listeners.isEmpty()) {
+                traceIdInjectionConfigured = true;
+                for (SegmentListener listener : listeners) {
+                    builder.withSegmentListener(listener);
+                }
+            }
         }
 
         // Max stack trace length
@@ -329,6 +347,24 @@ public class XRaySDKConfiguration {
         AWSXRay.setGlobalRecorder(builder.build());
     }
 
+    /**
+     * Attempts to enable trace ID injection via reflection. This can be called during runtime as opposed to agent
+     * startup in case required trace ID injection classes aren't available on the classpath during premain.
+     *
+     * @param recorder - the X-Ray Recorder to configure
+     */
+    public void lazyLoadTraceIdInjection(AWSXRayRecorder recorder) {
+        // Fail fast if injection disabled or we've already tried to lazy load
+        if (!agentConfiguration.isTraceIdInjection() || traceIdInjectionConfigured) {
+            return;
+        }
+        traceIdInjectionConfigured = true;
+
+        // We must use the context class loader because the whole reason we're lazy loading the injection libraries
+        // is that they're only visible to the classloader used by the customer app
+        recorder.addAllSegmentListeners(getTraceIdInjectorsReflectively(Thread.currentThread().getContextClassLoader()));
+    }
+
     private AgentConfiguration parseConfig(URL configFile) throws IOException {
         Map<String, String> propertyMap = new HashMap<>();
         JsonParser parser = factory.createParser(configFile);
@@ -350,15 +386,21 @@ public class XRaySDKConfiguration {
         return new AgentConfiguration(propertyMap);
     }
 
-    private void tryAddTraceIdInjection(AWSXRayRecorderBuilder builder, String className, String prefix) {
-        try {
-            Class<?> listenerClass = Class.forName(className, true, ClassLoader.getSystemClassLoader());
-            SegmentListener listener = (SegmentListener) listenerClass.getConstructor(String.class).newInstance(prefix);
-            builder.withSegmentListener(listener);
-            log.debug("Enabled AWS X-Ray trace ID injection into logs using " + className);
-        } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | ClassNotFoundException e) {
-            log.debug("Didn't enable AWS X-Ray trace ID injection into logs because " + className
-                    + " could not be found on system class path");
+    private List<SegmentListener> getTraceIdInjectorsReflectively(ClassLoader classLoader) {
+        final List<SegmentListener> listeners = new ArrayList<>();
+        final String prefix = agentConfiguration.getTraceIdInjectionPrefix();
+        log.debug("Prefix is: " + prefix);
+        for (String className : TRACE_ID_INJECTION_CLASSES) {
+            try {
+                Class<?> listenerClass = Class.forName(className, true, classLoader);
+                SegmentListener listener = (SegmentListener) listenerClass.getConstructor(String.class).newInstance(prefix);
+                listeners.add(listener);
+                log.debug("Enabled AWS X-Ray trace ID injection into logs using " + className);
+            } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | ClassNotFoundException e) {
+                log.debug("Could not find trace ID injection class " + className + " with class loader " + classLoader.getClass().getSimpleName());
+            }
         }
+
+        return listeners;
     }
 }

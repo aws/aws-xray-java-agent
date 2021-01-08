@@ -1,5 +1,6 @@
 package com.amazonaws.xray.agent.runtime.handlers.upstream;
 
+import com.amazonaws.xray.agent.runtime.config.XRaySDKConfiguration;
 import com.amazonaws.xray.agent.runtime.handlers.XRayHandler;
 import com.amazonaws.xray.agent.runtime.models.XRayTransactionState;
 import com.amazonaws.xray.entities.Segment;
@@ -11,7 +12,6 @@ import software.amazon.disco.agent.event.HttpServletNetworkResponseEvent;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * This handler handles an HttpEvent usually retrieved as a result of servlet interception and generates a segment.
@@ -30,6 +30,10 @@ public class ServletHandler extends XRayHandler {
     @Override
     public void handleRequest(Event event) {
         HttpServletNetworkRequestEvent requestEvent = (HttpServletNetworkRequestEvent) event;
+
+        // For Spring Boot apps, the trace ID injection libraries will not be visible on classpath until after startup,
+        // so we must try to lazy load them as early as possible
+        XRaySDKConfiguration.getInstance().lazyLoadTraceIdInjection(getGlobalRecorder());
 
         // HttpEvents are seen as servlet invocations, so in every request, we mark that we are serving an Http request
         // In X-Ray's context, this means that if we receive a activity event, to start generating a segment.
