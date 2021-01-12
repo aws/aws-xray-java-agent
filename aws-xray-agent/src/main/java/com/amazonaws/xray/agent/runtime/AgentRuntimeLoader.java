@@ -21,6 +21,7 @@ import java.net.URL;
 public class AgentRuntimeLoader {
     private static final String CONFIG_FILE_SYS_PROPERTY = "com.amazonaws.xray.configFile";
     private static final String CONFIG_FILE_DEFAULT_LOCATION = "/xray-agent.json";
+    private static final String CONFIG_FILE_SPRING_BOOT_LOCATION = "/BOOT-INF/classes/xray-agent.json";
 
     private static final Log log = LogFactory.getLog(AgentRuntimeLoader.class);
     private static ListenerFactory listenerFactory = new XRayListenerFactory();
@@ -103,7 +104,11 @@ public class AgentRuntimeLoader {
             }
         }
 
-        // Will return null if default file is absent
-        return AgentRuntimeLoader.class.getResource(CONFIG_FILE_DEFAULT_LOCATION);
+        // Search root of classpath first, then check root of Spring Boot classpath
+        URL defaultLocation = AgentRuntimeLoader.class.getResource(CONFIG_FILE_DEFAULT_LOCATION);
+        if (defaultLocation == null) {
+            defaultLocation = AgentRuntimeLoader.class.getResource(CONFIG_FILE_SPRING_BOOT_LOCATION);
+        }
+        return defaultLocation;
     }
 }
