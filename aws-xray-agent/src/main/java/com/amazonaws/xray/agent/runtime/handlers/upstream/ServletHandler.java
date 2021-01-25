@@ -22,6 +22,8 @@ public class ServletHandler extends XRayHandler {
     private static final String METHOD_KEY = "method";
     private static final String CLIENT_IP_KEY = "client_ip";
     private static final String USER_AGENT_KEY = "user_agent";
+    private static final String FORWARDED_FOR_KEY_LOWER = "x-forwarded-for";
+    private static final String FORWARDED_FOR_KEY_UPPER = "X-Forwarded-For";
 
     private static final String RESPONSE_KEY = "response";
     private static final String HTTP_REQUEST_KEY = "request";
@@ -41,6 +43,7 @@ public class ServletHandler extends XRayHandler {
         populateHeaderToTransactionState(requestEvent, transactionState);
 
         // TODO Fix request event bug so that getHeaderData is lower cased. This needs to be case insensitive
+        // See: https://github.com/awslabs/disco/issues/14
         String headerData = requestEvent.getHeaderData(HEADER_KEY.toLowerCase());
         if (headerData == null) {
             headerData = requestEvent.getHeaderData(HEADER_KEY);
@@ -108,11 +111,19 @@ public class ServletHandler extends XRayHandler {
      * @param transactionState The current XRay transactional state
      */
     private void populateHeaderToTransactionState(HttpNetworkProtocolRequestEvent requestEvent, XRayTransactionState transactionState) {
+        String clientIP = requestEvent.getLocalIPAddress();
+        if (clientIP == null || clientIP.isEmpty()) {
+            clientIP = requestEvent.getHeaderData(FORWARDED_FOR_KEY_LOWER);
+        }
+        if (clientIP == null || clientIP.isEmpty()) {
+            clientIP = requestEvent.getHeaderData(FORWARDED_FOR_KEY_UPPER);
+        }
+
         transactionState.withHost(requestEvent.getHost())
                 .withMethod(requestEvent.getMethod())
                 .withUrl(requestEvent.getURL())
                 .withUserAgent(requestEvent.getUserAgent())
-                .withClientIP(requestEvent.getLocalIPAddress())
+                .withClientIP(clientIP)
                 .withTraceheaderString(requestEvent.getHeaderData(HEADER_KEY));
     }
 }

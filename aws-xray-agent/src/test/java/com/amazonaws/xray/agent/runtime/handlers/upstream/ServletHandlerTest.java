@@ -2,6 +2,7 @@ package com.amazonaws.xray.agent.runtime.handlers.upstream;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
+import com.amazonaws.xray.agent.runtime.config.XRaySDKConfiguration;
 import com.amazonaws.xray.agent.runtime.models.XRayTransactionState;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.Segment;
@@ -46,6 +47,7 @@ public class ServletHandlerTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
+        XRaySDKConfiguration.getInstance().init();
         AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder
                 .standard()
                 .withContextMissingStrategy(new LogErrorContextMissingStrategy())
@@ -118,6 +120,23 @@ public class ServletHandlerTest {
         Assert.assertEquals(thSampled.getRootTraceId(), servletSegment.getTraceId());
         Assert.assertEquals(thSampled.getParentId(), parentId);
         Assert.assertEquals(thSampled.getSampled() == TraceHeader.SampleDecision.NOT_SAMPLED, servletSegment.isSampled());
+    }
+
+    @Test
+    public void testClienIPFallsBackToHeader() {
+        String forwardedForIP = "My IP address";
+        HttpServletNetworkRequestEvent requestEvent = new HttpServletNetworkRequestEvent(ORIGIN, 54, 32, SRC_IP, null);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("X-Forwarded-For", forwardedForIP);
+        requestEvent.withHeaderMap(headers);
+
+        servletHandler.handleRequest(requestEvent);
+        Segment segment = AWSXRay.getCurrentSegment();
+
+        Assert.assertNull(requestEvent.getLocalIPAddress());
+        Assert.assertNotNull(segment);
+        Map<String, String> requestMap = (Map<String, String>) segment.getHttp().get("request");
+        Assert.assertNotNull(forwardedForIP, requestMap.get("client_ip"));
     }
 
     @Test
