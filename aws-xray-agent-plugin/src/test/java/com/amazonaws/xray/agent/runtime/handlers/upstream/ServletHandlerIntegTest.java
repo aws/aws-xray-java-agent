@@ -162,7 +162,7 @@ public class ServletHandlerIntegTest {
 
         Map<String, String> httpRequestMap = (Map<String, String>) segment.getHttp().get("request");
         assertEquals(request.getMethod(), httpRequestMap.get("method"));
-        assertEquals(request.getLocalAddr(), httpRequestMap.get("client_ip"));
+        assertEquals(request.getRemoteAddr(), httpRequestMap.get("client_ip"));
         assertEquals(request.getRequestURL().toString(), httpRequestMap.get("url"));
 
         Map<String, String> httpResponseMap = (Map<String, String>) segment.getHttp().get("response");
