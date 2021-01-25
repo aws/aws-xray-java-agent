@@ -81,7 +81,8 @@ public class ServletHandlerTest {
 
         Map<String, String> httpMap = (Map<String, String>) servletSegment.getHttp().get("request");
         Assert.assertEquals(METHOD, httpMap.get("method"));
-        Assert.assertEquals(DST_IP, httpMap.get("client_ip"));
+        Assert.assertEquals(SRC_IP, httpMap.get("client_ip"));
+        Assert.assertNull(httpMap.get("x_forwarded_for"));
         Assert.assertEquals(URL, httpMap.get("url"));
         Assert.assertEquals(USER_AGENT, httpMap.get("user_agent"));
 
@@ -135,8 +136,9 @@ public class ServletHandlerTest {
 
         Assert.assertNull(requestEvent.getLocalIPAddress());
         Assert.assertNotNull(segment);
-        Map<String, String> requestMap = (Map<String, String>) segment.getHttp().get("request");
-        Assert.assertNotNull(forwardedForIP, requestMap.get("client_ip"));
+        Map<String, Object> requestMap = (Map<String, Object>) segment.getHttp().get("request");
+        Assert.assertEquals(forwardedForIP, requestMap.get("client_ip"));
+        Assert.assertEquals(true, requestMap.get("x_forwarded_for"));
     }
 
     @Test
