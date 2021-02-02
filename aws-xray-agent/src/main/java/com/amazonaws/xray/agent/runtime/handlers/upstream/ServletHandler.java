@@ -22,6 +22,9 @@ public class ServletHandler extends XRayHandler {
     private static final String METHOD_KEY = "method";
     private static final String CLIENT_IP_KEY = "client_ip";
     private static final String USER_AGENT_KEY = "user_agent";
+    private static final String FORWARDED_FOR_KEY_LOWER = "x-forwarded-for";
+    private static final String FORWARDED_FOR_KEY_UPPER = "X-Forwarded-For";
+    private static final String FORWARDED_FOR_ATTRIB = "x_forwarded_for";
 
     private static final String RESPONSE_KEY = "response";
     private static final String HTTP_REQUEST_KEY = "request";
@@ -38,9 +41,11 @@ public class ServletHandler extends XRayHandler {
         // HttpEvents are seen as servlet invocations, so in every request, we mark that we are serving an Http request
         // In X-Ray's context, this means that if we receive a activity event, to start generating a segment.
         XRayTransactionState transactionState = getTransactionState();
-        populateHeaderToTransactionState(requestEvent, transactionState);
+        addRequestDataToTransactionState(requestEvent, transactionState);
+        boolean ipForwarded = addClientIPToTransactionState(requestEvent, transactionState);
 
         // TODO Fix request event bug so that getHeaderData is lower cased. This needs to be case insensitive
+        // See: https://github.com/awslabs/disco/issues/14
         String headerData = requestEvent.getHeaderData(HEADER_KEY.toLowerCase());
         if (headerData == null) {
             headerData = requestEvent.getHeaderData(HEADER_KEY);
@@ -60,6 +65,7 @@ public class ServletHandler extends XRayHandler {
         requestAttributes.put(USER_AGENT_KEY, transactionState.getUserAgent());
         requestAttributes.put(METHOD_KEY, transactionState.getMethod());
         requestAttributes.put(CLIENT_IP_KEY, transactionState.getClientIP());
+        if (ipForwarded) requestAttributes.put(FORWARDED_FOR_ATTRIB, true);
         segment.putHttp(HTTP_REQUEST_KEY, requestAttributes);
     }
 
@@ -107,12 +113,27 @@ public class ServletHandler extends XRayHandler {
      * @param requestEvent     The HttpNetworkProtocolRequestEvent that was captured from the event bus.
      * @param transactionState The current XRay transactional state
      */
-    private void populateHeaderToTransactionState(HttpNetworkProtocolRequestEvent requestEvent, XRayTransactionState transactionState) {
+    private void addRequestDataToTransactionState(HttpNetworkProtocolRequestEvent requestEvent, XRayTransactionState transactionState) {
         transactionState.withHost(requestEvent.getHost())
                 .withMethod(requestEvent.getMethod())
                 .withUrl(requestEvent.getURL())
                 .withUserAgent(requestEvent.getUserAgent())
-                .withClientIP(requestEvent.getLocalIPAddress())
                 .withTraceheaderString(requestEvent.getHeaderData(HEADER_KEY));
+    }
+
+    private boolean addClientIPToTransactionState(HttpNetworkProtocolRequestEvent requestEvent, XRayTransactionState transactionState) {
+        String clientIP = requestEvent.getHeaderData(FORWARDED_FOR_KEY_UPPER);
+        boolean forwarded = true;
+
+        if (clientIP == null || clientIP.isEmpty()) {
+            clientIP = requestEvent.getHeaderData(FORWARDED_FOR_KEY_LOWER);
+        }
+        if (clientIP == null || clientIP.isEmpty()) {
+            clientIP = requestEvent.getRemoteIPAddress();
+            forwarded = false;
+        }
+
+        transactionState.withClientIP(clientIP);
+        return forwarded;
     }
 }
