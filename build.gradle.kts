@@ -47,8 +47,8 @@ subprojects {
             add("implementation", platform("com.amazonaws:aws-xray-recorder-sdk-bom:2.8.0"))
             add("implementation", platform("software.amazon.disco:disco-toolkit-bom:${discoVersion}"))
             add("implementation", platform("com.fasterxml.jackson:jackson-bom:2.11.0"))
-            add("implementation", platform("com.amazonaws:aws-java-sdk-bom:1.11.837"))
-            add("implementation", platform("software.amazon.awssdk:bom:2.13.70"))
+            add("implementation", platform("com.amazonaws:aws-java-sdk-bom:1.11.949"))
+            add("implementation", platform("software.amazon.awssdk:bom:2.15.76"))
 
             // TODO: Add build step for running Null checker
             add("compileOnly", "org.checkerframework:checker-qual:3.4.1")
