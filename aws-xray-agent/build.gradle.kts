@@ -1,5 +1,6 @@
 plugins {
     `java`
+    `jacoco`
 }
 
 description = "AWS X-Ray Runtime Java Agent"
@@ -29,4 +30,21 @@ dependencies {
     testImplementation("com.amazonaws:aws-xray-recorder-sdk-slf4j")
     testImplementation("org.apache.logging.log4j:log4j-api:2.13.3")
     testImplementation("ch.qos.logback:logback-classic:1.3.0-alpha5")
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
+}
+
+jacoco {
+    toolVersion = "0.8.6"
+}
+tasks.jacocoTestReport {
+    reports {
+        xml.isEnabled = true
+        html.isEnabled = true
+    }
 }
