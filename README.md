@@ -158,7 +158,7 @@ also contains no source code. It runs tests to compare the performance of the X-
 
 ### Building from Source
 
-If there are unreleased changes on the master branch that you'd like to try out early, you can build the agent from its source code. The agent uses Gradle to manage its builds and produce the `xray-agent.zip` artifact that is ultimately distributed with [releases](https://github.com/aws/aws-xray-java-agent/releases). You can build the agent distribution locally by running the following commands:
+If there are unreleased changes on the `main` branch that you'd like to try out early, you can build the agent from its source code. The agent uses Gradle to manage its builds and produce the `xray-agent.zip` artifact that is ultimately distributed with [releases](https://github.com/aws/aws-xray-java-agent/releases). You can build the agent distribution locally by running the following commands:
 
 ```bash
 git clone https://github.com/aws/aws-xray-java-agent.git
@@ -166,7 +166,7 @@ cd aws-xray-java-agent/
 ./gradlew build
 ```
 
-Now, the latest changes on master will be bundled into a ZIP file located at `aws-xray-agent-plugin/build/dist/xray-agent.zip`. This ZIP file is structured the same as the one described in the [installation documentation](https://docs.aws.amazon.com/xray/latest/devguide/aws-x-ray-auto-instrumentation-agent-for-java.html#XRayAutoInstrumentationAgent-GettingStarted), so you can follow those instructions using this artifact. For example, if you'd like to extract the X-Ray Agent JAR and its dependencies to use in your project, you could run the following commands:
+Now, the latest changes on `main` will be bundled into a ZIP file located at `aws-xray-agent-plugin/build/dist/xray-agent.zip`. This ZIP file is structured the same as the one described in the [installation documentation](https://docs.aws.amazon.com/xray/latest/devguide/aws-x-ray-auto-instrumentation-agent-for-java.html#XRayAutoInstrumentationAgent-GettingStarted), so you can follow those instructions using this artifact. For example, if you'd like to extract the X-Ray Agent JAR and its dependencies to use in your project, you could run the following commands:
 
 ```bash
 cd aws-xray-agent-plugin/build/dist/
