@@ -158,10 +158,20 @@ also contains no source code. It runs tests to compare the performance of the X-
 
 ### Building from Source
 
-Once you check out the code from GitHub, you can build it using Gradle. You can build the package locally by running the following command from the repository root:
+If there are unreleased changes on the `main` branch that you'd like to try out early, you can build the agent from its source code. The agent uses Gradle to manage its builds and produce the `xray-agent.zip` artifact that is ultimately distributed with [releases](https://github.com/aws/aws-xray-java-agent/releases). You can build the agent distribution locally by running the following commands:
 
+```bash
+git clone https://github.com/aws/aws-xray-java-agent.git
+cd aws-xray-java-agent/
+./gradlew build
 ```
-./gradlew publishToMavenLocal -x sign
+
+Now, the latest changes on `main` will be bundled into a ZIP file located at `aws-xray-agent-plugin/build/dist/xray-agent.zip`. This ZIP file is structured the same as the one described in the [installation documentation](https://docs.aws.amazon.com/xray/latest/devguide/aws-x-ray-auto-instrumentation-agent-for-java.html#XRayAutoInstrumentationAgent-GettingStarted), so you can follow those instructions using this artifact. For example, if you'd like to extract the X-Ray Agent JAR and its dependencies to use in your project, you could run the following commands:
+
+```bash
+cd aws-xray-agent-plugin/build/dist/
+unzip xray-agent.zip                 # Unpackages Agent JAR and disco dependencies into a disco directory
+cp -r disco /path/to/your/project    # Copies the disco directory for use in your project with the -javaagent argument
 ```
 
 ## Getting Help
