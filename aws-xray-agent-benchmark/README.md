@@ -50,7 +50,7 @@ amount of milliseconds to a request.
 | AWS SDK V2 Request       | +30 us              | +90 us               |
 | Apache HTTP Request      | +20 us              | +40 us               |
 
-You can  also take a look the [results directory](https://github.com/aws/aws-xray-java-agent/tree/master/aws-xray-agent-benchmark/results)
+You can  also take a look the [results directory](https://github.com/aws/aws-xray-java-agent/tree/main/aws-xray-agent-benchmark/results)
 for detailed benchmarking data from previous versions of the agent. Since we use an arbitrary delay to simulate the effect
 of a network, the *absolute* values of each individual benchmark are not particularly meaningful. The results are more
 useful when analyzed in context, that is comparing the times of the same scenario in all 3 modes, and noticing

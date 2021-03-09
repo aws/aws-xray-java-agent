@@ -16,7 +16,7 @@ import java.net.InetSocketAddress;
  * impact on benchmarking results.
  *
  * Adapted from the OpenTelemetry benchmarking strategy
- * https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/master/benchmark/src/jmh/java/io/opentelemetry/benchmark/classes/HttpClass.java
+ * https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/main/benchmark/src/jmh/java/io/opentelemetry/benchmark/classes/HttpClass.java
  */
 public final class SimpleJettyServer {
     private SimpleJettyServer() {

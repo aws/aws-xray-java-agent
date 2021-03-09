@@ -85,7 +85,7 @@ Agent and complemented with manual instrumentation by the X-Ray SDK.
 
 ## Performance impacts
 
-To get an idea of how much impact the X-Ray Agent might have on your system, please see the [benchmarking package](https://github.com/aws/aws-xray-java-agent/tree/master/aws-xray-agent-benchmark).
+To get an idea of how much impact the X-Ray Agent might have on your system, please see the [benchmarking package](https://github.com/aws/aws-xray-java-agent/tree/main/aws-xray-agent-benchmark).
 
 ## Customizing the Agent
 
@@ -140,20 +140,20 @@ For more troubleshooting steps, see the [official documentation](https://docs.aw
 This repository contains the X-Ray Agent as a DiSCo plugin. Note that this is NOT a proper Java agent with 
 a premain and bytecode manipulation. Rather it is a *plugin* to extend the functionality of a proper Java agent 
 like the one described. To learn more about DiSCo plugins and how they
-work with the DiSCo java agent, see the [DiSCo documentation](https://github.com/awslabs/disco/tree/master/disco-java-agent/disco-java-agent).
+work with the DiSCo java agent, see the [DiSCo documentation](https://github.com/awslabs/disco/tree/main/disco-java-agent/disco-java-agent).
 
 The layout of this project is:
 
-[`aws-xray-agent`](https://github.com/aws/aws-xray-java-agent/tree/master/aws-xray-agent) - The source code of the AWS
+[`aws-xray-agent`](https://github.com/aws/aws-xray-java-agent/tree/main/aws-xray-agent) - The source code of the AWS
 X-Ray agent plugin. This contains the hooks that allow our plugin to communicate with the DiSCo Agent. It is also where
 instrumentation using the X-Ray SDK happens.
 
-[`aws-xray-agent-plugin`](https://github.com/aws/aws-xray-java-agent/tree/master/aws-xray-agent-plugin) - This package
+[`aws-xray-agent-plugin`](https://github.com/aws/aws-xray-java-agent/tree/main/aws-xray-agent-plugin) - This package
 contains no source code. It only uses a series of build rules to bundle the above source code into a JAR that represents
 a DiSCo plugin, run integration tests against that JAR, then finally bundle that JAR and all needed DiSCo dependencies into
 an archive for the end user.
 
-[`aws-xray-agent-benchmark`](https://github.com/aws/aws-xray-java-agent/tree/master/aws-xray-agent-benchmark) - This package
+[`aws-xray-agent-benchmark`](https://github.com/aws/aws-xray-java-agent/tree/main/aws-xray-agent-benchmark) - This package
 also contains no source code. It runs tests to compare the performance of the X-Ray Agent and the X-Ray SDK.
 
 ### Building from Source
@@ -171,7 +171,7 @@ Please use these community resources for getting help.
 * If you think you may have found a bug or need assistance, please open an [issue](https://github.com/aws/aws-xray-java-agent/issues/new).
 * Open a support ticket with [AWS Support](http://docs.aws.amazon.com/awssupport/latest/user/getting-started.html).
 * Ask a question in the [AWS X-Ray Forum](https://forums.aws.amazon.com/forum.jspa?forumID=241&start=0).
-* For contributing guidelines refer to [CONTRIBUTING.md](https://github.com/aws/aws-xray-java-agent/blob/master/CONTRIBUTING.md).
+* For contributing guidelines refer to [CONTRIBUTING.md](https://github.com/aws/aws-xray-java-agent/blob/main/CONTRIBUTING.md).
 
 ## License
 
