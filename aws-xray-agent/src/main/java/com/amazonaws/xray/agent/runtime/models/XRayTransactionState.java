@@ -2,6 +2,10 @@ package com.amazonaws.xray.agent.runtime.models;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.sql.PreparedStatement;
+import java.util.Map;
+import java.util.WeakHashMap;
+
 /**
  * Contains state information for each logical request/response transaction event.
  *
@@ -18,6 +22,7 @@ public class XRayTransactionState {
     private String origin;
 
     private static String serviceName;
+    private static final Map<PreparedStatement, String> preparedStatementMap = new WeakHashMap<>();
 
     public XRayTransactionState withHost(String host) {
         this.host = host;
@@ -99,5 +104,9 @@ public class XRayTransactionState {
 
     public static String getServiceName() {
         return serviceName;
+    }
+
+    public static Map<PreparedStatement, String> getPreparedStatementMap() {
+        return preparedStatementMap;
     }
 }

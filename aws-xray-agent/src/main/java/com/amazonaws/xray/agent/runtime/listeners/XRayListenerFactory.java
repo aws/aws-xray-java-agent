@@ -6,6 +6,7 @@ import com.amazonaws.xray.agent.runtime.handlers.downstream.AWSHandler;
 import com.amazonaws.xray.agent.runtime.handlers.downstream.AWSV2Handler;
 import com.amazonaws.xray.agent.runtime.handlers.downstream.HttpClientHandler;
 import com.amazonaws.xray.agent.runtime.handlers.downstream.SqlHandler;
+import com.amazonaws.xray.agent.runtime.handlers.downstream.SqlPrepareHandler;
 import com.amazonaws.xray.agent.runtime.handlers.upstream.ServletHandler;
 import software.amazon.disco.agent.event.Listener;
 
@@ -22,6 +23,7 @@ public class XRayListenerFactory implements ListenerFactory {
     private static final String APACHE_HTTP_CLIENT_ORIGIN = "ApacheHttpClient";
     private static final String HTTP_SERVLET_ORIGIN = "httpServlet";
     private static final String SQL_ORIGIN = "SQL";
+    private static final String SQL_PREPARE_ORIGIN = "SqlPrepare";
 
     private static URL manifest;
     private static int configVersion;
@@ -46,6 +48,7 @@ public class XRayListenerFactory implements ListenerFactory {
         EventDispatcher downstreamEventDispatcher = new EventDispatcher();
         downstreamEventDispatcher.addHandler(APACHE_HTTP_CLIENT_ORIGIN, new HttpClientHandler());
         downstreamEventDispatcher.addHandler(SQL_ORIGIN, new SqlHandler());
+        downstreamEventDispatcher.addHandler(SQL_PREPARE_ORIGIN, new SqlPrepareHandler());
 
         if (configVersion == 1 && manifest != null) {
             downstreamEventDispatcher.addHandler(AWS_ORIGIN, new AWSHandler(manifest));
