@@ -3,10 +3,8 @@ package com.amazonaws.xray.agent.runtime.handlers.downstream;
 import com.amazonaws.xray.agent.runtime.handlers.XRayHandler;
 import com.amazonaws.xray.agent.runtime.models.XRayTransactionState;
 import software.amazon.disco.agent.event.Event;
-import software.amazon.disco.agent.event.ServiceDownstreamRequestEvent;
 import software.amazon.disco.agent.event.ServiceDownstreamResponseEvent;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 /**
