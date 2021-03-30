@@ -40,7 +40,7 @@ public class SqlHandler extends XRayHandler {
         // For example, if a driver's implementation of DatabaseMetaData.getUserName() uses executeQuery("SELECT USER")
         // to get the DB user, executeQuery would be intercepted by the Disco JDBC plugin, trigger this handler to
         // create subegment, and we'd call getUserName to populate that subsegment and so on.
-        if (incrementSqlTransactionCount() > 1 || event == null) {
+        if (incrementSqlTransactionCount() > 1) {
             return;
         }
 
@@ -76,7 +76,7 @@ public class SqlHandler extends XRayHandler {
     @Override
     public void handleResponse(Event event) {
         // If this SQL request is being ignored, we should also ignore the response
-        if (decrementSqlTransactionCount() > 0 || event == null) {
+        if (decrementSqlTransactionCount() > 0) {
             return;
         }
 
