@@ -33,6 +33,7 @@ public class SqlPrepareHandlerTest {
         responseEvent.withResponse(preparedStatementMock);
 
         handler.handleResponse(responseEvent);
-        assertThat(XRayTransactionState.getPreparedStatementMap()).containsEntry(preparedStatementMock, sql);
+        assertThat(XRayTransactionState.getPreparedStatementMap().containsKey(preparedStatementMock)).isTrue();
+        assertThat(XRayTransactionState.getPreparedStatementMap().get(preparedStatementMock)).isEqualTo(sql);
     }
 }

@@ -17,6 +17,7 @@ dependencies {
     implementation("software.amazon.disco:disco-java-agent-core")
     implementation("software.amazon.disco:disco-java-agent-web")
     implementation("software.amazon.disco:disco-java-agent-aws-api")
+    implementation("com.blogspot.mydailyjava:weak-lock-free:0.18")
 
     testImplementation("org.powermock:powermock-api-mockito2:2.0.7")
     testImplementation("org.powermock:powermock-module-junit4:2.0.7")
