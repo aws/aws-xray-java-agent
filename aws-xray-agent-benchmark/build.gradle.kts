@@ -23,6 +23,7 @@ dependencies {
     jmh("com.amazonaws:aws-xray-recorder-sdk-aws-sdk-v2")
     jmh("software.amazon.awssdk:dynamodb:2.15.76")
     jmh("com.amazonaws:aws-xray-recorder-sdk-apache-http")
+    jmh("com.blogspot.mydailyjava:weak-lock-free:0.18")
 
     jmh("org.apache.httpcomponents:httpclient:4.5.12")
     jmh("javax.servlet:javax.servlet-api:4.0.1")
