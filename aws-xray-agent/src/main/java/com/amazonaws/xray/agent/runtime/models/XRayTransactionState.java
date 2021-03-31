@@ -106,7 +106,11 @@ public class XRayTransactionState {
         return serviceName;
     }
 
-    public static WeakConcurrentMap<PreparedStatement, String> getPreparedStatementMap() {
-        return preparedStatementMap;
+    public static void putPreparedQuery(PreparedStatement ps, String query) {
+        preparedStatementMap.put(ps, query);
+    }
+
+    public static String getPreparedQuery(PreparedStatement ps) {
+        return preparedStatementMap.get(ps);
     }
 }

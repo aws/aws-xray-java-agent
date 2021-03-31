@@ -61,7 +61,7 @@ public class SqlHandler extends XRayHandler {
 
         // If the query string wasn't provided by current DiSCo event, check the preparedMap cache
         if (queryString == null && statement instanceof PreparedStatement) {
-            queryString = XRayTransactionState.getPreparedStatementMap().get((PreparedStatement) statement);
+            queryString = XRayTransactionState.getPreparedQuery((PreparedStatement) statement);
         }
 
         // If user opted-in to record their Queries, include them in the subsegment

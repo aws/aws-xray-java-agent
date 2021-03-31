@@ -35,8 +35,8 @@ public class SqlPrepareHandler extends XRayHandler {
             responseEvent.getOperation() != null &&
             responseEvent.getResponse() instanceof PreparedStatement)
         {
-            XRayTransactionState.getPreparedStatementMap()
-                    .put((PreparedStatement) responseEvent.getResponse(), responseEvent.getOperation());
+            XRayTransactionState
+                    .putPreparedQuery((PreparedStatement) responseEvent.getResponse(), responseEvent.getOperation());
         }
     }
 }
