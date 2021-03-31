@@ -3,6 +3,7 @@ package com.amazonaws.xray.agent.runtime.handlers.downstream;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.agent.runtime.config.XRaySDKConfiguration;
 import com.amazonaws.xray.agent.runtime.handlers.XRayHandler;
+import com.amazonaws.xray.agent.runtime.models.XRayTransactionState;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.sql.SqlSubsegments;
 import org.apache.commons.logging.Log;
@@ -13,6 +14,7 @@ import software.amazon.disco.agent.event.ServiceDownstreamRequestEvent;
 import software.amazon.disco.agent.event.ServiceDownstreamResponseEvent;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -44,6 +46,7 @@ public class SqlHandler extends XRayHandler {
 
         ServiceDownstreamRequestEvent requestEvent = (ServiceDownstreamRequestEvent) event;
         Statement statement = (Statement) requestEvent.getRequest();
+        String queryString = requestEvent.getOperation();
         boolean recordSql = XRaySDKConfiguration.getInstance().shouldCollectSqlQueries();
         final Connection connection;
 
@@ -56,8 +59,13 @@ public class SqlHandler extends XRayHandler {
             return;
         }
 
+        // If the query string wasn't provided by current DiSCo event, check the preparedMap cache
+        if (queryString == null && statement instanceof PreparedStatement) {
+            queryString = XRayTransactionState.getPreparedQuery((PreparedStatement) statement);
+        }
+
         // If user opted-in to record their Queries, include them in the subsegment
-        SqlSubsegments.forQuery(connection, recordSql ? requestEvent.getOperation() : null);
+        SqlSubsegments.forQuery(connection, recordSql ? queryString : null);
     }
 
     /**

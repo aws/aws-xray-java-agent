@@ -10,8 +10,9 @@ description = "AWS X-Ray Java Agent as a DiSCo Plugin"
 
 dependencies {
     // Runtime dependencies are those that we will pull in to create the X-Ray Agent Plugin jar
-    // We pull in the latest version of the X-Ray SDK and its transitives for use by the agent.
+    // We pull in the latest version of the X-Ray SDK, its transitives, and other runtime deps for use by the agent.
     runtimeOnly("com.amazonaws:aws-xray-recorder-sdk-core")
+    runtimeOnly("com.blogspot.mydailyjava:weak-lock-free:0.18")
 
     // Setting isTransitive to false ensures we do not pull in any transitive dependencies of these modules
     // and pollute our JAR with them

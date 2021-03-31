@@ -1,6 +1,9 @@
 package com.amazonaws.xray.agent.runtime.models;
 
+import com.blogspot.mydailyjava.weaklockfree.WeakConcurrentMap;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
+import java.sql.PreparedStatement;
 
 /**
  * Contains state information for each logical request/response transaction event.
@@ -18,6 +21,8 @@ public class XRayTransactionState {
     private String origin;
 
     private static String serviceName;
+    private static final WeakConcurrentMap<PreparedStatement, String> preparedStatementMap
+            = new WeakConcurrentMap.WithInlinedExpunction<>();
 
     public XRayTransactionState withHost(String host) {
         this.host = host;
@@ -99,5 +104,13 @@ public class XRayTransactionState {
 
     public static String getServiceName() {
         return serviceName;
+    }
+
+    public static void putPreparedQuery(PreparedStatement ps, String query) {
+        preparedStatementMap.put(ps, query);
+    }
+
+    public static String getPreparedQuery(PreparedStatement ps) {
+        return preparedStatementMap.get(ps);
     }
 }
