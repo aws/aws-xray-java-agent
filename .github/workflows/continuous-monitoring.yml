@@ -29,9 +29,9 @@ jobs:
             aws cloudwatch put-metric-data --metric-name XRayJavaAgentGithubDistributionUnavailability --dimensions failure=rate --namespace MonitorAgent --value 0 --timestamp $(date +%s)
           fi
           
-      - name: Pull Java agent from Github
+      - name: Pull Java agent from Maven
         id: distribution-availability-maven
-        run: wget https://github.com/aws/aws-xray-java-agent/releases/download/v2.8.0/xray-agent.zip
+        run: wget https://search.maven.org/artifact/com/amazonaws/aws-xray-agent-plugin/2.8.0/aws-xray-agent-plugin-2.8.0.jar
         
       - name: Publish metric on X-Ray Java agent distribution availability (Maven)
         if: ${{ always() }}
