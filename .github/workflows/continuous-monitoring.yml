@@ -18,7 +18,7 @@ jobs:
                  
       - name: Pull Java agent from Github
         id: distribution-availability-github
-        run: wget https://github.com/aws/aws-xray-java-agent/releases/download/v2.8.0/xray-agent.zip
+        run: wget https://github.com/aws/aws-xray-java-agent/releases/latest/download/xray-agent.zip
          
       - name: Publish metric on X-Ray Java agent distribution availability (Github)
         if: ${{ always() }}
