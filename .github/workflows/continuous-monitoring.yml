@@ -1,0 +1,49 @@
+name: Continuous monitoring of distribution channels
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 */1 * * *'
+
+jobs:
+  pull-agent:
+    name: Pull X-Ray java agent from Maven Central and Github
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+                 
+      - name: Pull Java agent from Github
+        id: distribution-availability-github
+        run: wget https://github.com/aws/aws-xray-java-agent/releases/latest/download/xray-agent.zip
+         
+      - name: Publish metric on X-Ray Java agent distribution availability (Github)
+        if: ${{ always() }}
+        run: |
+          if [[ "${{ steps.distribution-availability-github.outcome }}" == "failure" ]]; then
+            aws cloudwatch put-metric-data --metric-name XRayJavaAgentGithubDistributionUnavailability --dimensions failure=rate --namespace MonitorAgent --value 1 --timestamp $(date +%s)
+          else
+            aws cloudwatch put-metric-data --metric-name XRayJavaAgentGithubDistributionUnavailability --dimensions failure=rate --namespace MonitorAgent --value 0 --timestamp $(date +%s)
+          fi
+      
+      - name: Get Latest tag
+        id: latest_tag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      
+      - name: Pull Java agent from Maven
+        id: distribution-availability-maven
+        run: |
+          latest_tag=$(echo ${{ steps.latest_tag.outputs.tag }} | sed -e 's/v//')
+          wget https://repo.maven.apache.org/maven2/com/amazonaws/aws-xray-agent-plugin/$latest_tag/aws-xray-agent-plugin-$latest_tag.jar
+        
+      - name: Publish metric on X-Ray Java agent distribution availability (Maven)
+        if: ${{ always() }}
+        run: |
+          if [[ "${{ steps.distribution-availability-maven.outcome }}" == "failure" ]]; then
+            aws cloudwatch put-metric-data --metric-name XRayJavaAgentMavenDistributionUnavailability --dimensions failure=rate --namespace MonitorAgent --value 1 --timestamp $(date +%s)
+          else
+            aws cloudwatch put-metric-data --metric-name XRayJavaAgentMavenDistributionUnavailability --dimensions failure=rate --namespace MonitorAgent --value 0 --timestamp $(date +%s)
+          fi
