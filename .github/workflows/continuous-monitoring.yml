@@ -29,14 +29,14 @@ jobs:
             aws cloudwatch put-metric-data --metric-name XRayJavaAgentGithubDistributionUnavailability --dimensions failure=rate --namespace MonitorAgent --value 0 --timestamp $(date +%s)
           fi
       
-      - name: Get Latest tag
-        id: latest_tag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      - name: Gets latest created release info
+        id: latest_release_info
+        uses: jossef/action-latest-release-info@v1.1.0
       
       - name: Pull Java agent from Maven
         id: distribution-availability-maven
         run: |
-          latest_tag=$(echo ${{ steps.latest_tag.outputs.tag }} | sed -e 's/v//')
+          latest_tag=$(echo ${{ steps.latest_release_info.outputs.tag_name }} | sed -e 's/v//')
           wget https://repo.maven.apache.org/maven2/com/amazonaws/aws-xray-agent-plugin/$latest_tag/aws-xray-agent-plugin-$latest_tag.jar
         
       - name: Publish metric on X-Ray Java agent distribution availability (Maven)
