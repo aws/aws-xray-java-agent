@@ -9,6 +9,9 @@ jobs:
     name: Pull X-Ray java agent from Maven Central and Github
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout X-Ray Java agent repository
+        uses: actions/checkout@v2
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
