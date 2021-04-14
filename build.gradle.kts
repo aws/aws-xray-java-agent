@@ -19,7 +19,7 @@ val releaseTask = tasks.named("release")
 nexusPublishing {
     repositories {
         sonatype {
-            nexusUrl.set(uri("https://aws.oss.sonatype.org/service/local/"))
+            nexusUrl.set(uri("https://aws.oss.sonatype.org/service/local/staging/deploy/maven2/"))
             username.set(System.getenv("SONATYPE_USERNAME"))
             password.set(System.getenv("SONATYPE_PASSWORD"))
         }
@@ -176,15 +176,15 @@ subprojects {
                 }
             }
 
-            repositories {
-                maven {
-                    url = uri("https://aws.oss.sonatype.org/service/local/staging/deploy/maven2/")
-                    credentials {
-                        username = "${findProperty("aws.sonatype.username")}"
-                        password = "${findProperty("aws.sonatype.password")}"
-                    }
-                }
-            }
+//            repositories {
+//                maven {
+//                    url = uri("https://aws.oss.sonatype.org/service/local/staging/deploy/maven2/")
+//                    credentials {
+//                        username = "${findProperty("aws.sonatype.username")}"
+//                        password = "${findProperty("aws.sonatype.password")}"
+//                    }
+//                }
+//            }
         }
 
         tasks.withType<Sign>().configureEach {
