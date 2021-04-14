@@ -19,7 +19,7 @@ val releaseTask = tasks.named("release")
 nexusPublishing {
     repositories {
         sonatype {
-            nexusUrl.set(uri("https://aws.oss.sonatype.org/service/local/staging/deploy/maven2/"))
+            nexusUrl.set(uri("https://aws.oss.sonatype.org/service/local/"))
             username.set(System.getenv("SONATYPE_USERNAME"))
             password.set(System.getenv("SONATYPE_PASSWORD"))
         }
