@@ -31,7 +31,7 @@ nebulaRelease {
     addReleaseBranchPattern("auto-publishing")
 }
 
-subprojects {
+allprojects {
 //    version = "2.8.0"
     group = "com.amazonaws"
 
