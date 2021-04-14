@@ -1,14 +1,37 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+//import nebula.plugin.release.git.opinion.Strategies
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "5.2.0" apply false
+    id("com.github.johnrengelman.shadow") apply false
+    id("nebula.release")
+    id("io.github.gradle-nexus.publish-plugin")
 }
 
 // Expose DiSCo version to subprojects
 val discoVersion by extra("0.10.0")
 
+val releaseTask = tasks.named("release")
+
+//release {
+//    defaultVersionStrategy = Strategies.getSNAPSHOT()
+//}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://aws.oss.sonatype.org/service/local/"))
+            username.set(System.getenv("SONATYPE_USERNAME"))
+            password.set(System.getenv("SONATYPE_PASSWORD"))
+        }
+    }
+}
+
+nebulaRelease {
+    addReleaseBranchPattern("auto-publishing")
+}
+
 subprojects {
-    version = "2.8.0"
+//    version = "2.8.0"
     group = "com.amazonaws"
 
     repositories {
@@ -63,6 +86,14 @@ subprojects {
 
     plugins.withId("maven-publish") {
         plugins.apply("signing")
+
+        afterEvaluate {
+            val publishTask = tasks.named("publishToSonatype")
+
+            releaseTask.configure {
+                dependsOn(publishTask)
+            }
+        }
 
         // Disable publishing a bunch of unnecessary Gradle metadata files
         tasks.withType<GenerateModuleMetadata> {
@@ -156,8 +187,15 @@ subprojects {
             }
         }
 
+        tasks.withType<Sign>().configureEach {
+            onlyIf { System.getenv("CI") == "true" }
+        }
+
         configure<SigningExtension> {
-            useGpgCmd()
+            val signingKeyId = System.getenv("GPG_KEY_ID")
+            val signingKey = System.getenv("GPG_PRIVATE_KEY")
+            val signingPassword = System.getenv("GPG_PASSWORD")
+            useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
             sign(the<PublishingExtension>().publications["maven"])
         }
     }
