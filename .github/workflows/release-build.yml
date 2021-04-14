@@ -16,7 +16,7 @@ jobs:
           java-version: 11
       - uses: gradle/wrapper-validation-action@v1
 
-      - name: Build release with Gradle
+      - name: Publish release with Gradle
         uses: burrunan/gradle-cache-action@v1
         with:
           arguments: build final closeSonatypeStagingRepository -Prelease.version=${{ github.event.inputs.version }} --stacktrace

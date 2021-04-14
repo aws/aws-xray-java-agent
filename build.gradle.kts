@@ -27,6 +27,10 @@ nexusPublishing {
     }
 }
 
+nebulaRelease {
+    addReleaseBranchPattern("main")
+}
+
 allprojects {
 //    version = "2.8.0"
     group = "com.amazonaws"
