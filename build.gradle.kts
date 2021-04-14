@@ -1,5 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-//import nebula.plugin.release.git.opinion.Strategies
 
 plugins {
     id("com.github.johnrengelman.shadow") apply false
@@ -7,14 +6,11 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin")
 }
 
-// Expose DiSCo version to subprojects
+// Expose DiSCo & X-Ray SDK version to subprojects
 val discoVersion by extra("0.10.0")
+val xraySdkVersion by extra("2.8.0")
 
 val releaseTask = tasks.named("release")
-
-//release {
-//    defaultVersionStrategy = Strategies.getSNAPSHOT()
-//}
 
 nexusPublishing {
     repositories {
@@ -32,7 +28,6 @@ nebulaRelease {
 }
 
 allprojects {
-//    version = "2.8.0"
     group = "com.amazonaws"
 
     repositories {
@@ -68,7 +63,7 @@ allprojects {
 
         dependencies {
             // BOMs for common projects
-            add("implementation", platform("com.amazonaws:aws-xray-recorder-sdk-bom:2.8.0"))
+            add("implementation", platform("com.amazonaws:aws-xray-recorder-sdk-bom:${xraySdkVersion}"))
             add("implementation", platform("software.amazon.disco:disco-toolkit-bom:${discoVersion}"))
             add("implementation", platform("com.fasterxml.jackson:jackson-bom:2.11.0"))
             add("implementation", platform("com.amazonaws:aws-java-sdk-bom:1.11.949"))
@@ -176,16 +171,6 @@ allprojects {
                     }
                 }
             }
-
-//            repositories {
-//                maven {
-//                    url = uri("https://aws.oss.sonatype.org/service/local/staging/deploy/maven2/")
-//                    credentials {
-//                        username = "${findProperty("aws.sonatype.username")}"
-//                        password = "${findProperty("aws.sonatype.password")}"
-//                    }
-//                }
-//            }
         }
 
         tasks.withType<Sign>().configureEach {

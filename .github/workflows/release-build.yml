@@ -19,7 +19,7 @@ jobs:
       - name: Publish release with Gradle
         uses: burrunan/gradle-cache-action@v1
         with:
-          arguments: build final closeSonatypeStagingRepository -Prelease.version=${{ github.event.inputs.version }} --stacktrace
+          arguments: build final closeAndReleaseSonatypeStagingRepository -Prelease.version=${{ github.event.inputs.version }} --stacktrace
         env:
           CI: true
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
