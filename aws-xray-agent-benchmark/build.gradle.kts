@@ -34,7 +34,7 @@ dependencies {
     jmh("org.openjdk.jmh:jmh-generator-annprocess:${JMH_VERSION}")
     jmhAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:${JMH_VERSION}")
 
-    jmh(platform("com.amazonaws:aws-xray-recorder-sdk-bom:${version}"))
+    jmh(platform("com.amazonaws:aws-xray-recorder-sdk-bom:${rootProject.extra["xraySdkVersion"]}"))
 }
 
 // JMH plugin docs: https://github.com/melix/jmh-gradle-plugin
