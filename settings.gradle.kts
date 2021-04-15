@@ -5,6 +5,7 @@ pluginManagement {
         id("com.github.johnrengelman.shadow") version "5.2.0"
         id("nebula.release") version "15.1.0"
         id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
+        id("com.github.ben-manes.versions") version "0.38.0"
     }
 }
 

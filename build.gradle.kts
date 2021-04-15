@@ -1,9 +1,11 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     id("com.github.johnrengelman.shadow") apply false
     id("nebula.release")
     id("io.github.gradle-nexus.publish-plugin")
+    id("com.github.ben-manes.versions")
 }
 
 // Expose DiSCo & X-Ray SDK version to subprojects
@@ -25,6 +27,12 @@ nexusPublishing {
 
 nebulaRelease {
     addReleaseBranchPattern("main")
+}
+
+tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
+    checkForGradleUpdate = true
+    outputDir = "build/dependencyUpdates"
+    reportfileName = "report"
 }
 
 allprojects {
