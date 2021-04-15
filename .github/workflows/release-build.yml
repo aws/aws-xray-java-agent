@@ -39,7 +39,7 @@ jobs:
           tag_name: v${{ github.event.inputs.version }}
           release_name: Release ${{ github.event.inputs.version }}
           body: Releasing version ${{ github.event.inputs.version }} of the AWS X-Ray Auto-Instrumentation agent for Java. Download it below. Please see [CHANGELOG](https://github.com/aws/aws-xray-java-agent/blob/master/CHANGELOG.md) for details.
-          draft: true
+          draft: false
           prerelease: false
 
       - name: Upload Release Asset
