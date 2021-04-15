@@ -11,6 +11,8 @@ plugins {
 // Expose DiSCo & X-Ray SDK version to subprojects
 val discoVersion by extra("0.10.0")
 val xraySdkVersion by extra("2.8.0")
+val awsSdkV1Version by extra("1.11.949")
+val awsSdkV2Version by extra("2.15.76")
 
 val releaseTask = tasks.named("release")
 
@@ -74,8 +76,8 @@ allprojects {
             add("implementation", platform("com.amazonaws:aws-xray-recorder-sdk-bom:${xraySdkVersion}"))
             add("implementation", platform("software.amazon.disco:disco-toolkit-bom:${discoVersion}"))
             add("implementation", platform("com.fasterxml.jackson:jackson-bom:2.11.0"))
-            add("implementation", platform("com.amazonaws:aws-java-sdk-bom:1.11.949"))
-            add("implementation", platform("software.amazon.awssdk:bom:2.15.76"))
+            add("implementation", platform("com.amazonaws:aws-java-sdk-bom:${awsSdkV1Version}"))
+            add("implementation", platform("software.amazon.awssdk:bom:${awsSdkV2Version}"))
 
             // TODO: Add build step for running Null checker
             add("compileOnly", "org.checkerframework:checker-qual:3.4.1")
