@@ -19,9 +19,9 @@ dependencies {
     jmh("com.amazonaws:aws-xray-recorder-sdk-aws-sdk") {
         isTransitive = false  // Don't bring in all clients
     }
-    jmh("com.amazonaws:aws-java-sdk-dynamodb:1.11.949")
+    jmh("com.amazonaws:aws-java-sdk-dynamodb:${rootProject.extra["awsSdkV1Version"]}")
     jmh("com.amazonaws:aws-xray-recorder-sdk-aws-sdk-v2")
-    jmh("software.amazon.awssdk:dynamodb:2.15.76")
+    jmh("software.amazon.awssdk:dynamodb:${rootProject.extra["awsSdkV2Version"]}")
     jmh("com.amazonaws:aws-xray-recorder-sdk-apache-http")
     jmh("com.blogspot.mydailyjava:weak-lock-free:0.18")
 
