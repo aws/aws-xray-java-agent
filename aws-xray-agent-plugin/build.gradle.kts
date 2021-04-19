@@ -132,8 +132,9 @@ tasks {
         dependsOn("shadowJar")
         from("$buildDir/libs")
 
+        val regexSafeVersion: String = version.toString().replace("+", "\\+")
         include("aws-xray-agent-plugin-$version.jar")
-        rename("(.+)-$version(.+)", "$1$2")
+        rename("(.+)-$regexSafeVersion(.+)", "$1$2")
 
         into("$buildDir/libs/disco/disco-plugins")
     }
