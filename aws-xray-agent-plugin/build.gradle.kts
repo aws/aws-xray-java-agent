@@ -150,7 +150,7 @@ tasks {
                 }
 
         // Integration tests run on Windows and Unix in GitHub actions
-        jvmArgs("-javaagent:$buildDir/libs/disco/disco-java-agent.jar=pluginPath=$buildDir/libs/disco/disco-plugins",
+        jvmArgs("-javaagent:$buildDir/libs/disco/disco-java-agent.jar=pluginPath=$buildDir/libs/disco/disco-plugins:loggerfactory=software.amazon.disco.agent.reflect.logging.StandardOutputLoggerFactory",
                 "-Dcom.amazonaws.xray.strategy.tracingName=IntegTest")
 
         // Cannot run tests until agent and all plugins are available
