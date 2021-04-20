@@ -132,8 +132,9 @@ tasks {
         dependsOn("shadowJar")
         from("$buildDir/libs")
 
+        val regexSafeVersion: String = version.toString().replace("+", "\\+")
         include("aws-xray-agent-plugin-$version.jar")
-        rename("(.+)-$version(.+)", "$1$2")
+        rename("(.+)-$regexSafeVersion(.+)", "$1$2")
 
         into("$buildDir/libs/disco/disco-plugins")
     }
@@ -149,7 +150,7 @@ tasks {
                 }
 
         // Integration tests run on Windows and Unix in GitHub actions
-        jvmArgs("-javaagent:$buildDir/libs/disco/disco-java-agent.jar=pluginPath=$buildDir/libs/disco/disco-plugins",
+        jvmArgs("-javaagent:$buildDir/libs/disco/disco-java-agent.jar=pluginPath=$buildDir/libs/disco/disco-plugins:loggerfactory=software.amazon.disco.agent.reflect.logging.StandardOutputLoggerFactory",
                 "-Dcom.amazonaws.xray.strategy.tracingName=IntegTest")
 
         // Cannot run tests until agent and all plugins are available
