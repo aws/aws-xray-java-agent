@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.9.0 - 2021-04-27
+* Fixed trace ID injection for Spring Boot apps [PR #75](https://github.com/aws/aws-xray-java-agent/pull/75)
+* Added default Spring Boot config location [PR #77](https://github.com/aws/aws-xray-java-agent/pull/77)
+* Prefer `X-Forwarded-For` for Client IP [PR #79](https://github.com/aws/aws-xray-java-agent/pull/79)
+* Added capturing of SQL prepare events [PR #92](https://github.com/aws/aws-xray-java-agent/pull/92)
+
 ## 2.8.0 - 2020-11-25
 * Fixed NPE in Servlet Response Handler [PR #63](https://github.com/aws/aws-xray-java-agent/pull/63)
 * Fixed bug in parsing sampling decision from upstream header [PR #66](https://github.com/aws/aws-xray-java-agent/pull/66)
