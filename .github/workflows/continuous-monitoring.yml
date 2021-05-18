@@ -35,8 +35,9 @@ jobs:
       - name: Pull Java agent from Maven
         id: distribution-availability-maven
         run: |
-          version=$(git tag | sort -rV | head -1 | tr -d 'v')
-          wget https://repo.maven.apache.org/maven2/com/amazonaws/aws-xray-agent-plugin/$(version)/aws-xray-agent-plugin-$(version).jar
+          git fetch --prune --unshallow --tags
+          version=$(git tag -l | sort -rV | head -1 | tr -d 'v')
+          wget https://repo.maven.apache.org/maven2/com/amazonaws/aws-xray-agent-plugin/$version/aws-xray-agent-plugin-$version.jar
         
       - name: Publish metric on X-Ray Java agent distribution availability (Maven)
         if: ${{ always() }}
