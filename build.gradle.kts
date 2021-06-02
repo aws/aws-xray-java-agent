@@ -10,9 +10,9 @@ plugins {
 
 // Expose DiSCo & X-Ray SDK version to subprojects
 val discoVersion by extra("0.11.0")
-val xraySdkVersion by extra("2.9.0")
-val awsSdkV1Version by extra("1.11.1000")
-val awsSdkV2Version by extra("2.16.43")
+val xraySdkVersion by extra("2.9.1")
+val awsSdkV1Version by extra("1.11.1031")
+val awsSdkV2Version by extra("2.16.76")
 
 val releaseTask = tasks.named("release")
 
