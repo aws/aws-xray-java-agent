@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.9.1 - 2021-06-03
+* Updated dependencies to latest [PR #104](https://github.com/aws/aws-xray-java-agent/pull/104)
+
 ## 2.9.0 - 2021-04-27
 * Fixed trace ID injection for Spring Boot apps [PR #75](https://github.com/aws/aws-xray-java-agent/pull/75)
 * Added default Spring Boot config location [PR #77](https://github.com/aws/aws-xray-java-agent/pull/77)
