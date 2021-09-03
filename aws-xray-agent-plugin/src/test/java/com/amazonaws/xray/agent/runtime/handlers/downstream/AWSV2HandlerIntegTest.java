@@ -346,8 +346,6 @@ public class AWSV2HandlerIntegTest {
             Assert.assertEquals("1111-2222-3333-4444", awsStats.get("request_id"));
             Assert.assertEquals("extended", awsStats.get("id_2"));
             Assert.assertEquals("us-west-42", awsStats.get("region"));
-            // throttled requests are retried
-            Assert.assertEquals(3, awsStats.get("retries"));
             Assert.assertEquals(2L, httpResponseStats.get("content_length"));
             Assert.assertEquals(429, httpResponseStats.get("status"));
             Assert.assertEquals(true, subsegment.isError());
@@ -392,8 +390,6 @@ public class AWSV2HandlerIntegTest {
             Assert.assertEquals("1111-2222-3333-4444", awsStats.get("request_id"));
             Assert.assertEquals("extended", awsStats.get("id_2"));
             Assert.assertEquals("us-west-42", awsStats.get("region"));
-            // throttled requests are retried
-            Assert.assertEquals(3, awsStats.get("retries"));
             Assert.assertEquals(2L, httpResponseStats.get("content_length"));
             Assert.assertEquals(429, httpResponseStats.get("status"));
             Assert.assertEquals(true, subsegment.isError());
@@ -439,8 +435,6 @@ public class AWSV2HandlerIntegTest {
             Assert.assertEquals("1111-2222-3333-4444", awsStats.get("request_id"));
             Assert.assertEquals("extended", awsStats.get("id_2"));
             Assert.assertEquals("us-west-42", awsStats.get("region"));
-            // 500 exceptions are retried
-            Assert.assertEquals(3, awsStats.get("retries"));
             Assert.assertEquals(2L, httpResponseStats.get("content_length"));
             Assert.assertEquals(500, httpResponseStats.get("status"));
             Assert.assertEquals(false, subsegment.isError());
@@ -485,8 +479,6 @@ public class AWSV2HandlerIntegTest {
             Assert.assertEquals("1111-2222-3333-4444", awsStats.get("request_id"));
             Assert.assertEquals("extended", awsStats.get("id_2"));
             Assert.assertEquals("us-west-42", awsStats.get("region"));
-            // 500 exceptions are retried
-            Assert.assertEquals(3, awsStats.get("retries"));
             Assert.assertEquals(2L, httpResponseStats.get("content_length"));
             Assert.assertEquals(500, httpResponseStats.get("status"));
             Assert.assertEquals(false, subsegment.isError());
