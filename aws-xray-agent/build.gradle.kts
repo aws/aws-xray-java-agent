@@ -29,7 +29,7 @@ dependencies {
     // For reflective Trace ID injection tests
     testImplementation("com.amazonaws:aws-xray-recorder-sdk-log4j")
     testImplementation("com.amazonaws:aws-xray-recorder-sdk-slf4j")
-    testImplementation("org.apache.logging.log4j:log4j-api:2.13.3")
+    testImplementation("org.apache.logging.log4j:log4j-api:2.15.0")
     testImplementation("ch.qos.logback:logback-classic:1.3.0-alpha5")
 }
 
