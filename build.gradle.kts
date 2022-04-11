@@ -75,7 +75,7 @@ allprojects {
             // BOMs for common projects
             add("implementation", platform("com.amazonaws:aws-xray-recorder-sdk-bom:${xraySdkVersion}"))
             add("implementation", platform("software.amazon.disco:disco-toolkit-bom:${discoVersion}"))
-            add("implementation", platform("com.fasterxml.jackson:jackson-bom:2.11.0"))
+            add("implementation", platform("com.fasterxml.jackson:jackson-bom:2.13.2.20220328"))
             add("implementation", platform("com.amazonaws:aws-java-sdk-bom:${awsSdkV1Version}"))
             add("implementation", platform("software.amazon.awssdk:bom:${awsSdkV2Version}"))
 
