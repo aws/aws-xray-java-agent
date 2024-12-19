@@ -53,7 +53,7 @@ jobs:
         with:
           files: ./aws-xray-agent/build/reports/jacoco/test/jacocoTestReport.xml
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         if: ${{ matrix.coverage }}
         with:
           name: coverage-report
