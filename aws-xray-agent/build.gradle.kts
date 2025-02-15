@@ -45,7 +45,7 @@ jacoco {
 }
 tasks.jacocoTestReport {
     reports {
-        xml.isEnabled = true
-        html.isEnabled = true
+        xml.required = true
+        html.required = true
     }
 }
