@@ -118,16 +118,11 @@ public class AWSHandlerIntegTest {
     @Test
     public void testSQSSendMessage() {
         AmazonSQS sqs = (AmazonSQS) createTestableClient(AmazonSQSClientBuilder.standard()).build();
-        // XML acquired by intercepting a valid AWS SQS response.
-        String result = "<SendMessageResponse xmlns=\"http://queue.amazonaws.com/doc/2012-11-05/\">\n" +
-                "\t<SendMessageResult>\n" +
-                "\t\t<MessageId>de9e2f1b-aa00-43a6-84b8-b5379085c0f2</MessageId>\n" +
-                "\t\t<MD5OfMessageBody>c1ddd94da830e09533d058f67d4ef56a</MD5OfMessageBody>\n" +
-                "\t</SendMessageResult>\n" +
-                "\t<ResponseMetadata>\n" +
-                "\t\t<RequestId>41edd773-d43f-5493-b43b-814e965a23f1</RequestId>\n" +
-                "\t</ResponseMetadata>\n" +
-                "</SendMessageResponse>";
+        String result = "{" +
+            "\"MD5OfMessageAttributes\": \"c48838208d2b4e14e3ca0093a8443f09\"," +
+            "\"MD5OfMessageBody\": \"c1ddd94da830e09533d058f67d4ef56a\"," +
+            "\"MessageId\": \"de9e2f1b-aa00-43a6-84b8-b5379085c0f2\"" +
+        "}";
         mockHttpClient(sqs, result);
         sqs.sendMessage("https://sqs.us-west-2.amazonaws.com/123611858231/xray-queue", "Koo lai ahh");
 
@@ -141,7 +136,6 @@ public class AWSHandlerIntegTest {
         Map<String, Object> awsMap = currentSubsegment.getAws();
         assertEquals("SendMessage", awsMap.get("operation"));
         assertEquals("https://sqs.us-west-2.amazonaws.com/123611858231/xray-queue", awsMap.get("queue_url"));
-        assertEquals("41edd773-d43f-5493-b43b-814e965a23f1", awsMap.get("request_id"));
         assertEquals("de9e2f1b-aa00-43a6-84b8-b5379085c0f2", awsMap.get("message_id"));
         assertEquals("[]", awsMap.get("message_attribute_names").toString());
 
