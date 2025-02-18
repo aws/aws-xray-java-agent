@@ -71,6 +71,10 @@ public class AWSHandlerIntegTest {
         return apacheHttpClient;
     }
 
+    private MockHttpClient mockHttpClient(Object client, String responseContent) {
+        return mockHttpClient(client, responseContent, null);
+    }
+
     /**
      * Creates a testable AWS SDK client by adding fake credentials and a predetermined region.
      * @param builder The AWS SDK Builder for a given service
@@ -101,7 +105,7 @@ public class AWSHandlerIntegTest {
         AmazonDynamoDB client = (AmazonDynamoDB) createTestableClient(AmazonDynamoDBClientBuilder.standard()).build();
         // Acquired by intercepting the HTTP Request and copying the raw JSON.
         String result = "{\"TableNames\":[\"ATestTable\",\"dynamodb-user\",\"some_random_table\",\"scorekeep-game\",\"scorekeep-move\",\"scorekeep-session\",\"scorekeep-state\",\"scorekeep-user\"]}";
-        mockHttpClient(client, result, null);
+        mockHttpClient(client, result);
         client.listTables();
 
         assertEquals(1, currentSegment.getSubsegments().size());
@@ -159,7 +163,7 @@ public class AWSHandlerIntegTest {
                         "    <RequestId>03e28ac9-f5a1-599b-8b57-dcf4b3ef028d</RequestId>\n" +
                         "  </ResponseMetadata>\n" +
                         "</CreateTopicResponse>";
-        mockHttpClient(sns, result, null);
+        mockHttpClient(sns, result);
         sns.createTopic("testTopic");
 
         assertEquals(1, currentSegment.getSubsegments().size());
@@ -185,7 +189,7 @@ public class AWSHandlerIntegTest {
         // Though it's not as informative as an AWS subsegment, this still may provide some insight.
         AmazonS3 s3 = (AmazonS3) createTestableClient(AmazonS3ClientBuilder.standard()).build();
         String data = "testData";
-        mockHttpClient(s3, data, null);
+        mockHttpClient(s3, data);
         InputStream stream = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentLength(data.getBytes().length);
@@ -211,7 +215,7 @@ public class AWSHandlerIntegTest {
     public void testLambda() {
         // Setup test
         AWSLambda lambda = (AWSLambda) createTestableClient(AWSLambdaClientBuilder.standard()).build();
-        mockHttpClient(lambda, "null", null); // Lambda returns "null" on successful fn. with no return value
+        mockHttpClient(lambda, "null"); // Lambda returns "null" on successful fn. with no return value
 
         InvokeRequest request = new InvokeRequest();
         request.setFunctionName("testFunctionName");
@@ -228,7 +232,7 @@ public class AWSHandlerIntegTest {
     @Test
     public void testShouldNotTraceXRaySamplingOperations() {
         com.amazonaws.services.xray.AWSXRay xray = (com.amazonaws.services.xray.AWSXRay) createTestableClient(AWSXRayClientBuilder.standard()).build();
-        mockHttpClient(xray, null, null);
+        mockHttpClient(xray, null);
 
         xray.getSamplingRules(new GetSamplingRulesRequest());
         assertEquals(0, currentSegment.getSubsegments().size());
@@ -241,7 +245,7 @@ public class AWSHandlerIntegTest {
     public void testTraceHeaderPropagation() throws Exception {
         AmazonDynamoDB client = (AmazonDynamoDB) createTestableClient(AmazonDynamoDBClientBuilder.standard()).build();
         String result = "{\"TableNames\":[\"ATestTable\",\"dynamodb-user\",\"some_random_table\",\"scorekeep-game\",\"scorekeep-move\",\"scorekeep-session\",\"scorekeep-state\",\"scorekeep-user\"]}";
-        MockHttpClient httpClient = mockHttpClient(client, result, null);
+        MockHttpClient httpClient = mockHttpClient(client, result);
 
         client.listTables();
 
@@ -275,7 +279,7 @@ public class AWSHandlerIntegTest {
         // Ensure that the underlying HttpClient does not get instrumented
         AmazonDynamoDB client = (AmazonDynamoDB) createTestableClient(AmazonDynamoDBClientBuilder.standard()).build();
         String result = "{\"TableNames\":[\"ATestTable\",\"dynamodb-user\",\"some_random_table\",\"scorekeep-game\",\"scorekeep-move\",\"scorekeep-session\",\"scorekeep-state\",\"scorekeep-user\"]}";
-        mockHttpClient(client, result, null);
+        mockHttpClient(client, result);
         client.listTables();
 
         assertEquals(1, currentSegment.getSubsegments().size());
@@ -288,7 +292,7 @@ public class AWSHandlerIntegTest {
     public void testAwsClientFailure() {
         AmazonDynamoDB client = (AmazonDynamoDB) createTestableClient(AmazonDynamoDBClientBuilder.standard()).build();
         String result = null;
-        mockHttpClient(client, result, null);
+        mockHttpClient(client, result);
         AmazonHttpClient amazonHttpClient = mock(AmazonHttpClient.class);
         when(amazonHttpClient.execute(any(), any(), any(), any())).thenThrow(new SdkClientException("Fake timeout exception"));
         Whitebox.setInternalState(client, "client", amazonHttpClient);
@@ -319,7 +323,7 @@ public class AWSHandlerIntegTest {
     public void testAwsServiceFailure() {
         AmazonDynamoDB client = (AmazonDynamoDB) createTestableClient(AmazonDynamoDBClientBuilder.standard()).build();
         String result = null;
-        mockHttpClient(client, result, null);
+        mockHttpClient(client, result);
         AmazonHttpClient amazonHttpClient = mock(AmazonHttpClient.class);
         AmazonDynamoDBException myException = new AmazonDynamoDBException("Failed to get response from DynamoDB");
         myException.setServiceName("AmazonDynamoDBv2");
