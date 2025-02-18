@@ -38,7 +38,7 @@ import java.util.Optional;
 public class AWSV2Handler extends XRayHandler {
     private static final Log log = LogFactory.getLog(AWSV2Handler.class);
     private static final ObjectMapper mapper = new ObjectMapper()
-            .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
+            .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(JsonParser.Feature.ALLOW_COMMENTS, true);
     private static final URL DEFAULT_OPERATION_PARAMETER_WHITELIST = AWSV2Handler.class.getResource("/com/amazonaws/xray/interceptors/DefaultOperationParameterWhitelist.json");

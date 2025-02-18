@@ -27,10 +27,16 @@ import java.nio.charset.StandardCharsets;
  */
 public class MockHttpClient implements ConnectionManagerAwareHttpClient {
     private String responseContent;
+    private String responseRequestIdHeaderValue;
+
     private HttpUriRequest lastRequest; // Hacky way of spying on the last made request
 
     public void setResponseContent(String responseContent) {
         this.responseContent = responseContent;
+    }
+
+    public void setResponseRequestIdHeaderValue(String responseRequestId) {
+        this.responseRequestIdHeaderValue = responseRequestId;
     }
 
     public HttpUriRequest getLastRequest() {
@@ -68,6 +74,9 @@ public class MockHttpClient implements ConnectionManagerAwareHttpClient {
         }
         responseBody.setContent(in);
         httpResponse.setEntity(responseBody);
+        if (responseRequestIdHeaderValue != null) {
+            httpResponse.setHeader("x-amzn-RequestId", responseRequestIdHeaderValue);
+        }
         return httpResponse;
     }
 

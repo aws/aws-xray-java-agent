@@ -58,14 +58,21 @@ public class AWSHandlerIntegTest {
 
     // Adopted from the AWS X-Ray SDK for Java - AWS package unit test.
     // https://github.com/aws/aws-xray-sdk-java/blob/master/aws-xray-recorder-sdk-aws-sdk/src/test/java/com/amazonaws/xray/handlers/TracingHandlerTest.java#L61
-    private MockHttpClient mockHttpClient(Object client, String responseContent) {
+    private MockHttpClient mockHttpClient(Object client, String responseContent, String responseRequestId) {
         AmazonHttpClient amazonHttpClient = new AmazonHttpClient(new ClientConfiguration());
         MockHttpClient apacheHttpClient = new MockHttpClient();
         apacheHttpClient.setResponseContent(responseContent);
+        if (responseRequestId != null) {
+          apacheHttpClient.setResponseRequestIdHeaderValue(responseRequestId);
+        }
 
         Whitebox.setInternalState(amazonHttpClient, "httpClient", apacheHttpClient);
         Whitebox.setInternalState(client, "client", amazonHttpClient);
         return apacheHttpClient;
+    }
+
+    private MockHttpClient mockHttpClient(Object client, String responseContent) {
+        return mockHttpClient(client, responseContent, null);
     }
 
     /**
@@ -118,17 +125,12 @@ public class AWSHandlerIntegTest {
     @Test
     public void testSQSSendMessage() {
         AmazonSQS sqs = (AmazonSQS) createTestableClient(AmazonSQSClientBuilder.standard()).build();
-        // XML acquired by intercepting a valid AWS SQS response.
-        String result = "<SendMessageResponse xmlns=\"http://queue.amazonaws.com/doc/2012-11-05/\">\n" +
-                "\t<SendMessageResult>\n" +
-                "\t\t<MessageId>de9e2f1b-aa00-43a6-84b8-b5379085c0f2</MessageId>\n" +
-                "\t\t<MD5OfMessageBody>c1ddd94da830e09533d058f67d4ef56a</MD5OfMessageBody>\n" +
-                "\t</SendMessageResult>\n" +
-                "\t<ResponseMetadata>\n" +
-                "\t\t<RequestId>41edd773-d43f-5493-b43b-814e965a23f1</RequestId>\n" +
-                "\t</ResponseMetadata>\n" +
-                "</SendMessageResponse>";
-        mockHttpClient(sqs, result);
+        String result = "{" +
+            "\"MD5OfMessageAttributes\": \"c48838208d2b4e14e3ca0093a8443f09\"," +
+            "\"MD5OfMessageBody\": \"c1ddd94da830e09533d058f67d4ef56a\"," +
+            "\"MessageId\": \"de9e2f1b-aa00-43a6-84b8-b5379085c0f2\"" +
+        "}";
+        mockHttpClient(sqs, result, "41edd773-d43f-5493-b43b-814e965a23f1");
         sqs.sendMessage("https://sqs.us-west-2.amazonaws.com/123611858231/xray-queue", "Koo lai ahh");
 
         assertEquals(1, currentSegment.getSubsegments().size());
