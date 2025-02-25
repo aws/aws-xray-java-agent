@@ -12,7 +12,7 @@ plugins {
 val discoVersion by extra("0.13.0")
 val xraySdkVersion by extra("2.18.2")
 val awsSdkV1Version by extra("1.12.708")
-val awsSdkV2Version by extra("2.16.76")
+val awsSdkV2Version by extra("2.30.27")
 
 val releaseTask = tasks.named("release")
 
