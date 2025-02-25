@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.18.2 - 2025-02-26
+* Fixed a list of CVE violations [PR #123](https://github.com/aws/aws-xray-java-agent/pull/123)
+
 ## 2.9.1 - 2021-06-03
 * Updated dependencies to latest [PR #104](https://github.com/aws/aws-xray-java-agent/pull/104)
 
