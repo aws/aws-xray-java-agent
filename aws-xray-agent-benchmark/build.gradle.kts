@@ -1,8 +1,10 @@
+
 plugins {
-    id("me.champeau.gradle.jmh") version "0.5.0"
+    id("me.champeau.jmh") version "0.7.1"
 }
 
-val JMH_VERSION = "1.23"
+
+val JMH_VERSION = "1.37"
 
 sourceSets {
     named("jmh") {
@@ -63,7 +65,6 @@ jmh {
     }
 
     duplicateClassesStrategy = DuplicatesStrategy.EXCLUDE
-    isZip64 = true
 }
 
 // Need to have the disco directory assembled to run benchmarks with X-Ray agent
@@ -72,3 +73,11 @@ tasks.jmh {
         dependsOn(":aws-xray-agent-plugin:build")
     }
 }
+tasks.withType<Copy>().configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType<Jar>().configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
