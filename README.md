@@ -11,6 +11,19 @@ See the chart below for the current feature parity between the AWS X-Ray SDK and
 
 The X-Ray Java Agent is implemented using the [DiSCo library](https://github.com/awslabs/disco), a toolkit for building Java Agents in distributed environments.
 
+## :mega: Upcoming Maintenance Mode on February 25, 2026
+
+[The AWS X-Ray SDKs will enter maintenance mode on **`February 25, 2026`**][xray-sdk-daemon-timeline]. During maintenance mode, the X-Ray SDKs and Daemon will only receive critical bug fixes and security updates, and will not be updated to support new features.
+
+We recommend that you migrate to [AWS Distro for OpenTelemetry (ADOT) or OpenTelemetry Instrumentation][xray-otel-migration-docs] to generate traces (through manual or zero-code instrumentation) from your application and send them to AWS X-Ray. OpenTelemetry is the industry-wide standard for tracing instrumentation and observability. It has a large open-source community for support and provides more instrumentations and updates. By adopting an OpenTelemetry solution, developers can leverage the latest services and innovations from AWS CloudWatch.
+
+## :mega: End-of-Support on February 25, 2027
+
+[The AWS X-Ray SDKs will reach end-of-support on **`February 25, 2027`**][xray-sdk-daemon-timeline]. After end-of-support, the X-Ray SDKs will no longer receive updates or releases. Previously published releases of the X-Ray SDK Java Agent will continue to be available on GitHub and Maven Central, and the source code will remain on GitHub.
+
+[xray-otel-migration-docs]: https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-migration.html
+[xray-sdk-daemon-timeline]: https://docs.aws.amazon.com/xray/latest/devguide/xray-daemon-eos.html
+
 ## Compatibility Chart
 
 | *Feature*	| *X-Ray SDK*	| *X-Ray Agent* |
