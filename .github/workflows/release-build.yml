@@ -1,4 +1,6 @@
 name: Release X-Ray Java Agent
+permissions:
+  contents: write
 on:
   workflow_dispatch:
     inputs:
