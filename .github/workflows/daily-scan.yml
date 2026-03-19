@@ -59,6 +59,11 @@ jobs:
           # Download the released JAR from Maven Central
           wget https://repo.maven.apache.org/maven2/com/amazonaws/aws-xray-agent-plugin/$version/aws-xray-agent-plugin-$version.jar
           
+          # Copy JAR to scan-target/ for DependencyCheck — DC detects shaded
+          # dependencies via META-INF/maven/*/pom.xml inside the JAR archive.
+          mkdir -p scan-target
+          cp aws-xray-agent-plugin-$version.jar scan-target/
+          
           # Extract JAR contents for Trivy scanning
           mkdir -p released-artifact
           cd released-artifact
@@ -75,7 +80,7 @@ jobs:
           curl -Ls "https://github.com/dependency-check/DependencyCheck/releases/download/v$VERSION/dependency-check-$VERSION-release.zip.asc" --output dependency-check.zip.asc
           gpg --verify dependency-check.zip.asc
           unzip dependency-check.zip
-          ./dependency-check/bin/dependency-check.sh --failOnCVSS 0 --nvdApiKey ${{ env.NVD_API_KEY_NVD_API_KEY }} --ossIndexUsername ${{ env.OSS_INDEX_USERNAME }} --ossIndexPassword ${{ env.OSS_INDEX_PASSWORD }} -s "."
+          ./dependency-check/bin/dependency-check.sh --failOnCVSS 0 --nvdApiKey ${{ env.NVD_API_KEY_NVD_API_KEY }} --ossIndexUsername ${{ env.OSS_INDEX_USERNAME }} --ossIndexPassword ${{ env.OSS_INDEX_PASSWORD }} -s "scan-target/"
 
       - name: Print dependency scan results on failure
         if: ${{ steps.dep_scan.outcome != 'success' }}
