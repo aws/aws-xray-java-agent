@@ -12,7 +12,7 @@ plugins {
 val discoVersion by extra("0.13.0")
 val xraySdkVersion by extra("2.18.2")
 val awsSdkV1Version by extra("1.12.708")
-val awsSdkV2Version by extra("2.30.27")
+val awsSdkV2Version by extra("2.30.31")
 
 val releaseTask = tasks.named("release")
 
@@ -75,7 +75,7 @@ allprojects {
             // BOMs for common projects
             add("implementation", platform("com.amazonaws:aws-xray-recorder-sdk-bom:${xraySdkVersion}"))
             add("implementation", platform("software.amazon.disco:disco-toolkit-bom:${discoVersion}"))
-            add("implementation", platform("com.fasterxml.jackson:jackson-bom:2.18.2"))
+            add("implementation", platform("com.fasterxml.jackson:jackson-bom:2.18.6"))
             add("implementation", platform("com.amazonaws:aws-java-sdk-bom:${awsSdkV1Version}"))
             add("implementation", platform("software.amazon.awssdk:bom:${awsSdkV2Version}"))
 

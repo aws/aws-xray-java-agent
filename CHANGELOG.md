@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.18.3 - 2026-04-09
+* Updated Jackson BOM from 2.18.2 to 2.18.6 to fix CVE-2025-52999, CVE-2025-49128, and GHSA-72hv-8253-57qq
+* Updated AWS SDK v2 from 2.30.27 to 2.30.31
+* Added Trivy and DependencyCheck suppressions for false-positive CVEs from AWS SDK v1 embedded POM metadata
+
 ## 2.18.2 - 2025-02-26
 * Fixed a list of CVE violations [PR #123](https://github.com/aws/aws-xray-java-agent/pull/123)
 
