@@ -53,6 +53,7 @@ dependencies {
     testImplementation("com.amazonaws:aws-java-sdk-s3")
     testImplementation("com.amazonaws:aws-java-sdk-sqs")
     testImplementation("com.amazonaws:aws-java-sdk-sns")
+    testImplementation("com.amazonaws:aws-java-sdk-xray")
     testImplementation("software.amazon.awssdk:dynamodb")
     testImplementation("software.amazon.awssdk:lambda")
     testImplementation("software.amazon.awssdk:s3")
