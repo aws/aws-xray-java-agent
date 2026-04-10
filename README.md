@@ -79,7 +79,7 @@ To depend on the agent from your project, just add these dependencies:
     <dependency>
         <groupId>com.amazonaws</groupId>
         <artifactId>aws-xray-agent-plugin</artifactId>
-        <version>2.9.1</version>
+        <version>2.21.0</version>
     </dependency>
 </dependencies>
 ```
