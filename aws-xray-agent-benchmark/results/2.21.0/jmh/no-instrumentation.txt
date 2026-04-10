@@ -1,0 +1,51 @@
+Benchmark                                          Mode   Cnt  Score    Error   Units
+AwsSdkBenchmark.awsV1Request                      thrpt     5  0.426 ±  0.016  ops/ms
+AwsSdkBenchmark.awsV2Request                      thrpt     5  0.411 ±  0.030  ops/ms
+HttpDownstreamBenchmark.makeHttpRequest           thrpt     5  0.428 ±  0.010  ops/ms
+ServletBenchmark.serviceRequest                   thrpt     5  0.483 ±  0.001  ops/ms
+SqlBenchmark.sqlQuery                             thrpt     5  0.485 ±  0.001  ops/ms
+AwsSdkBenchmark.awsV1Request                     sample  2132  2.346 ±  0.008   ms/op
+AwsSdkBenchmark.awsV1Request:p0.00               sample        2.261            ms/op
+AwsSdkBenchmark.awsV1Request:p0.50               sample        2.335            ms/op
+AwsSdkBenchmark.awsV1Request:p0.90               sample        2.384            ms/op
+AwsSdkBenchmark.awsV1Request:p0.95               sample        2.417            ms/op
+AwsSdkBenchmark.awsV1Request:p0.99               sample        2.481            ms/op
+AwsSdkBenchmark.awsV1Request:p0.999              sample        2.765            ms/op
+AwsSdkBenchmark.awsV1Request:p0.9999             sample        7.291            ms/op
+AwsSdkBenchmark.awsV1Request:p1.00               sample        7.291            ms/op
+AwsSdkBenchmark.awsV2Request                     sample  2052  2.435 ±  0.006   ms/op
+AwsSdkBenchmark.awsV2Request:p0.00               sample        2.367            ms/op
+AwsSdkBenchmark.awsV2Request:p0.50               sample        2.408            ms/op
+AwsSdkBenchmark.awsV2Request:p0.90               sample        2.515            ms/op
+AwsSdkBenchmark.awsV2Request:p0.95               sample        2.545            ms/op
+AwsSdkBenchmark.awsV2Request:p0.99               sample        2.675            ms/op
+AwsSdkBenchmark.awsV2Request:p0.999              sample        3.189            ms/op
+AwsSdkBenchmark.awsV2Request:p0.9999             sample        4.358            ms/op
+AwsSdkBenchmark.awsV2Request:p1.00               sample        4.358            ms/op
+HttpDownstreamBenchmark.makeHttpRequest          sample  2148  2.328 ±  0.011   ms/op
+HttpDownstreamBenchmark.makeHttpRequest:p0.00    sample        2.249            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:p0.50    sample        2.322            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:p0.90    sample        2.355            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:p0.95    sample        2.372            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:p0.99    sample        2.425            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:p0.999   sample        2.668            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:p0.9999  sample        9.650            ms/op
+HttpDownstreamBenchmark.makeHttpRequest:p1.00    sample        9.650            ms/op
+ServletBenchmark.serviceRequest                  sample  2416  2.070 ±  0.001   ms/op
+ServletBenchmark.serviceRequest:p0.00            sample        2.048            ms/op
+ServletBenchmark.serviceRequest:p0.50            sample        2.068            ms/op
+ServletBenchmark.serviceRequest:p0.90            sample        2.073            ms/op
+ServletBenchmark.serviceRequest:p0.95            sample        2.075            ms/op
+ServletBenchmark.serviceRequest:p0.99            sample        2.093            ms/op
+ServletBenchmark.serviceRequest:p0.999           sample        2.127            ms/op
+ServletBenchmark.serviceRequest:p0.9999          sample        2.241            ms/op
+ServletBenchmark.serviceRequest:p1.00            sample        2.241            ms/op
+SqlBenchmark.sqlQuery                            sample  2424  2.063 ±  0.001   ms/op
+SqlBenchmark.sqlQuery:p0.00                      sample        2.058            ms/op
+SqlBenchmark.sqlQuery:p0.50                      sample        2.062            ms/op
+SqlBenchmark.sqlQuery:p0.90                      sample        2.066            ms/op
+SqlBenchmark.sqlQuery:p0.95                      sample        2.068            ms/op
+SqlBenchmark.sqlQuery:p0.99                      sample        2.091            ms/op
+SqlBenchmark.sqlQuery:p0.999                     sample        2.129            ms/op
+SqlBenchmark.sqlQuery:p0.9999                    sample        2.154            ms/op
+SqlBenchmark.sqlQuery:p1.00                      sample        2.154            ms/op
