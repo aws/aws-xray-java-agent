@@ -9,7 +9,7 @@ on:
         required: true
   push:
     branches:
-      - release-test
+      - release-1.0.x
 
 jobs:
   publish:
