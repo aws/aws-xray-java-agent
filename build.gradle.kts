@@ -21,8 +21,8 @@ nexusPublishing {
         sonatype {
             nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
             snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
-            username.set(System.getenv("SONATYPE_USERNAME"))
-            password.set(System.getenv("SONATYPE_PASSWORD"))
+            username.set(System.getenv("SONATYPE_USERNAME_TEST"))
+            password.set(System.getenv("SONATYPE_PASSWORD_TEST"))
         }
     }
 }
@@ -38,7 +38,7 @@ tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
 }
 
 allprojects {
-    group = "com.amazonaws"
+    group = "com.sonatype.central.testing.amazon"
 
     repositories {
         mavenCentral()
