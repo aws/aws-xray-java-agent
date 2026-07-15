@@ -56,7 +56,7 @@ To depend on the agent from your project, just add these dependencies:
     <dependency>
         <groupId>software.amazon.disco</groupId>
         <artifactId>disco-toolkit-bom</artifactId>
-        <version>0.11.0</version>
+        <version>0.13.0</version>
         <type>pom</type>
         <scope>import</scope>
     </dependency>
@@ -79,7 +79,7 @@ To depend on the agent from your project, just add these dependencies:
     <dependency>
         <groupId>com.amazonaws</groupId>
         <artifactId>aws-xray-agent-plugin</artifactId>
-        <version>2.21.0</version>
+        <version>2.21.1</version>
     </dependency>
 </dependencies>
 ```
