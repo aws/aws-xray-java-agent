@@ -1,6 +1,6 @@
 # Change Log
 
-## 2.21.2 - YYYY-MM-DD
+## 2.21.2 - 2026-11-04
 * Updated Jackson BOM from 2.18.8 to 2.18.11 to address CVE-2026-89407, CVE-2026-89425, CVE-2026-68497, CVE-2026-91776 and CVE-2026-91777 [PR #145](https://github.com/aws/aws-xray-java-agent/pull/145)
 * Updated X-Ray SDK from 2.21.0 to 2.21.2 [PR #147](https://github.com/aws/aws-xray-java-agent/pull/147)
 * Updated AWS SDK v2 from 2.48.0 to 2.57.8 [PR #147](https://github.com/aws/aws-xray-java-agent/pull/147)
